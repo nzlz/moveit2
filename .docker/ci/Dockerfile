@@ -38,10 +38,10 @@ RUN \
     #
     # Download all dependencies of MoveIt2!
     wget https://raw.githubusercontent.com/AcutronicRobotics/moveit2/master/external-repos.repos \
-    && vcs import src < external-repos.repos
+    && vcs import src < external-repos.repos \
 
     # Clear apt-cache to reduce image size
-    rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 # Continous Integration Setting
 ENV IN_DOCKER 1
