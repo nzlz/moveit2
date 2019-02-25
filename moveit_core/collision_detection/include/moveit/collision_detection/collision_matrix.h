@@ -70,7 +70,8 @@ enum Type
 
 /** \brief Signature of predicate that decides whether a contact is allowed or not (when AllowedCollision::Type is
  * CONDITIONAL) */
-typedef boost::function<bool(collision_detection::Contact&)> DecideContactFn;
+typedef boost::function<bool(collision_detection::Contact&)> DecideContactFn; /* suggesting a change here*/
+  
 
 MOVEIT_CLASS_FORWARD(AllowedCollisionMatrix);
 
