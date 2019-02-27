@@ -145,7 +145,7 @@ public:
   };
 
   void createCollisionModelMarker(const moveit::core::RobotState& state,
-                                  visualization_msgs::MarkerArray& model_markers) const;
+                                  visualization_msgs::msg::MarkerArray& model_markers) const;
 
   virtual double distanceSelf(const moveit::core::RobotState& state) const
   {

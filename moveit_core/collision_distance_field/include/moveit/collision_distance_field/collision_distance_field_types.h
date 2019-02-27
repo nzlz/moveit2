@@ -51,7 +51,7 @@
 #include <moveit/macros/class_forward.h>
 #include <moveit/distance_field/distance_field.h>
 #include <moveit/distance_field/propagation_distance_field.h>
-#include <visualization_msgs/MarkerArray.h>
+#include <visualization_msgs/msg/marker_array.hpp>
 #include <ros/console.h>
 
 namespace collision_detection
@@ -509,20 +509,20 @@ struct ProximityInfo
 bool doBoundingSpheresIntersect(const PosedBodySphereDecompositionConstPtr& p1,
                                 const PosedBodySphereDecompositionConstPtr& p2);
 
-void getCollisionSphereMarkers(const std_msgs::ColorRGBA& color, const std::string& frame_id, const std::string& ns,
+void getCollisionSphereMarkers(const std_msgs::msg::ColorRGBA& color, const std::string& frame_id, const std::string& ns,
                                const ros::Duration& dur,
                                const std::vector<PosedBodySphereDecompositionPtr>& posed_decompositions,
-                               visualization_msgs::MarkerArray& arr);
+                               visualization_msgs::msg::MarkerArray& arr);
 
 void getProximityGradientMarkers(const std::string& frame_id, const std::string& ns, const ros::Duration& dur,
                                  const std::vector<PosedBodySphereDecompositionPtr>& posed_decompositions,
                                  const std::vector<PosedBodySphereDecompositionVectorPtr>& posed_vector_decompositions,
-                                 const std::vector<GradientInfo>& gradients, visualization_msgs::MarkerArray& arr);
+                                 const std::vector<GradientInfo>& gradients, visualization_msgs::msg::MarkerArray& arr);
 
 void getCollisionMarkers(const std::string& frame_id, const std::string& ns, const ros::Duration& dur,
                          const std::vector<PosedBodySphereDecompositionPtr>& posed_decompositions,
                          const std::vector<PosedBodySphereDecompositionVectorPtr>& posed_vector_decompositions,
-                         const std::vector<GradientInfo>& gradients, visualization_msgs::MarkerArray& arr);
+                         const std::vector<GradientInfo>& gradients, visualization_msgs::msg::MarkerArray& arr);
 }
 
 #endif

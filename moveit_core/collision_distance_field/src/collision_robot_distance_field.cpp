@@ -970,29 +970,29 @@ void CollisionRobotDistanceField::addLinkBodyDecompositions(double resolution)
 }
 
 void CollisionRobotDistanceField::createCollisionModelMarker(const moveit::core::RobotState& state,
-                                                             visualization_msgs::MarkerArray& model_markers) const
+                                                             visualizationMarkerArray& model_markers) const
 {
   // creating colors
-  std_msgs::ColorRGBA robot_color;
+  std_msgs::msg::ColorRGBA robot_color;
   robot_color.r = 0;
   robot_color.b = 0.8f;
   robot_color.g = 0;
   robot_color.a = 0.5;
 
-  std_msgs::ColorRGBA world_links_color;
+  std_msgs::msg::ColorRGBA world_links_color;
   world_links_color.r = 1;
   world_links_color.g = 1;
   world_links_color.b = 0;
   world_links_color.a = 0.5;
 
   // creating sphere marker
-  visualization_msgs::Marker sphere_marker;
+  visualization_msgs::msg::Marker sphere_marker;
   sphere_marker.header.frame_id = robot_model_->getRootLinkName();
   sphere_marker.header.stamp = ros::Time(0);
   sphere_marker.ns = distance_field_cache_entry_->group_name_ + "_sphere_decomposition";
   sphere_marker.id = 0;
-  sphere_marker.type = visualization_msgs::Marker::SPHERE;
-  sphere_marker.action = visualization_msgs::Marker::ADD;
+  sphere_marker.type = visualization_msgs::msg::Marker::SPHERE;
+  sphere_marker.action = visualization_msgs::msg::Marker::ADD;
   sphere_marker.pose.orientation.x = 0;
   sphere_marker.pose.orientation.y = 0;
   sphere_marker.pose.orientation.z = 0;

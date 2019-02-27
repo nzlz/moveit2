@@ -129,33 +129,33 @@ PosedBodyPointDecompositionVectorPtr getAttachedBodyPointDecomposition(const rob
 }
 
 void getBodySphereVisualizationMarkers(GroupStateRepresentationConstPtr& gsr, std::string reference_frame,
-                                       visualization_msgs::MarkerArray& body_marker_array)
+                                       visualization_msgs::msg::MarkerArray& body_marker_array)
 {
   // creating namespaces
   std::string robot_ns = gsr->dfce_->group_name_ + "_sphere_decomposition";
   std::string attached_ns = "attached_sphere_decomposition";
 
   // creating colors
-  std_msgs::ColorRGBA robot_color;
+  std_msgs::msg::ColorRGBA robot_color;
   robot_color.r = 0;
   robot_color.b = 0.8f;
   robot_color.g = 0;
   robot_color.a = 0.5;
 
-  std_msgs::ColorRGBA attached_color;
+  std_msgs::msg::ColorRGBA attached_color;
   attached_color.r = 1;
   attached_color.g = 1;
   attached_color.b = 0;
   attached_color.a = 0.5;
 
   // creating sphere marker
-  visualization_msgs::Marker sphere_marker;
+  visualization_msgs::msg::Marker sphere_marker;
   sphere_marker.header.frame_id = reference_frame;
   sphere_marker.header.stamp = ros::Time(0);
   sphere_marker.ns = robot_ns;
   sphere_marker.id = 0;
-  sphere_marker.type = visualization_msgs::Marker::SPHERE;
-  sphere_marker.action = visualization_msgs::Marker::ADD;
+  sphere_marker.type = visualization_msgs::msg::Marker::SPHERE;
+  sphere_marker.action = visualization_msgs::msg::Marker::ADD;
   sphere_marker.pose.orientation.x = 0;
   sphere_marker.pose.orientation.y = 0;
   sphere_marker.pose.orientation.z = 0;

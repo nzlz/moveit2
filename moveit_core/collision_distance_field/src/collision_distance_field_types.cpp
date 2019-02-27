@@ -410,8 +410,8 @@ bool collision_detection::doBoundingSpheresIntersect(const PosedBodySphereDecomp
 }
 
 void collision_detection::getCollisionSphereMarkers(
-    const std_msgs::ColorRGBA& color, const std::string& frame_id, const std::string& ns, const ros::Duration& dur,
-    const std::vector<PosedBodySphereDecompositionPtr>& posed_decompositions, visualization_msgs::MarkerArray& arr)
+    const std_msgs::msg::ColorRGBA& color, const std::string& frame_id, const std::string& ns, const ros::Duration& dur,
+    const std::vector<PosedBodySphereDecompositionPtr>& posed_decompositions, visualization_msgs::msg::MarkerArray& arr)
 {
   unsigned int count = 0;
   for (unsigned int i = 0; i < posed_decompositions.size(); i++)
@@ -420,8 +420,8 @@ void collision_detection::getCollisionSphereMarkers(
     {
       for (unsigned int j = 0; j < posed_decompositions[i]->getCollisionSpheres().size(); j++)
       {
-        visualization_msgs::Marker sphere;
-        sphere.type = visualization_msgs::Marker::SPHERE;
+        visualization_msgs::msg::Marker sphere;
+        sphere.type = visualization_msgs::msg::Marker::SPHERE;
         sphere.header.stamp = ros::Time::now();
         sphere.header.frame_id = frame_id;
         sphere.ns = ns;
@@ -443,7 +443,7 @@ void collision_detection::getProximityGradientMarkers(
     const std::string& frame_id, const std::string& ns, const ros::Duration& dur,
     const std::vector<PosedBodySphereDecompositionPtr>& posed_decompositions,
     const std::vector<PosedBodySphereDecompositionVectorPtr>& posed_vector_decompositions,
-    const std::vector<GradientInfo>& gradients, visualization_msgs::MarkerArray& arr)
+    const std::vector<GradientInfo>& gradients, visualization_msgs::msg::MarkerArray& arr)
 {
   if (gradients.size() != posed_decompositions.size() + posed_vector_decompositions.size())
   {
@@ -456,7 +456,7 @@ void collision_detection::getProximityGradientMarkers(
   {
     for (unsigned int j = 0; j < gradients[i].distances.size(); j++)
     {
-      visualization_msgs::Marker arrow_mark;
+      visualization_msgs::msg::Marker arrow_mark;
       arrow_mark.header.frame_id = frame_id;
       arrow_mark.header.stamp = ros::Time::now();
       if (ns.empty())
@@ -546,7 +546,7 @@ void collision_detection::getCollisionMarkers(
     const std::string& frame_id, const std::string& ns, const ros::Duration& dur,
     const std::vector<PosedBodySphereDecompositionPtr>& posed_decompositions,
     const std::vector<PosedBodySphereDecompositionVectorPtr>& posed_vector_decompositions,
-    const std::vector<GradientInfo>& gradients, visualization_msgs::MarkerArray& arr)
+    const std::vector<GradientInfo>& gradients, visualization_msgs::msg::MarkerArray& arr)
 {
   if (gradients.size() != posed_decompositions.size() + posed_vector_decompositions.size())
   {
@@ -558,8 +558,8 @@ void collision_detection::getCollisionMarkers(
   {
     for (unsigned int j = 0; j < gradients[i].types.size(); j++)
     {
-      visualization_msgs::Marker sphere_mark;
-      sphere_mark.type = visualization_msgs::Marker::SPHERE;
+      visualization_msgs::msg::Marker sphere_mark;
+      sphere_mark.type = visualization_msgs::msg::Marker::SPHERE;
       sphere_mark.header.frame_id = frame_id;
       sphere_mark.header.stamp = ros::Time::now();
       if (ns.empty())
