@@ -38,7 +38,6 @@
 #include <geometric_shapes/body_operations.h>
 #include <moveit/distance_field/distance_field.h>
 #include <moveit/distance_field/find_internal_points.h>
-#include <ros/console.h>
 #include <memory>
 
 const static double EPSILON = 0.0001;

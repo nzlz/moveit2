@@ -38,7 +38,6 @@
 #include <moveit/collision_distance_field/collision_robot_distance_field.h>
 #include <moveit/collision_distance_field/collision_common_distance_field.h>
 #include <moveit/distance_field/propagation_distance_field.h>
-#include <ros/console.h>
 #include <ros/assert.h>
 #include <tf2_eigen/tf2_eigen.h>
 

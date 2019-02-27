@@ -52,7 +52,6 @@
 #include <moveit/distance_field/distance_field.h>
 #include <moveit/distance_field/propagation_distance_field.h>
 #include <visualization_msgs/msg/marker_array.hpp>
-#include <ros/console.h>
 
 namespace collision_detection
 {

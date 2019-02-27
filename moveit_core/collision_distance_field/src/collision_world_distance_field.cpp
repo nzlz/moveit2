@@ -34,7 +34,6 @@
 
 /* Author: E. Gil Jones */
 
-#include <ros/console.h>
 #include <moveit/collision_distance_field/collision_world_distance_field.h>
 #include <moveit/collision_distance_field/collision_common_distance_field.h>
 #include <moveit/distance_field/propagation_distance_field.h>
