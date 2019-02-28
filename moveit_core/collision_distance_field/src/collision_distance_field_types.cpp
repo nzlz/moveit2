@@ -43,7 +43,7 @@
 const static double EPSILON = 0.0001;
 
 std::vector<collision_detection::CollisionSphere>
-collision_detection::determineCollisionSpheres(const bodies::Body* body, Eigen::Isometry3d& relative_transform)
+collision_detection::determineCollisionSpheres(const bodies::Body* body, Eigen::Affine3d& relative_transform)
 {
   std::vector<collision_detection::CollisionSphere> css;
 
@@ -144,7 +144,7 @@ bool collision_detection::getCollisionSphereGradients(const distance_field::Dist
     double dist = distance_field->getDistanceGradient(p.x(), p.y(), p.z(), grad.x(), grad.y(), grad.z(), in_bounds);
     if (!in_bounds && grad.norm() > EPSILON)
     {
-      ROS_DEBUG("Collision sphere point is out of bounds %lf, %lf, %lf", p.x(), p.y(), p.z());
+      RCLCPP_DEBUG(logger, "Collision sphere point is out of bounds %lf, %lf, %lf", p.x(), p.y(), p.z());
       return true;
     }
 
@@ -202,7 +202,7 @@ bool collision_detection::getCollisionSphereCollision(const distance_field::Dist
 
     if (!in_bounds && grad.norm() > 0)
     {
-      ROS_DEBUG("Collision sphere point is out of bounds");
+      RCLCPP_DEBUG(logger,"Collision sphere point is out of bounds");
       return true;
     }
 
@@ -230,7 +230,7 @@ bool collision_detection::getCollisionSphereCollision(const distance_field::Dist
     double dist = distance_field->getDistanceGradient(p.x(), p.y(), p.z(), grad.x(), grad.y(), grad.z(), in_bounds);
     if (!in_bounds && (grad.norm() > 0))
     {
-      ROS_DEBUG("Collision sphere point is out of bounds");
+      RCLCPP_DEBUG(logger, "Collision sphere point is out of bounds");
       return true;
     }
     if (maximum_value > dist && (sphere_list[i].radius_ - dist > tolerance))
@@ -259,21 +259,21 @@ collision_detection::BodyDecomposition::BodyDecomposition(const shapes::ShapeCon
                                                           double padding)
 {
   std::vector<shapes::ShapeConstPtr> shapes;
-  EigenSTL::vector_Isometry3d poses(1, Eigen::Isometry3d::Identity());
+  EigenSTL::vector_Affine3d poses(1, Eigen::Affine3d::Identity());
 
   shapes.push_back(shape);
   init(shapes, poses, resolution, padding);
 }
 
 collision_detection::BodyDecomposition::BodyDecomposition(const std::vector<shapes::ShapeConstPtr>& shapes,
-                                                          const EigenSTL::vector_Isometry3d& poses, double resolution,
+                                                          const EigenSTL::vector_Affine3d& poses, double resolution,
                                                           double padding)
 {
   init(shapes, poses, resolution, padding);
 }
 
 void collision_detection::BodyDecomposition::init(const std::vector<shapes::ShapeConstPtr>& shapes,
-                                                  const EigenSTL::vector_Isometry3d& poses, double resolution,
+                                                  const EigenSTL::vector_Affine3d& poses, double resolution,
                                                   double padding)
 {
   bodies_.clear();
@@ -314,8 +314,8 @@ void collision_detection::BodyDecomposition::init(const std::vector<shapes::Shap
   }
   bodies::mergeBoundingSpheres(bounding_spheres, relative_bounding_sphere_);
 
-  ROS_DEBUG_STREAM("BodyDecomposition generated " << collision_spheres_.size() << " collision spheres out of "
-                                                  << shapes.size() << " shapes");
+  RCLCPP_DEBUG(logger, "BodyDecomposition generated %i collision spheres out of %i shapes",
+                    collision_spheres_.size(), shapes.size());
 }
 
 collision_detection::BodyDecomposition::~BodyDecomposition()
@@ -331,7 +331,7 @@ collision_detection::PosedBodyPointDecomposition::PosedBodyPointDecomposition(
 }
 
 collision_detection::PosedBodyPointDecomposition::PosedBodyPointDecomposition(
-    const BodyDecompositionConstPtr& body_decomposition, const Eigen::Isometry3d& trans)
+    const BodyDecompositionConstPtr& body_decomposition, const Eigen::Affine3d& trans)
   : body_decomposition_(body_decomposition)
 {
   updatePose(trans);
@@ -350,7 +350,7 @@ collision_detection::PosedBodyPointDecomposition::PosedBodyPointDecomposition(
   }
 }
 
-void collision_detection::PosedBodyPointDecomposition::updatePose(const Eigen::Isometry3d& trans)
+void collision_detection::PosedBodyPointDecomposition::updatePose(const Eigen::Affine3d& trans)
 {
   if (body_decomposition_)
   {
@@ -369,10 +369,10 @@ collision_detection::PosedBodySphereDecomposition::PosedBodySphereDecomposition(
 {
   posed_bounding_sphere_center_ = body_decomposition_->getRelativeBoundingSphere().center;
   sphere_centers_.resize(body_decomposition_->getCollisionSpheres().size());
-  updatePose(Eigen::Isometry3d::Identity());
+  updatePose(Eigen::Affine3d::Identity());
 }
 
-void collision_detection::PosedBodySphereDecomposition::updatePose(const Eigen::Isometry3d& trans)
+void collision_detection::PosedBodySphereDecomposition::updatePose(const Eigen::Affine3d& trans)
 {
   // updating sphere centers
   posed_bounding_sphere_center_ = trans * body_decomposition_->getRelativeBoundingSphere().center;
@@ -409,10 +409,12 @@ bool collision_detection::doBoundingSpheresIntersect(const PosedBodySphereDecomp
 }
 
 void collision_detection::getCollisionSphereMarkers(
-    const std_msgs::msg::ColorRGBA& color, const std::string& frame_id, const std::string& ns, const ros::Duration& dur,
+    const std_msgs::msg::ColorRGBA& color, const std::string& frame_id, const std::string& ns, const rclcpp::Duration& dur,
     const std::vector<PosedBodySphereDecompositionPtr>& posed_decompositions, visualization_msgs::msg::MarkerArray& arr)
 {
   unsigned int count = 0;
+  rclcpp::Clock ros_clock;
+  rclcpp::Time ros_now = ros_clock.now();
   for (unsigned int i = 0; i < posed_decompositions.size(); i++)
   {
     if (posed_decompositions[i])
@@ -421,7 +423,7 @@ void collision_detection::getCollisionSphereMarkers(
       {
         visualization_msgs::msg::Marker sphere;
         sphere.type = visualization_msgs::msg::Marker::SPHERE;
-        sphere.header.stamp = ros::Time::now();
+        sphere.header.stamp = ros_now;
         sphere.header.frame_id = frame_id;
         sphere.ns = ns;
         sphere.id = count++;
@@ -439,14 +441,16 @@ void collision_detection::getCollisionSphereMarkers(
 }
 
 void collision_detection::getProximityGradientMarkers(
-    const std::string& frame_id, const std::string& ns, const ros::Duration& dur,
+    const std::string& frame_id, const std::string& ns, const rclcpp::Duration& dur,
     const std::vector<PosedBodySphereDecompositionPtr>& posed_decompositions,
     const std::vector<PosedBodySphereDecompositionVectorPtr>& posed_vector_decompositions,
     const std::vector<GradientInfo>& gradients, visualization_msgs::msg::MarkerArray& arr)
 {
+  rclcpp::Clock ros_clock;
+  rclcpp::Time ros_now = ros_clock.now();
   if (gradients.size() != posed_decompositions.size() + posed_vector_decompositions.size())
   {
-    ROS_WARN_NAMED("collision_distance_field", "Size mismatch between gradients %u and decompositions %u",
+    RCLCPP_WARN(logger, "Size mismatch between gradients %u and decompositions %u",
                    (unsigned int)gradients.size(),
                    (unsigned int)(posed_decompositions.size() + posed_vector_decompositions.size()));
     return;
@@ -457,7 +461,7 @@ void collision_detection::getProximityGradientMarkers(
     {
       visualization_msgs::msg::Marker arrow_mark;
       arrow_mark.header.frame_id = frame_id;
-      arrow_mark.header.stamp = ros::Time::now();
+      arrow_mark.header.stamp = ros_now;
       if (ns.empty())
       {
         arrow_mark.ns = "self_coll_gradients";
@@ -480,13 +484,13 @@ void collision_detection::getProximityGradientMarkers(
         }
         else
         {
-          ROS_DEBUG_NAMED("collision_distance_field", "Negative length for %u %d %lf", i, arrow_mark.id,
+          RCLCPP_DEBUG(logger, "Negative length for %u %d %lf", i, arrow_mark.id,
                           gradients[i].gradients[j].norm());
         }
       }
       else
       {
-        ROS_DEBUG_NAMED("collision_distance_field", "Negative dist %lf for %u %d", gradients[i].distances[j], i,
+        RCLCPP_DEBUG(logger , "Negative dist %lf for %u %d", gradients[i].distances[j], i,
                         arrow_mark.id);
       }
       arrow_mark.points.resize(2);
@@ -542,14 +546,16 @@ void collision_detection::getProximityGradientMarkers(
 }
 
 void collision_detection::getCollisionMarkers(
-    const std::string& frame_id, const std::string& ns, const ros::Duration& dur,
+    const std::string& frame_id, const std::string& ns, const rclcpp::Duration& dur,
     const std::vector<PosedBodySphereDecompositionPtr>& posed_decompositions,
     const std::vector<PosedBodySphereDecompositionVectorPtr>& posed_vector_decompositions,
     const std::vector<GradientInfo>& gradients, visualization_msgs::msg::MarkerArray& arr)
 {
+  rclcpp::Clock ros_clock;
+  rclcpp::Time ros_now = ros_clock.now();
   if (gradients.size() != posed_decompositions.size() + posed_vector_decompositions.size())
   {
-    ROS_WARN_NAMED("collision_distance_field", "Size mismatch between gradients %zu and decompositions %zu",
+    RCLCPP_WARN(logger, "Size mismatch between gradients %zu and decompositions %zu",
                    gradients.size(), posed_decompositions.size() + posed_vector_decompositions.size());
     return;
   }
@@ -560,7 +566,7 @@ void collision_detection::getCollisionMarkers(
       visualization_msgs::msg::Marker sphere_mark;
       sphere_mark.type = visualization_msgs::msg::Marker::SPHERE;
       sphere_mark.header.frame_id = frame_id;
-      sphere_mark.header.stamp = ros::Time::now();
+      sphere_mark.header.stamp = ros_now;
       if (ns.empty())
       {
         sphere_mark.ns = "distance_collisions";

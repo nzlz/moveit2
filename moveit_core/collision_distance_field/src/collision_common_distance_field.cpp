@@ -150,7 +150,7 @@ void getBodySphereVisualizationMarkers(GroupStateRepresentationConstPtr& gsr, st
   // creating sphere marker
   visualization_msgs::msg::Marker sphere_marker;
   sphere_marker.header.frame_id = reference_frame;
-  sphere_marker.header.stamp = ros::Time(0);
+  sphere_marker.header.stamp = rclcpp::Time(0);
   sphere_marker.ns = robot_ns;
   sphere_marker.id = 0;
   sphere_marker.type = visualization_msgs::msg::Marker::SPHERE;
@@ -160,7 +160,7 @@ void getBodySphereVisualizationMarkers(GroupStateRepresentationConstPtr& gsr, st
   sphere_marker.pose.orientation.z = 0;
   sphere_marker.pose.orientation.w = 1;
   sphere_marker.color = robot_color;
-  sphere_marker.lifetime = ros::Duration(0);
+  sphere_marker.lifetime = rclcpp::Duration(0,0);
 
   const moveit::core::RobotState& state = *(gsr->dfce_->state_);
   unsigned int id = 0;
@@ -193,7 +193,7 @@ void getBodySphereVisualizationMarkers(GroupStateRepresentationConstPtr& gsr, st
     const moveit::core::AttachedBody* att = state.getAttachedBody(gsr->dfce_->attached_body_names_[i]);
     if (!att)
     {
-      ROS_WARN("Attached body '%s' was not found, skipping sphere "
+      RCLCPP_WARN(logger,"Attached body '%s' was not found, skipping sphere "
                "decomposition visualization",
                gsr->dfce_->attached_body_names_[i].c_str());
       continue;
@@ -201,7 +201,7 @@ void getBodySphereVisualizationMarkers(GroupStateRepresentationConstPtr& gsr, st
 
     if (gsr->attached_body_decompositions_[i]->getSize() != att->getShapes().size())
     {
-      ROS_WARN("Attached body size discrepancy");
+      RCLCPP_WARN(logger,"Attached body size discrepancy");
       continue;
     }
 

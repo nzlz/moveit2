@@ -52,6 +52,12 @@
 #include <moveit/distance_field/distance_field.h>
 #include <moveit/distance_field/propagation_distance_field.h>
 #include <visualization_msgs/msg/marker_array.hpp>
+#include "rclcpp/clock.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/time.hpp"
+#include "rclcpp/utilities.hpp"
+
+rclcpp::Logger logger = rclcpp::get_logger("collision_distance_field");
 
 namespace collision_detection
 {
@@ -121,16 +127,16 @@ public:
                      bool propagate_negative_distances = false)
     : distance_field::PropagationDistanceField(size.x(), size.y(), size.z(), resolution, origin.x(), origin.y(),
                                                origin.z(), max_distance, propagate_negative_distances)
-    , pose_(Eigen::Isometry3d::Identity())
+    , pose_(Eigen::Affine3d::Identity())
   {
   }
 
-  void updatePose(const Eigen::Isometry3d& transform)
+  void updatePose(const Eigen::Affine3d& transform)
   {
     pose_ = transform;
   }
 
-  const Eigen::Isometry3d& getPose() const
+  const Eigen::Affine3d& getPose() const
   {
     return pose_;
   }
@@ -189,13 +195,13 @@ public:
                                    double maximum_value, bool stop_at_first_collision);
 
 protected:
-  Eigen::Isometry3d pose_;
+  Eigen::Affine3d pose_;
 };
 
 // determines set of collision spheres given a posed body; this is BAD!
 // Allocation erorrs will happen; change this function so it does not return
 // that vector by value
-std::vector<CollisionSphere> determineCollisionSpheres(const bodies::Body* body, Eigen::Isometry3d& relativeTransform);
+std::vector<CollisionSphere> determineCollisionSpheres(const bodies::Body* body, Eigen::Affine3d& relativeTransform);
 
 // determines a set of gradients of the given collision spheres in the distance
 // field
@@ -227,15 +233,15 @@ public:
 
   BodyDecomposition(const shapes::ShapeConstPtr& shape, double resolution, double padding = 0.01);
 
-  BodyDecomposition(const std::vector<shapes::ShapeConstPtr>& shapes, const EigenSTL::vector_Isometry3d& poses,
+  BodyDecomposition(const std::vector<shapes::ShapeConstPtr>& shapes, const EigenSTL::vector_Affine3d& poses,
                     double resolution, double padding);
 
   ~BodyDecomposition();
 
-  Eigen::Isometry3d relative_cylinder_pose_;
+  Eigen::Affine3d relative_cylinder_pose_;
 
   void replaceCollisionSpheres(const std::vector<CollisionSphere>& new_collision_spheres,
-                               const Eigen::Isometry3d& new_relative_cylinder_pose)
+                               const Eigen::Affine3d& new_relative_cylinder_pose)
   {
     // std::cerr << "Replacing " << collision_spheres_.size() << " with " <<
     // new_collision_spheres.size() << std::endl;
@@ -268,7 +274,7 @@ public:
     return bodies_.getCount();
   }
 
-  Eigen::Isometry3d getRelativeCylinderPose() const
+  Eigen::Affine3d getRelativeCylinderPose() const
   {
     return relative_cylinder_pose_;
   }
@@ -279,7 +285,7 @@ public:
   }
 
 protected:
-  void init(const std::vector<shapes::ShapeConstPtr>& shapes, const EigenSTL::vector_Isometry3d& poses,
+  void init(const std::vector<shapes::ShapeConstPtr>& shapes, const EigenSTL::vector_Affine3d& poses,
             double resolution, double padding);
 
 protected:
@@ -329,7 +335,7 @@ public:
 
   // assumed to be in reference frame, updates the pose of the body,
   // the collision spheres, and the posed collision points
-  void updatePose(const Eigen::Isometry3d& linkTransform);
+  void updatePose(const Eigen::Affine3d& linkTransform);
 
 protected:
   BodyDecompositionConstPtr body_decomposition_;
@@ -345,7 +351,7 @@ public:
 
   PosedBodyPointDecomposition(const BodyDecompositionConstPtr& body_decomposition);
 
-  PosedBodyPointDecomposition(const BodyDecompositionConstPtr& body_decomposition, const Eigen::Isometry3d& pose);
+  PosedBodyPointDecomposition(const BodyDecompositionConstPtr& body_decomposition, const Eigen::Affine3d& pose);
 
   PosedBodyPointDecomposition(std::shared_ptr<const octomap::OcTree> octree);
 
@@ -354,7 +360,7 @@ public:
     return posed_collision_points_;
   }
   // the collision spheres, and the posed collision points
-  void updatePose(const Eigen::Isometry3d& linkTransform);
+  void updatePose(const Eigen::Affine3d& linkTransform);
 
 protected:
   BodyDecompositionConstPtr body_decomposition_;
@@ -405,17 +411,17 @@ public:
   {
     if (i >= decomp_vector_.size())
     {
-      ROS_INFO_NAMED("collision_distance_field", "No body decomposition");
+      RCLCPP_INFO(logger, "No body decomposition");
       return empty_ptr_;
     }
     return decomp_vector_[i];
   }
 
-  void updatePose(unsigned int ind, const Eigen::Isometry3d& pose)
+  void updatePose(unsigned int ind, const Eigen::Affine3d& pose)
   {
     if (ind >= decomp_vector_.size())
     {
-      ROS_WARN_NAMED("collision_distance_field", "Can't update pose");
+      RCLCPP_WARN(logger, "Can't update pose");
       return;
     }
     decomp_vector_[ind]->updatePose(pose);
@@ -468,13 +474,13 @@ public:
   {
     if (i >= decomp_vector_.size())
     {
-      ROS_INFO_NAMED("collision_distance_field", "No body decomposition");
+      RCLCPP_INFO(logger, "No body decomposition");
       return empty_ptr_;
     }
     return decomp_vector_[i];
   }
 
-  void updatePose(unsigned int ind, const Eigen::Isometry3d& pose)
+  void updatePose(unsigned int ind, const Eigen::Affine3d& pose)
   {
     if (ind < decomp_vector_.size())
     {
@@ -482,7 +488,7 @@ public:
     }
     else
     {
-      ROS_WARN_NAMED("collision_distance_field", "Can't update pose");
+      RCLCPP_WARN(logger, "Can't update pose");
       return;
     }
   }
@@ -509,16 +515,16 @@ bool doBoundingSpheresIntersect(const PosedBodySphereDecompositionConstPtr& p1,
                                 const PosedBodySphereDecompositionConstPtr& p2);
 
 void getCollisionSphereMarkers(const std_msgs::msg::ColorRGBA& color, const std::string& frame_id, const std::string& ns,
-                               const ros::Duration& dur,
+                               const rclcpp::Duration& dur,
                                const std::vector<PosedBodySphereDecompositionPtr>& posed_decompositions,
                                visualization_msgs::msg::MarkerArray& arr);
 
-void getProximityGradientMarkers(const std::string& frame_id, const std::string& ns, const ros::Duration& dur,
+void getProximityGradientMarkers(const std::string& frame_id, const std::string& ns, const rclcpp::Duration& dur,
                                  const std::vector<PosedBodySphereDecompositionPtr>& posed_decompositions,
                                  const std::vector<PosedBodySphereDecompositionVectorPtr>& posed_vector_decompositions,
                                  const std::vector<GradientInfo>& gradients, visualization_msgs::msg::MarkerArray& arr);
 
-void getCollisionMarkers(const std::string& frame_id, const std::string& ns, const ros::Duration& dur,
+void getCollisionMarkers(const std::string& frame_id, const std::string& ns, const rclcpp::Duration& dur,
                          const std::vector<PosedBodySphereDecompositionPtr>& posed_decompositions,
                          const std::vector<PosedBodySphereDecompositionVectorPtr>& posed_vector_decompositions,
                          const std::vector<GradientInfo>& gradients, visualization_msgs::msg::MarkerArray& arr);
