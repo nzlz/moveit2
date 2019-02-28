@@ -121,6 +121,7 @@ set(dependencies
   moveit_kinematic_constraints
   moveit_planning_scene
   moveit_trajectory_processing
+  moveit_collision_distance_field
   random_numbers
   tf2_eigen
   tf2_kdl
@@ -202,4 +203,4 @@ add_subdirectory(collision_distance_field)
 # add_subdirectory(dynamics_solver)
 add_subdirectory(utils)
 
-# ament_package()
+ament_package()
