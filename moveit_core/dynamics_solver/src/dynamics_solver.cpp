@@ -49,13 +49,13 @@ namespace dynamics_solver
 {
 namespace
 {
-inline geometry_msgs::Vector3 transformVector(const Eigen::Isometry3d& transform, const geometry_msgs::Vector3& vector)
+inline geometry_msgs::msg::Vector3 transformVector(const Eigen::Isometry3d& transform, const geometry_msgs::msg::Vector3& vector)
 {
   Eigen::Vector3d p;
   p = Eigen::Vector3d(vector.x, vector.y, vector.z);
   p = transform.rotation() * p;
 
-  geometry_msgs::Vector3 result;
+  geometry_msgs::msg::Vector3 result;
   result.x = p.x();
   result.y = p.y();
   result.z = p.z();
@@ -65,7 +65,7 @@ inline geometry_msgs::Vector3 transformVector(const Eigen::Isometry3d& transform
 }
 
 DynamicsSolver::DynamicsSolver(const robot_model::RobotModelConstPtr& robot_model, const std::string& group_name,
-                               const geometry_msgs::Vector3& gravity_vector)
+                               const geometry_msgs::msg::Vector3& gravity_vector)
 {
   robot_model_ = robot_model;
   joint_model_group_ = robot_model_->getJointModelGroup(group_name);
@@ -143,7 +143,7 @@ DynamicsSolver::DynamicsSolver(const robot_model::RobotModelConstPtr& robot_mode
 
 bool DynamicsSolver::getTorques(const std::vector<double>& joint_angles, const std::vector<double>& joint_velocities,
                                 const std::vector<double>& joint_accelerations,
-                                const std::vector<geometry_msgs::Wrench>& wrenches, std::vector<double>& torques) const
+                                const std::vector<geometry_msgs::msg::Wrench>& wrenches, std::vector<double>& torques) const
 {
   if (!joint_model_group_)
   {
@@ -228,7 +228,7 @@ bool DynamicsSolver::getMaxPayload(const std::vector<double>& joint_angles, doub
   std::vector<double> joint_velocities(num_joints_, 0.0), joint_accelerations(num_joints_, 0.0);
   std::vector<double> torques(num_joints_, 0.0), zero_torques(num_joints_, 0.0);
 
-  std::vector<geometry_msgs::Wrench> wrenches(num_segments_);
+  std::vector<geometry_msgs::msg::Wrench> wrenches(num_segments_);
   if (!getTorques(joint_angles, joint_velocities, joint_accelerations, wrenches, zero_torques))
     return false;
 
@@ -296,7 +296,7 @@ bool DynamicsSolver::getPayloadTorques(const std::vector<double>& joint_angles, 
     return false;
   }
   std::vector<double> joint_velocities(num_joints_, 0.0), joint_accelerations(num_joints_, 0.0);
-  std::vector<geometry_msgs::Wrench> wrenches(num_segments_);
+  std::vector<geometry_msgs::msg::Wrench> wrenches(num_segments_);
   state_->setJointGroupPositions(joint_model_group_, joint_angles);
 
   const Eigen::Isometry3d& base_frame = state_->getFrameTransform(base_name_);
