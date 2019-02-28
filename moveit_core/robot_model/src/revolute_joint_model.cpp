@@ -227,7 +227,7 @@ bool RevoluteJointModel::enforcePositionBounds(double* values, const Bounds& bou
   return false;
 }
 
-void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transf) const
+void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Affine3d& transf) const
 {
   const double c = cos(joint_values[0]);
   const double s = sin(joint_values[0]);

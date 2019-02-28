@@ -116,12 +116,12 @@ void PrismaticJointModel::interpolate(const double* from, const double* to, cons
   state[0] = from[0] + (to[0] - from[0]) * t;
 }
 
-void PrismaticJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transf) const
+void PrismaticJointModel::computeTransform(const double* joint_values, Eigen::Affine3d& transf) const
 {
   double* d = transf.data();
   d[0] = 1.0;
   d[1] = 0.0;
-  d[2] = 0.0;
+d[2] = 0.0;
   d[3] = 0.0;
 
   d[4] = 0.0;

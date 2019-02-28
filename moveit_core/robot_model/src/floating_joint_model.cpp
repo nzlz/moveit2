@@ -213,7 +213,7 @@ bool FloatingJointModel::enforcePositionBounds(double* values, const Bounds& bou
   return result;
 }
 
-void FloatingJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transf) const
+void FloatingJointModel::computeTransform(const double* joint_values, Eigen::Affine3d& transf) const
 {
   transf = Eigen::Isometry3d(Eigen::Translation3d(joint_values[0], joint_values[1], joint_values[2]) *
                              Eigen::Quaterniond(joint_values[6], joint_values[3], joint_values[4], joint_values[5]));

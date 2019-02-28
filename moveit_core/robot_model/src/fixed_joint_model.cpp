@@ -89,7 +89,7 @@ void FixedJointModel::interpolate(const double* from, const double* to, const do
 {
 }
 
-void FixedJointModel::computeTransform(const double* /* joint_values */, Eigen::Isometry3d& transf) const
+void FixedJointModel::computeTransform(const double* /* joint_values */, Eigen::Affine3d& transf) const
 {
   transf.setIdentity();
 }
