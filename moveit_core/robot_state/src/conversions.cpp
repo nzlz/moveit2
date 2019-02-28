@@ -143,7 +143,7 @@ static inline void _robotStateToMultiDOFJointState(const RobotState& state, sens
     geometry_msgs::msg::TransformStamped p;
     if (state.dirtyJointTransform(js[i]))
     {
-      Eigen::Isometry3d t;
+      Eigen::Affine3d t;
       t.setIdentity();
       js[i]->computeTransform(state.getJointPositions(js[i]), t);
       p = tf2::eigenToTransform(t);

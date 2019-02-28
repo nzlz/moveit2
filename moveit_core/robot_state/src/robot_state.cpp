@@ -93,13 +93,13 @@ void RobotState::allocMemory()
   const int nr_doubles_for_dirty_joint_transforms =
       1 + robot_model_->getJointModelCount() / (sizeof(double) / sizeof(unsigned char));
   const size_t bytes =
-      sizeof(Eigen::Isometry3d) * (robot_model_->getJointModelCount() + robot_model_->getLinkModelCount() +
+      sizeof(Eigen::Affine3d) * (robot_model_->getJointModelCount() + robot_model_->getLinkModelCount() +
                                    robot_model_->getLinkGeometryCount()) +
       sizeof(double) * (robot_model_->getVariableCount() * 3 + nr_doubles_for_dirty_joint_transforms) + 15;
   memory_ = malloc(bytes);
 
   // make the memory for transforms align at 16 bytes
-  variable_joint_transforms_ = reinterpret_cast<Eigen::Isometry3d*>(((uintptr_t)memory_ + 15) & ~(uintptr_t)0x0F);
+  variable_joint_transforms_ = reinterpret_cast<Eigen::Affine3d*>(((uintptr_t)memory_ + 15) & ~(uintptr_t)0x0F);
   global_link_transforms_ = variable_joint_transforms_ + robot_model_->getJointModelCount();
   global_collision_body_transforms_ = global_link_transforms_ + robot_model_->getLinkModelCount();
   dirty_joint_transforms_ =
@@ -586,7 +586,7 @@ void RobotState::updateCollisionBodyTransforms()
 
     for (const LinkModel* link : links)
     {
-      const EigenSTL::vector_Isometry3d& ot = link->getCollisionOriginTransforms();
+      const EigenSTL::vector_Affine3d& ot = link->getCollisionOriginTransforms();
       const std::vector<int>& ot_id = link->areCollisionOriginTransformsIdentity();
       const int index_co = link->getFirstCollisionBodyTransformIndex();
       const int index_l = link->getLinkIndex();
@@ -655,7 +655,7 @@ void RobotState::updateLinkTransformsInternal(const JointModel* start)
     it->second->computeTransform(global_link_transforms_[it->second->getAttachedLink()->getLinkIndex()]);
 }
 
-void RobotState::updateStateWithLinkAt(const LinkModel* link, const Eigen::Isometry3d& transform, bool backward)
+void RobotState::updateStateWithLinkAt(const LinkModel* link, const Eigen::Affine3d& transform, bool backward)
 {
   updateLinkTransforms();  // no link transforms must be dirty, otherwise the transform we set will be overwritten
 
@@ -984,7 +984,7 @@ const Eigen::Affine3d& RobotState::getFrameTransform(const std::string& id) cons
     return getFrameTransform(id.substr(1));
   BOOST_VERIFY(checkLinkTransforms());
 
-  static const Eigen::Isometry3d IDENTITY_TRANSFORM = Eigen::Isometry3d::Identity();
+  static const Eigen::Affine3d IDENTITY_TRANSFORM = Eigen::Affine3d::Identity();
   if (id == robot_model_->getModelFrame())
     return IDENTITY_TRANSFORM;
   if (robot_model_->hasLinkModel(id))
@@ -1142,13 +1142,13 @@ bool RobotState::getJacobian(const JointModelGroup* group, const LinkModel* link
 
   const robot_model::JointModel* root_joint_model = group->getJointModels()[0];  // group->getJointRoots()[0];
   const robot_model::LinkModel* root_link_model = root_joint_model->getParentLinkModel();
-  Eigen::Isometry3d reference_transform =
-      root_link_model ? getGlobalLinkTransform(root_link_model).inverse() : Eigen::Isometry3d::Identity();
+  Eigen::Affine3d reference_transform =
+      root_link_model ? getGlobalLinkTransform(root_link_model).inverse() : Eigen::Affine3d::Identity();
   int rows = use_quaternion_representation ? 7 : 6;
   int columns = group->getVariableCount();
   jacobian = Eigen::MatrixXd::Zero(rows, columns);
 
-  Eigen::Isometry3d link_transform = reference_transform * getGlobalLinkTransform(link);
+  Eigen::Affine3d link_transform = reference_transform * getGlobalLinkTransform(link);
   Eigen::Vector3d point_transform = link_transform * reference_point_position;
 
   /*
@@ -1159,7 +1159,7 @@ bool RobotState::getJacobian(const JointModelGroup* group, const LinkModel* link
   */
 
   Eigen::Vector3d joint_axis;
-  Eigen::Isometry3d joint_transform;
+  Eigen::Affine3d joint_transform;
 
   while (link)
   {
@@ -1253,7 +1253,7 @@ void RobotState::computeVariableVelocity(const JointModelGroup* jmg, Eigen::Vect
   getJacobian(jmg, tip, reference_point, j, false);
 
   // Rotate the jacobian to the end-effector frame
-  Eigen::Isometry3d e_mb = getGlobalLinkTransform(tip).inverse();
+  Eigen::Affine3d e_mb = getGlobalLinkTransform(tip).inverse();
   Eigen::MatrixXd e_wb = Eigen::ArrayXXd::Zero(6, 6);
   e_wb.block(0, 0, 3, 3) = e_mb.matrix().block(0, 0, 3, 3);
   e_wb.block(3, 3, 3, 3) = e_mb.matrix().block(0, 0, 3, 3);
@@ -1894,13 +1894,13 @@ double RobotState::computeCartesianPath(const JointModelGroup* group, std::vecto
                                         const kinematics::KinematicsQueryOptions& options)
 {
   // this is the Cartesian pose we start from, and have to move in the direction indicated
-  const Eigen::Isometry3d& start_pose = getGlobalLinkTransform(link);
+  const Eigen::Affine3d& start_pose = getGlobalLinkTransform(link);
 
   // the direction can be in the local reference frame (in which case we rotate it)
   const Eigen::Vector3d rotated_direction = global_reference_frame ? direction : start_pose.rotation() * direction;
 
   // The target pose is built by applying a translation to the start pose for the desired direction and distance
-  Eigen::Isometry3d target_pose = start_pose;
+  Eigen::Affine3d target_pose = start_pose;
   target_pose.translation() += rotated_direction * distance;
 
   // call computeCartesianPath for the computed target pose in the global reference frame
@@ -1909,7 +1909,7 @@ double RobotState::computeCartesianPath(const JointModelGroup* group, std::vecto
 }
 
 double RobotState::computeCartesianPath(const JointModelGroup* group, std::vector<RobotStatePtr>& traj,
-                                        const LinkModel* link, const Eigen::Isometry3d& target,
+                                        const LinkModel* link, const Eigen::Affine3d& target,
                                         bool global_reference_frame, const MaxEEFStep& max_step,
                                         const JumpThreshold& jump_threshold,
                                         const GroupStateValidityCallbackFn& validCallback,
@@ -1921,10 +1921,10 @@ double RobotState::computeCartesianPath(const JointModelGroup* group, std::vecto
     enforceBounds(cjnt[i]);
 
   // this is the Cartesian pose we start from, and we move in the direction indicated
-  Eigen::Isometry3d start_pose = getGlobalLinkTransform(link);
+  Eigen::Affine3d start_pose = getGlobalLinkTransform(link);
 
   // the target can be in the local reference frame (in which case we rotate it)
-  Eigen::Isometry3d rotated_target = global_reference_frame ? target : start_pose * target;
+  Eigen::Affine3d rotated_target = global_reference_frame ? target : start_pose * target;
 
   Eigen::Quaterniond start_quaternion(start_pose.rotation());
   Eigen::Quaterniond target_quaternion(rotated_target.rotation());
@@ -1985,7 +1985,7 @@ double RobotState::computeCartesianPath(const JointModelGroup* group, std::vecto
   {
     double percentage = (double)i / (double)steps;
 
-    Eigen::Isometry3d pose(start_quaternion.slerp(percentage, target_quaternion));
+    Eigen::Affine3d pose(start_quaternion.slerp(percentage, target_quaternion));
     pose.translation() = percentage * rotated_target.translation() + (1 - percentage) * start_pose.translation();
 
     // Explicitly use a single IK attempt only: We want a smooth trajectory.
@@ -2004,7 +2004,7 @@ double RobotState::computeCartesianPath(const JointModelGroup* group, std::vecto
 }
 
 double RobotState::computeCartesianPath(const JointModelGroup* group, std::vector<RobotStatePtr>& traj,
-                                        const LinkModel* link, const EigenSTL::vector_Isometry3d& waypoints,
+                                        const LinkModel* link, const EigenSTL::vector_Affine3d& waypoints,
                                         bool global_reference_frame, const MaxEEFStep& max_step,
                                         const JumpThreshold& jump_threshold,
                                         const GroupStateValidityCallbackFn& validCallback,
@@ -2246,7 +2246,7 @@ void RobotState::printStateInfo(std::ostream& out) const
   printTransforms(out);
 }
 
-void RobotState::printTransform(const Eigen::Isometry3d& transform, std::ostream& out) const
+void RobotState::printTransform(const Eigen::Affine3d& transform, std::ostream& out) const
 {
   Eigen::Quaterniond q(transform.rotation());
   out << "T.xyz = [" << transform.translation().x() << ", " << transform.translation().y() << ", "
@@ -2293,7 +2293,7 @@ std::string RobotState::getStateTreeString(const std::string& prefix) const
 
 namespace
 {
-void getPoseString(std::ostream& ss, const Eigen::Isometry3d& pose, const std::string& pfx)
+void getPoseString(std::ostream& ss, const Eigen::Affine3d& pose, const std::string& pfx)
 {
   ss.precision(3);
   for (int y = 0; y < 4; ++y)

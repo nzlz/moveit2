@@ -123,7 +123,7 @@ public:
   void setScale(double scale);
 
   /** \brief Recompute global_collision_body_transform given the transform of the parent link*/
-  void computeTransform(const Eigen::Isometry3d& parent_link_global_transform)
+  void computeTransform(const Eigen::Affine3d& parent_link_global_transform)
   {
     for (std::size_t i = 0; i < global_collision_body_transforms_.size(); ++i)
       global_collision_body_transforms_[i] = parent_link_global_transform * attach_trans_[i];

@@ -1126,13 +1126,13 @@ as the new values that correspond to the group */
      in the local reference frame of the link. In the latter case (\e global_reference_frame is false) the \e target is
      rotated accordingly. All other comments from the previous function apply. */
   double computeCartesianPath(const JointModelGroup* group, std::vector<RobotStatePtr>& traj, const LinkModel* link,
-                              const Eigen::Isometry3d& target, bool global_reference_frame, const MaxEEFStep& max_step,
+                              const Eigen::Affine3d& target, bool global_reference_frame, const MaxEEFStep& max_step,
                               const JumpThreshold& jump_threshold,
                               const GroupStateValidityCallbackFn& validCallback = GroupStateValidityCallbackFn(),
                               const kinematics::KinematicsQueryOptions& options = kinematics::KinematicsQueryOptions());
 
   double computeCartesianPath(const JointModelGroup* group, std::vector<RobotStatePtr>& traj, const LinkModel* link,
-                              const Eigen::Isometry3d& target, bool global_reference_frame, double max_step,
+                              const Eigen::Affine3d& target, bool global_reference_frame, double max_step,
                               double jump_threshold_factor,
                               const GroupStateValidityCallbackFn& validCallback = GroupStateValidityCallbackFn(),
                               const kinematics::KinematicsQueryOptions& options = kinematics::KinematicsQueryOptions())
@@ -1148,13 +1148,13 @@ as the new values that correspond to the group */
      frame or in the local reference frame of the link at the immediately preceeding waypoint. The link needs to move
      in a straight line between two consecutive waypoints. All other comments apply. */
   double computeCartesianPath(const JointModelGroup* group, std::vector<RobotStatePtr>& traj, const LinkModel* link,
-                              const EigenSTL::vector_Isometry3d& waypoints, bool global_reference_frame,
+                              const EigenSTL::vector_Affine3d& waypoints, bool global_reference_frame,
                               const MaxEEFStep& max_step, const JumpThreshold& jump_threshold,
                               const GroupStateValidityCallbackFn& validCallback = GroupStateValidityCallbackFn(),
                               const kinematics::KinematicsQueryOptions& options = kinematics::KinematicsQueryOptions());
 
   double computeCartesianPath(const JointModelGroup* group, std::vector<RobotStatePtr>& traj, const LinkModel* link,
-                              const EigenSTL::vector_Isometry3d& waypoints, bool global_reference_frame,
+                              const EigenSTL::vector_Affine3d& waypoints, bool global_reference_frame,
                               double max_step, double jump_threshold_factor,
                               const GroupStateValidityCallbackFn& validCallback = GroupStateValidityCallbackFn(),
                               const kinematics::KinematicsQueryOptions& options = kinematics::KinematicsQueryOptions())
@@ -1354,42 +1354,42 @@ as the new values that correspond to the group */
       Collision body transforms are not yet updated, but marked dirty only.
       Use update(false) or updateCollisionBodyTransforms() to update them as well.
    */
-  void updateStateWithLinkAt(const std::string& link_name, const Eigen::Isometry3d& transform, bool backward = false)
+  void updateStateWithLinkAt(const std::string& link_name, const Eigen::Affine3d& transform, bool backward = false)
   {
     updateStateWithLinkAt(robot_model_->getLinkModel(link_name), transform, backward);
   }
 
   /** \brief Update the state after setting a particular link to the input global transform pose.*/
-  void updateStateWithLinkAt(const LinkModel* link, const Eigen::Isometry3d& transform, bool backward = false);
+  void updateStateWithLinkAt(const LinkModel* link, const Eigen::Affine3d& transform, bool backward = false);
 
-  const Eigen::Isometry3d& getGlobalLinkTransform(const std::string& link_name)
+  const Eigen::Affine3d& getGlobalLinkTransform(const std::string& link_name)
   {
     return getGlobalLinkTransform(robot_model_->getLinkModel(link_name));
   }
 
-  const Eigen::Isometry3d& getGlobalLinkTransform(const LinkModel* link)
+  const Eigen::Affine3d& getGlobalLinkTransform(const LinkModel* link)
   {
     updateLinkTransforms();
     return global_link_transforms_[link->getLinkIndex()];
   }
 
-  const Eigen::Isometry3d& getCollisionBodyTransform(const std::string& link_name, std::size_t index)
+  const Eigen::Affine3d& getCollisionBodyTransform(const std::string& link_name, std::size_t index)
   {
     return getCollisionBodyTransform(robot_model_->getLinkModel(link_name), index);
   }
 
-  const Eigen::Isometry3d& getCollisionBodyTransform(const LinkModel* link, std::size_t index)
+  const Eigen::Affine3d& getCollisionBodyTransform(const LinkModel* link, std::size_t index)
   {
     updateCollisionBodyTransforms();
     return global_collision_body_transforms_[link->getFirstCollisionBodyTransformIndex() + index];
   }
 
-  const Eigen::Isometry3d& getJointTransform(const std::string& joint_name)
+  const Eigen::Affine3d& getJointTransform(const std::string& joint_name)
   {
     return getJointTransform(robot_model_->getJointModel(joint_name));
   }
 
-  const Eigen::Isometry3d& getJointTransform(const JointModel* joint)
+  const Eigen::Affine3d& getJointTransform(const JointModel* joint)
   {
     const int idx = joint->getJointIndex();
     unsigned char& dirty = dirty_joint_transforms_[idx];
@@ -1401,34 +1401,34 @@ as the new values that correspond to the group */
     return variable_joint_transforms_[idx];
   }
 
-  const Eigen::Isometry3d& getGlobalLinkTransform(const std::string& link_name) const
+  const Eigen::Affine3d& getGlobalLinkTransform(const std::string& link_name) const
   {
     return getGlobalLinkTransform(robot_model_->getLinkModel(link_name));
   }
 
-  const Eigen::Isometry3d& getGlobalLinkTransform(const LinkModel* link) const
+  const Eigen::Affine3d& getGlobalLinkTransform(const LinkModel* link) const
   {
     BOOST_VERIFY(checkLinkTransforms());
     return global_link_transforms_[link->getLinkIndex()];
   }
 
-  const Eigen::Isometry3d& getCollisionBodyTransform(const std::string& link_name, std::size_t index) const
+  const Eigen::Affine3d& getCollisionBodyTransform(const std::string& link_name, std::size_t index) const
   {
     return getCollisionBodyTransform(robot_model_->getLinkModel(link_name), index);
   }
 
-  const Eigen::Isometry3d& getCollisionBodyTransform(const LinkModel* link, std::size_t index) const
+  const Eigen::Affine3d& getCollisionBodyTransform(const LinkModel* link, std::size_t index) const
   {
     BOOST_VERIFY(checkCollisionTransforms());
     return global_collision_body_transforms_[link->getFirstCollisionBodyTransformIndex() + index];
   }
 
-  const Eigen::Isometry3d& getJointTransform(const std::string& joint_name) const
+  const Eigen::Affine3d& getJointTransform(const std::string& joint_name) const
   {
     return getJointTransform(robot_model_->getJointModel(joint_name));
   }
 
-  const Eigen::Isometry3d& getJointTransform(const JointModel* joint) const
+  const Eigen::Affine3d& getJointTransform(const JointModel* joint) const
   {
     BOOST_VERIFY(checkJointTransforms(joint));
     return variable_joint_transforms_[joint->getJointIndex()];
@@ -1731,7 +1731,7 @@ as the new values that correspond to the group */
 
   void printTransforms(std::ostream& out = std::cout) const;
 
-  void printTransform(const Eigen::Isometry3d& transform, std::ostream& out = std::cout) const;
+  void printTransform(const Eigen::Affine3d& transform, std::ostream& out = std::cout) const;
 
   void printDirtyInfo(std::ostream& out = std::cout) const;
 
@@ -1831,9 +1831,9 @@ private:
   const JointModel* dirty_link_transforms_;
   const JointModel* dirty_collision_body_transforms_;
 
-  Eigen::Isometry3d* variable_joint_transforms_;         // this points to an element in transforms_, so it is aligned
-  Eigen::Isometry3d* global_link_transforms_;            // this points to an element in transforms_, so it is aligned
-  Eigen::Isometry3d* global_collision_body_transforms_;  // this points to an element in transforms_, so it is aligned
+  Eigen::Affine3d* variable_joint_transforms_;         // this points to an element in transforms_, so it is aligned
+  Eigen::Affine3d* global_link_transforms_;            // this points to an element in transforms_, so it is aligned
+  Eigen::Affine3d* global_collision_body_transforms_;  // this points to an element in transforms_, so it is aligned
   unsigned char* dirty_joint_transforms_;
 
   /** \brief All attached bodies that are part of this state, indexed by their name */
