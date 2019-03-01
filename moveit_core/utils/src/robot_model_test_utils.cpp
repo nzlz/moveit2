@@ -44,7 +44,6 @@ namespace moveit
 {
 namespace core
 {
-rclcpp::Logger logger_robot_model_builder = rclcpp::get_logger("robot_model_builder");
 
 moveit::core::RobotModelPtr loadTestingRobotModel(const std::string& robot_name)
 {

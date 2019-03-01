@@ -276,7 +276,7 @@ moveit_msgs::msg::Constraints constructGoalConstraints(const std::string& link_n
 
   return goal;
 }
-// TODO: Is not getting called from anywhere, check if is necessary
+// TODO: https://github.com/ros/ros_comm/tree/melodic-devel/utilities/xmlrpcpp is used on ros1, adapt this for ros2.
 // static bool constructPoseStamped(XmlRpc::XmlRpcValue::iterator& it, geometry_msgs::msg::PoseStamped& pose)
 // {
 //   if (!isStruct(it->second, { "frame_id", "position", "orientation" }, it->first))
