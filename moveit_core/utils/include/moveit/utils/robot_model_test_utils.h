@@ -51,6 +51,7 @@
 
 namespace moveit
 {
+  rclcpp::Logger logger_robot_model_builder = rclcpp::get_logger("robot_model_builder");
 namespace core
 {
 /** \brief Loads a robot from moveit_resources.
