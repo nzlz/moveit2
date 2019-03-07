@@ -59,11 +59,11 @@ set(THIS_PACKAGE_INCLUDE_DIRS
 )
 
 set(THIS_PACKAGE_INCLUDE_LIBRARIES
-    moveit_lazy_free_space_updater
-    moveit_point_containment_filter
+    # moveit_lazy_free_space_updater
+    # moveit_point_containment_filter
     moveit_occupancy_map_monitor
-    moveit_pointcloud_octomap_updater_core
-    moveit_semantic_world
+    # moveit_pointcloud_octomap_updater_core
+    # moveit_semantic_world
 )
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
