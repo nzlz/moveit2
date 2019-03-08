@@ -37,14 +37,14 @@
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 #include <moveit/robot_model_loader/robot_model_loader.h>
 #include <moveit/exceptions/exceptions.h>
-#include <moveit_msgs/msg/GetPlanningScene.h>
+#include <moveit_msgs/srv/get_planning_scene.hpp>
 
 #include <dynamic_reconfigure/server.h>
 #include <moveit_ros_planning/PlanningSceneMonitorDynamicReconfigureConfig.h>
 #include <tf2/exceptions.h>
 #include <tf2/LinearMath/Transform.h>
 #include <tf2_eigen/tf2_eigen.h>
-#include <tf2_geometry_msgs/msg/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <moveit/profiler/profiler.h>
 
 #include <memory>
