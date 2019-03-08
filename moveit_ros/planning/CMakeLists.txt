@@ -23,6 +23,7 @@ find_package(tf2_eigen REQUIRED)
 find_package(tf2_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(moveit_core REQUIRED)
 
 # generate_dynamic_reconfigure_options(
 #   "planning_scene_monitor/cfg/PlanningSceneMonitorDynamicReconfigure.cfg"
@@ -67,6 +68,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
 include_directories(${THIS_PACKAGE_INCLUDE_DIRS}
                     ${rclcpp_INCLUDE_DIRS}
                     ${Boost_INCLUDE_DIRS}
+                    ${moveit_core_INCLUDE_DIRS}
 )
 include_directories(SYSTEM
                     ${EIGEN3_INCLUDE_DIRS}
