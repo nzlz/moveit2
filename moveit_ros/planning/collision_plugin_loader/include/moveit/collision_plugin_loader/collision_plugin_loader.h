@@ -53,7 +53,7 @@ public:
   ~CollisionPluginLoader();
 
   /** @brief This can be called on a new planning scene to setup the collision detector. */
-  void setupScene(ros::NodeHandle& nh, const planning_scene::PlanningScenePtr& scene);
+  void setupScene(const planning_scene::PlanningScenePtr& scene);
 
   /**
    * @brief Load a collision detection robot/world into a planning scene instance.
