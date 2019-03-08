@@ -35,12 +35,14 @@
 #ifndef MOVEIT_COLLISION_PLUGIN_LOADER_COLLISION_PLUGIN_LOADER_H
 #define MOVEIT_COLLISION_PLUGIN_LOADER_COLLISION_PLUGIN_LOADER_H
 
-#include <ros/ros.h>
 #include <moveit/macros/class_forward.h>
 #include <moveit/collision_detection/collision_plugin.h>
+#include "rclcpp/rclcpp.hpp"
+
 
 namespace collision_detection
 {
+  rclcpp::Logger logger = rclcpp::get_logger("collision_plugin_loader");
 /**
  * @brief This is used to load the collision plugin
  */
