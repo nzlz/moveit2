@@ -37,14 +37,14 @@
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 #include <moveit/robot_model_loader/robot_model_loader.h>
 #include <moveit/exceptions/exceptions.h>
-#include <moveit_msgs/GetPlanningScene.h>
+#include <moveit_msgs/msg/GetPlanningScene.h>
 
 #include <dynamic_reconfigure/server.h>
 #include <moveit_ros_planning/PlanningSceneMonitorDynamicReconfigureConfig.h>
 #include <tf2/exceptions.h>
 #include <tf2/LinearMath/Transform.h>
 #include <tf2_eigen/tf2_eigen.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/msg/tf2_geometry_msgs.h>
 #include <moveit/profiler/profiler.h>
 
 #include <memory>
@@ -325,7 +325,7 @@ void PlanningSceneMonitor::startPublishingPlanningScene(SceneUpdateType update_t
   publish_update_types_ = update_type;
   if (!publish_planning_scene_ && scene_)
   {
-    planning_scene_publisher_ = nh_.advertise<moveit_msgs::PlanningScene>(planning_scene_topic, 100, false);
+    planning_scene_publisher_ = nh_.advertise<moveit_msgs::msg::PlanningScene>(planning_scene_topic, 100, false);
     ROS_INFO_NAMED(LOGNAME, "Publishing maintained planning scene on '%s'", planning_scene_topic.c_str());
     monitorDiffs(true);
     publish_planning_scene_.reset(new boost::thread(boost::bind(&PlanningSceneMonitor::scenePublishingThread, this)));
@@ -338,7 +338,7 @@ void PlanningSceneMonitor::scenePublishingThread()
 
   // publish the full planning scene once
   {
-    moveit_msgs::PlanningScene msg;
+    moveit_msgs::msg::PlanningScene msg;
     {
       occupancy_map_monitor::OccMapTree::ReadLock lock;
       if (octomap_monitor_)
@@ -351,7 +351,7 @@ void PlanningSceneMonitor::scenePublishingThread()
 
   do
   {
-    moveit_msgs::PlanningScene msg;
+    moveit_msgs::msg::PlanningScene msg;
     bool publish_msg = false;
     bool is_full = false;
     ros::Rate rate(publish_planning_scene_frequency_);
@@ -469,8 +469,8 @@ void PlanningSceneMonitor::triggerSceneUpdateEvent(SceneUpdateType update_type)
 bool PlanningSceneMonitor::requestPlanningSceneState(const std::string& service_name)
 {
   // use global namespace for service
-  ros::ServiceClient client = ros::NodeHandle().serviceClient<moveit_msgs::srv::GetPlanningScene>(service_name);
-  moveit_msgs::srv::GetPlanningScene srv;
+  ros::ServiceClient client = ros::NodeHandle().serviceClient<moveit_msgs::msg::srv::GetPlanningScene>(service_name);
+  moveit_msgs::msg::srv::GetPlanningScene srv;
   srv.request.components.components =
       srv.request.components.SCENE_SETTINGS | srv.request.components.ROBOT_STATE |
       srv.request.components.ROBOT_STATE_ATTACHED_OBJECTS | srv.request.components.WORLD_OBJECT_NAMES |
@@ -498,7 +498,7 @@ bool PlanningSceneMonitor::requestPlanningSceneState(const std::string& service_
   return true;
 }
 
-void PlanningSceneMonitor::newPlanningSceneCallback(const moveit_msgs::PlanningSceneConstPtr& scene)
+void PlanningSceneMonitor::newPlanningSceneCallback(const moveit_msgs::msg::PlanningSceneConstPtr& scene)
 {
   newPlanningSceneMessage(*scene);
 }
@@ -510,7 +510,7 @@ void PlanningSceneMonitor::clearOctomap()
   octomap_monitor_->getOcTreePtr()->unlockWrite();
 }
 
-bool PlanningSceneMonitor::newPlanningSceneMessage(const moveit_msgs::PlanningScene& scene)
+bool PlanningSceneMonitor::newPlanningSceneMessage(const moveit_msgs::msg::PlanningScene& scene)
 {
   if (!scene_)
     return false;
@@ -590,7 +590,7 @@ bool PlanningSceneMonitor::newPlanningSceneMessage(const moveit_msgs::PlanningSc
   return result;
 }
 
-void PlanningSceneMonitor::newPlanningSceneWorldCallback(const moveit_msgs::PlanningSceneWorldConstPtr& world)
+void PlanningSceneMonitor::newPlanningSceneWorldCallback(const moveit_msgs::msg::PlanningSceneWorldConstPtr& world)
 {
   if (scene_)
   {
@@ -614,15 +614,15 @@ void PlanningSceneMonitor::newPlanningSceneWorldCallback(const moveit_msgs::Plan
   }
 }
 
-void PlanningSceneMonitor::collisionObjectFailTFCallback(const moveit_msgs::CollisionObjectConstPtr& obj,
+void PlanningSceneMonitor::collisionObjectFailTFCallback(const moveit_msgs::msg::CollisionObjectConstPtr& obj,
                                                          tf2_ros::filter_failure_reasons::FilterFailureReason reason)
 {
   // if we just want to remove objects, the frame does not matter
-  if (reason == tf2_ros::filter_failure_reasons::EmptyFrameID && obj->operation == moveit_msgs::CollisionObject::REMOVE)
+  if (reason == tf2_ros::filter_failure_reasons::EmptyFrameID && obj->operation == moveit_msgs::msg::CollisionObject::REMOVE)
     collisionObjectCallback(obj);
 }
 
-void PlanningSceneMonitor::collisionObjectCallback(const moveit_msgs::CollisionObjectConstPtr& obj)
+void PlanningSceneMonitor::collisionObjectCallback(const moveit_msgs::msg::CollisionObjectConstPtr& obj)
 {
   if (!scene_)
   {
@@ -638,7 +638,7 @@ void PlanningSceneMonitor::collisionObjectCallback(const moveit_msgs::CollisionO
   triggerSceneUpdateEvent(UPDATE_GEOMETRY);
 }
 
-void PlanningSceneMonitor::attachObjectCallback(const moveit_msgs::AttachedCollisionObjectConstPtr& obj)
+void PlanningSceneMonitor::attachObjectCallback(const moveit_msgs::msg::AttachedCollisionObjectConstPtr& obj)
 {
   if (scene_)
   {
@@ -1030,10 +1030,10 @@ void PlanningSceneMonitor::startWorldGeometryMonitor(const std::string& collisio
   if (!collision_objects_topic.empty())
   {
     collision_object_subscriber_.reset(
-        new message_filters::Subscriber<moveit_msgs::CollisionObject>(root_nh_, collision_objects_topic, 1024));
+        new message_filters::Subscriber<moveit_msgs::msg::CollisionObject>(root_nh_, collision_objects_topic, 1024));
     if (tf_buffer_)
     {
-      collision_object_filter_.reset(new tf2_ros::MessageFilter<moveit_msgs::CollisionObject>(
+      collision_object_filter_.reset(new tf2_ros::MessageFilter<moveit_msgs::msg::CollisionObject>(
           *collision_object_subscriber_, *tf_buffer_, scene_->getPlanningFrame(), 1024, root_nh_));
       collision_object_filter_->registerCallback(boost::bind(&PlanningSceneMonitor::collisionObjectCallback, this, _1));
       collision_object_filter_->registerFailureCallback(
@@ -1139,7 +1139,7 @@ void PlanningSceneMonitor::stopStateMonitor()
   }
 }
 
-void PlanningSceneMonitor::onStateUpdate(const sensor_msgs::JointStateConstPtr& /* joint_state */)
+void PlanningSceneMonitor::onStateUpdate(const sensor_msgs::msg::JointStateConstPtr& /* joint_state */)
 {
   const ros::WallTime& n = ros::WallTime::now();
   ros::WallDuration dt = n - last_robot_state_update_wall_time_;
@@ -1290,7 +1290,7 @@ void PlanningSceneMonitor::setPlanningScenePublishingFrequency(double hz)
                   publish_planning_scene_frequency_);
 }
 
-void PlanningSceneMonitor::getUpdatedFrameTransforms(std::vector<geometry_msgs::TransformStamped>& transforms)
+void PlanningSceneMonitor::getUpdatedFrameTransforms(std::vector<geometry_msgs::msg::TransformStamped>& transforms)
 {
   const std::string& target = getRobotModel()->getModelFrame();
 
@@ -1301,7 +1301,7 @@ void PlanningSceneMonitor::getUpdatedFrameTransforms(std::vector<geometry_msgs::
     if (all_frame_names[i] == target || getRobotModel()->hasLinkModel(all_frame_names[i]))
       continue;
 
-    geometry_msgs::TransformStamped f;
+    geometry_msgs::msg::TransformStamped f;
     try
     {
       f = tf_buffer_->lookupTransform(target, all_frame_names[i], ros::Time(0));
@@ -1326,7 +1326,7 @@ void PlanningSceneMonitor::updateFrameTransforms()
 
   if (scene_)
   {
-    std::vector<geometry_msgs::TransformStamped> transforms;
+    std::vector<geometry_msgs::msg::TransformStamped> transforms;
     getUpdatedFrameTransforms(transforms);
     {
       boost::unique_lock<boost::shared_mutex> ulock(scene_update_mutex_);
