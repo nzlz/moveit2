@@ -333,7 +333,7 @@ bool planning_scene_monitor::CurrentStateMonitor::waitForCompleteState(const std
   return ok;
 }
 
-void planning_scene_monitor::CurrentStateMonitor::jointStateCallback(const sensor_msgs::JointStateConstPtr& joint_state)
+void planning_scene_monitor::CurrentStateMonitor::jointStateCallback(const sensor_msgs::msg::JointStateConstPtr& joint_state)
 {
   if (joint_state->name.size() != joint_state->position.size())
   {
@@ -425,7 +425,7 @@ void planning_scene_monitor::CurrentStateMonitor::tfCallback()
           joint->getParentLinkModel() ? joint->getParentLinkModel()->getName() : robot_model_->getModelFrame();
 
       ros::Time latest_common_time;
-      geometry_msgs::TransformStamped transf;
+      geometry_msgs::msg::TransformStamped transf;
       try
       {
         transf = tf_buffer_->lookupTransform(parent_frame, child_frame, ros::Time(0.0));
@@ -467,7 +467,7 @@ void planning_scene_monitor::CurrentStateMonitor::tfCallback()
   {
     // stub joint state: multi-dof joints are not modelled in the message,
     // but we should still trigger the update callbacks
-    sensor_msgs::JointStatePtr joint_state(new sensor_msgs::JointState);
+    sensor_msgs::msg::JointStatePtr joint_state(new sensor_msgs::msg::JointState);
     for (std::size_t i = 0; i < update_callbacks_.size(); ++i)
       update_callbacks_[i](joint_state);
   }

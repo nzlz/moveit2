@@ -37,17 +37,16 @@
 #ifndef MOVEIT_PLANNING_SCENE_MONITOR_CURRENT_STATE_MONITOR_
 #define MOVEIT_PLANNING_SCENE_MONITOR_CURRENT_STATE_MONITOR_
 
-#include <ros/ros.h>
 #include <tf2_ros/buffer.h>
 #include <moveit/robot_state/robot_state.h>
-#include <sensor_msgs/JointState.h>
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <boost/function.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 
 namespace planning_scene_monitor
 {
-typedef boost::function<void(const sensor_msgs::JointStateConstPtr& joint_state)> JointStateUpdateCallback;
+typedef boost::function<void(const sensor_msgs::msg::JointStateConstPtr& joint_state)> JointStateUpdateCallback;
 
 /** @class CurrentStateMonitor
     @brief Monitors the joint_states topic and tf to maintain the current state of the robot. */
@@ -189,7 +188,7 @@ public:
   }
 
 private:
-  void jointStateCallback(const sensor_msgs::JointStateConstPtr& joint_state);
+  void jointStateCallback(const sensor_msgs::msg::JointStateConstPtr& joint_state);
   void tfCallback();
 
   ros::NodeHandle nh_;
