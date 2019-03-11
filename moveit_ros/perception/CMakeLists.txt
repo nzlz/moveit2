@@ -125,5 +125,6 @@ install(
 
 ament_export_include_directories(include)
 ament_export_libraries(${THIS_PACKAGE_INCLUDE_LIBRARIES})
+ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
 
 ament_package()
