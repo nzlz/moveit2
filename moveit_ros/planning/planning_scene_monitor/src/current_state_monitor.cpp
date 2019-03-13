@@ -297,7 +297,7 @@ bool planning_scene_monitor::CurrentStateMonitor::waitForCurrentState(rclcpp::Ti
   boost::mutex::scoped_lock lock(state_update_lock_);
   while (current_state_time_ < t)
   {
-    state_update_condition_.wait_for(lock, std::chrono::nanoseconds(std::chrono::duration_cast<std::chrono::milliseconds>(timeout-elapsed).count()));
+    state_update_condition_.wait_for(lock, std::chrono::nanoseconds(std::chrono::duration_cast<std::chrono::nanoseconds>(timeout-elapsed).count()));
     dur = std::chrono::system_clock::now() - start;
     if (dur > timeout)
     {
