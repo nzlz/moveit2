@@ -155,8 +155,6 @@ void planning_scene_monitor::CurrentStateMonitor::startStateMonitor(const std::s
     }
     state_monitor_started_ = true;
     monitor_start_time_ = ros_clock.now();
-    // RCLCPP_DEBUG(logger,"Listening to joint states on topic '%s'", nh_.resolveName(joint_states_topic).c_str());
-    //TODO:
     RCLCPP_DEBUG(logger,"Listening to joint states on topic '%s'", joint_states_topic);
   }
 }
@@ -285,34 +283,32 @@ bool planning_scene_monitor::CurrentStateMonitor::haveCompleteState(const rclcpp
   return result;
 }
 
-//TODO: (anasarrak) fix this
-// bool planning_scene_monitor::CurrentStateMonitor::waitForCurrentState(const rclcpp::Time t, double wait_time) const
-// {
-//   rclcpp::Clock ros_clock;
-//   rclcpp::Time t = ros_clock.now();
-//
-//   auto start = std::chrono::system_clock::now();
-//
-//   // auto elapsed = std::chrono::syste_clock();
-//   auto elapsed = std::chrono::duration<double, std::nano>(0).count();
-//   auto timeout = std::chrono::duration<double, std::nano>(wait_time).count();
-//
-//   boost::mutex::scoped_lock lock(state_update_lock_);
-//   while (current_state_time_ < t)
-//   {
-//     auto now = std::chrono::system_clock::now();
-//     state_update_condition_.wait_for(lock, std::chrono::nanoseconds(timeout - elapsed));
-//     elapsed = now - start;
-//     if (elapsed > timeout)
-//     {
-//       RCLCPP_INFO(logger, "Didn't received robot state (joint angles) with recent timestamp within "
-//                       "%f seconds.\n"
-//                       "Check clock synchronization if your are running ROS across multiple machines!", wait_time);
-//       return false;
-//     }
-//   }
-//   return true;
-// }
+bool planning_scene_monitor::CurrentStateMonitor::waitForCurrentState(rclcpp::Time t, double wait_time) const
+{
+  rclcpp::Clock ros_clock;
+  t = ros_clock.now();
+
+  auto start = std::chrono::system_clock::now();
+
+  auto elapsed = std::chrono::duration<double, std::nano>(0.0);
+  auto timeout = std::chrono::duration<double, std::nano>(wait_time);
+  std::chrono::duration<double> dur;
+
+  boost::mutex::scoped_lock lock(state_update_lock_);
+  while (current_state_time_ < t)
+  {
+    state_update_condition_.wait_for(lock, std::chrono::nanoseconds(std::chrono::duration_cast<std::chrono::milliseconds>(timeout-elapsed).count()));
+    dur = std::chrono::system_clock::now() - start;
+    if (dur > timeout)
+    {
+      RCLCPP_INFO(logger, "Didn't received robot state (joint angles) with recent timestamp within "
+                      "%f seconds.\n"
+                      "Check clock synchronization if your are running ROS across multiple machines!", wait_time);
+      return false;
+    }
+  }
+  return true;
+}
 
 bool planning_scene_monitor::CurrentStateMonitor::waitForCompleteState(double wait_time) const
 {
