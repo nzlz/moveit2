@@ -40,7 +40,7 @@
 #include <tf2_ros/buffer.h>
 #include <moveit/robot_state/robot_state.h>
 #include <sensor_msgs/msg/joint_state.hpp>
-#include <boost/function.hpp>
+#include <functional>
 #include <mutex>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/signals2.hpp>
@@ -50,7 +50,7 @@
 namespace planning_scene_monitor
 {
 
-typedef boost::function<void(const sensor_msgs::msg::JointState::ConstPtr& joint_state)> JointStateUpdateCallback;
+typedef std::function<void(const sensor_msgs::msg::JointState::ConstPtr& joint_state)> JointStateUpdateCallback;
 
 /** @class CurrentStateMonitor
     @brief Monitors the joint_states topic and tf to maintain the current state of the robot. */
