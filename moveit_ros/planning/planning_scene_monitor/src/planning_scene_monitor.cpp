@@ -37,17 +37,19 @@
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 #include <moveit/robot_model_loader/robot_model_loader.h>
 #include <moveit/exceptions/exceptions.h>
-#include <moveit_msgs/GetPlanningScene.h>
-
-#include <dynamic_reconfigure/server.h>
-#include <moveit_ros_planning/PlanningSceneMonitorDynamicReconfigureConfig.h>
+#include <moveit_msgs/srv/get_planning_scene.hpp>
+//todo (anasarrak) Generate a configuration for ROS2.
+// #include <moveit_ros_planning/PlanningSceneMonitorDynamicReconfigureConfig.h>
 #include <tf2/exceptions.h>
 #include <tf2/LinearMath/Transform.h>
 #include <tf2_eigen/tf2_eigen.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <moveit/profiler/profiler.h>
+#include <rcutils/logging_macros.h>
 
 #include <memory>
+
+rclcpp::Logger logger = rclcpp::get_logger("planning_scene_monitor");
 
 namespace planning_scene_monitor
 {
@@ -218,7 +220,7 @@ void PlanningSceneMonitor::initialize(const planning_scene::PlanningScenePtr& sc
       }
       catch (moveit::ConstructException& e)
       {
-        ROS_ERROR_NAMED(LOGNAME, "Configuration of planning scene failed");
+        RCLCPP_ERROR(logger, "Configuration of planning scene failed");
         scene_.reset();
         scene_const_ = scene_;
       }
@@ -233,7 +235,7 @@ void PlanningSceneMonitor::initialize(const planning_scene::PlanningScenePtr& sc
   }
   else
   {
-    ROS_ERROR_NAMED(LOGNAME, "Robot model not loaded");
+    RCLCPP_ERROR(logger, "Robot model not loaded");
   }
 
   publish_planning_scene_frequency_ = 2.0;
@@ -283,7 +285,7 @@ void PlanningSceneMonitor::monitorDiffs(bool flag)
     {
       if (publish_planning_scene_)
       {
-        ROS_WARN_NAMED(LOGNAME, "Diff monitoring was stopped while publishing planning scene diffs. "
+        RCLCPP_WARN(logger, "Diff monitoring was stopped while publishing planning scene diffs. "
                                 "Stopping planning scene diff publisher");
         stopPublishingPlanningScene();
       }
@@ -315,7 +317,7 @@ void PlanningSceneMonitor::stopPublishingPlanningScene()
     copy->join();
     monitorDiffs(false);
     planning_scene_publisher_.shutdown();
-    ROS_INFO_NAMED(LOGNAME, "Stopped publishing maintained planning scene.");
+    RCLCPP_INFO(logger, "Stopped publishing maintained planning scene.");
   }
 }
 
@@ -326,7 +328,7 @@ void PlanningSceneMonitor::startPublishingPlanningScene(SceneUpdateType update_t
   if (!publish_planning_scene_ && scene_)
   {
     planning_scene_publisher_ = nh_.advertise<moveit_msgs::msg::PlanningScene>(planning_scene_topic, 100, false);
-    ROS_INFO_NAMED(LOGNAME, "Publishing maintained planning scene on '%s'", planning_scene_topic.c_str());
+    RCLCPP_INFO(logger, "Publishing maintained planning scene on '%s'", planning_scene_topic.c_str());
     monitorDiffs(true);
     publish_planning_scene_.reset(new boost::thread(boost::bind(&PlanningSceneMonitor::scenePublishingThread, this)));
   }
@@ -334,7 +336,7 @@ void PlanningSceneMonitor::startPublishingPlanningScene(SceneUpdateType update_t
 
 void PlanningSceneMonitor::scenePublishingThread()
 {
-  ROS_DEBUG_NAMED(LOGNAME, "Started scene publishing thread ...");
+  RCLCPP_DEBUG(logger, "Started scene publishing thread ...");
 
   // publish the full planning scene once
   {
@@ -346,7 +348,7 @@ void PlanningSceneMonitor::scenePublishingThread()
       scene_->getPlanningSceneMsg(msg);
     }
     planning_scene_publisher_.publish(msg);
-    ROS_DEBUG_NAMED(LOGNAME, "Published the full planning scene: '%s'", msg.name.c_str());
+    RCLCPP_DEBUG(logger, "Published the full planning scene: '%s'", msg.name.c_str());
   }
 
   do
@@ -409,7 +411,7 @@ void PlanningSceneMonitor::scenePublishingThread()
       rate.reset();
       planning_scene_publisher_.publish(msg);
       if (is_full)
-        ROS_DEBUG_NAMED(LOGNAME, "Published full planning scene: '%s'", msg.name.c_str());
+        RCLCPP_DEBUG(logger, "Published full planning scene: '%s'", msg.name.c_str());
       rate.sleep();
     }
   } while (publish_planning_scene_);
@@ -443,7 +445,7 @@ bool sceneIsParentOf(const planning_scene::PlanningSceneConstPtr& scene,
     return sceneIsParentOf(scene->getParent(), possible_parent);
   return false;
 }
-}  // namespace
+}
 
 bool PlanningSceneMonitor::updatesScene(const planning_scene::PlanningScenePtr& scene) const
 {
@@ -469,8 +471,8 @@ void PlanningSceneMonitor::triggerSceneUpdateEvent(SceneUpdateType update_type)
 bool PlanningSceneMonitor::requestPlanningSceneState(const std::string& service_name)
 {
   // use global namespace for service
-  ros::ServiceClient client = ros::NodeHandle().serviceClient<moveit_msgs::srv::GetPlanningScene>(service_name);
-  moveit_msgs::srv::GetPlanningScene srv;
+  ros::ServiceClient client = ros::NodeHandle().serviceClient<moveit_msgs::msg::srv::GetPlanningScene>(service_name);
+  moveit_msgs::msg::srv::GetPlanningScene srv;
   srv.request.components.components =
       srv.request.components.SCENE_SETTINGS | srv.request.components.ROBOT_STATE |
       srv.request.components.ROBOT_STATE_ATTACHED_OBJECTS | srv.request.components.WORLD_OBJECT_NAMES |
@@ -481,7 +483,7 @@ bool PlanningSceneMonitor::requestPlanningSceneState(const std::string& service_
   // Make sure client is connected to server
   if (!client.exists())
   {
-    ROS_DEBUG_STREAM_NAMED(LOGNAME, "Waiting for service `" << service_name << "` to exist.");
+    RCLCPP_DEBUG(logger, "Waiting for service `%s` to exist.", service_name);
     client.waitForExistence(ros::Duration(5.0));
   }
 
@@ -491,7 +493,7 @@ bool PlanningSceneMonitor::requestPlanningSceneState(const std::string& service_
   }
   else
   {
-    ROS_INFO_NAMED(LOGNAME, "Failed to call service %s, have you launched move_group? at %s:%d", service_name.c_str(),
+    RCLCPP_INFO(logger, "Failed to call service %s, have you launched move_group? at %s:%d", service_name.c_str(),
                    __FILE__, __LINE__);
     return false;
   }
@@ -526,9 +528,8 @@ bool PlanningSceneMonitor::newPlanningSceneMessage(const moveit_msgs::msg::Plann
 
     last_update_time_ = ros::Time::now();
     last_robot_motion_time_ = scene.robot_state.joint_state.header.stamp;
-    ROS_DEBUG_STREAM_NAMED("planning_scene_monitor",
-                           "scene update " << fmod(last_update_time_.toSec(), 10.)
-                                           << " robot stamp: " << fmod(last_robot_motion_time_.toSec(), 10.));
+    RCLCPP_DEBUG(logger,
+                           "scene update %f robot stamp: %f",fmod(last_update_time_.toSec(), 10.), fmod(last_robot_motion_time_.toSec(), 10.));
     old_scene_name = scene_->getName();
     result = scene_->usePlanningSceneMsg(scene);
     if (octomap_monitor_)
@@ -581,7 +582,7 @@ bool PlanningSceneMonitor::newPlanningSceneMessage(const moveit_msgs::msg::Plann
       if (!planning_scene::PlanningScene::isEmpty(scene.robot_state))
       {
         upd = (SceneUpdateType)((int)upd | (int)UPDATE_STATE);
-        if (!scene.robot_state.attached_collision_objects.empty() || !static_cast<bool>(scene.robot_state.is_diff))
+        if (!scene.robot_state.attached_collision_objects.empty() || scene.robot_state.is_diff == false)
           upd = (SceneUpdateType)((int)upd | (int)UPDATE_GEOMETRY);
       }
     }
@@ -682,7 +683,7 @@ void PlanningSceneMonitor::excludeRobotLinksFromOctree()
     }
     if (!warned && ((ros::WallTime::now() - start) > ros::WallDuration(30.0)))
     {
-      ROS_WARN_STREAM_NAMED(LOGNAME, "It is likely there are too many vertices in collision geometry");
+      RCLCPP_WARN(logger, "It is likely there are too many vertices in collision geometry");
       warned = true;
     }
   }
@@ -772,7 +773,7 @@ void PlanningSceneMonitor::excludeAttachedBodyFromOctree(const robot_state::Atta
     }
   }
   if (found)
-    ROS_DEBUG_NAMED(LOGNAME, "Excluding attached body '%s' from monitored octomap", attached_body->getName().c_str());
+    RCLCPP_DEBUG(logger, "Excluding attached body '%s' from monitored octomap", attached_body->getName().c_str());
 }
 
 void PlanningSceneMonitor::includeAttachedBodyInOctree(const robot_state::AttachedBody* attached_body)
@@ -787,7 +788,7 @@ void PlanningSceneMonitor::includeAttachedBodyInOctree(const robot_state::Attach
   {
     for (std::size_t k = 0; k < it->second.size(); ++k)
       octomap_monitor_->forgetShape(it->second[k].first);
-    ROS_DEBUG_NAMED(LOGNAME, "Including attached body '%s' in monitored octomap", attached_body->getName().c_str());
+    RCLCPP_DEBUG(logger, "Including attached body '%s' in monitored octomap", attached_body->getName().c_str());
     attached_body_shape_handles_.erase(it);
   }
 }
@@ -812,7 +813,7 @@ void PlanningSceneMonitor::excludeWorldObjectFromOctree(const collision_detectio
     }
   }
   if (found)
-    ROS_DEBUG_NAMED(LOGNAME, "Excluding collision object '%s' from monitored octomap", obj->id_.c_str());
+    RCLCPP_DEBUG(logger, "Excluding collision object '%s' from monitored octomap", obj->id_.c_str());
 }
 
 void PlanningSceneMonitor::includeWorldObjectInOctree(const collision_detection::World::ObjectConstPtr& obj)
@@ -827,7 +828,7 @@ void PlanningSceneMonitor::includeWorldObjectInOctree(const collision_detection:
   {
     for (std::size_t k = 0; k < it->second.size(); ++k)
       octomap_monitor_->forgetShape(it->second[k].first);
-    ROS_DEBUG_NAMED(LOGNAME, "Including collision object '%s' in monitored octomap", obj->id_.c_str());
+    RCLCPP_DEBUG(logger, "Including collision object '%s' in monitored octomap", obj->id_.c_str());
     collision_body_shape_handles_.erase(it);
   }
 }
@@ -870,7 +871,7 @@ bool PlanningSceneMonitor::waitForCurrentRobotState(const ros::Time& t, double w
   ros::WallTime start = ros::WallTime::now();
   ros::WallDuration timeout(wait_time);
 
-  ROS_DEBUG_NAMED(LOGNAME, "sync robot state to: %.3fs", fmod(t.toSec(), 10.));
+  RCLCPP_DEBUG(logger, "sync robot state to: %.3fs", fmod(t.toSec(), 10.));
 
   if (current_state_monitor_)
   {
@@ -893,7 +894,7 @@ bool PlanningSceneMonitor::waitForCurrentRobotState(const ros::Time& t, double w
       return true;
     }
 
-    ROS_WARN_NAMED(LOGNAME, "Failed to fetch current robot state.");
+    RCLCPP_WARN(logger, "Failed to fetch current robot state.");
     return false;
   }
 
@@ -905,18 +906,18 @@ bool PlanningSceneMonitor::waitForCurrentRobotState(const ros::Time& t, double w
   while (last_robot_motion_time_ < t &&  // Wait until the state update actually reaches the scene.
          timeout > ros::WallDuration())
   {
-    ROS_DEBUG_STREAM_NAMED(LOGNAME, "last robot motion: " << (t - last_robot_motion_time_).toSec() << " ago");
+    RCLCPP_DEBUG(logger, "last robot motion: %i ago",(t - last_robot_motion_time_));
     new_scene_update_condition_.wait_for(lock, boost::chrono::nanoseconds(timeout.toNSec()));
     timeout -= ros::WallTime::now() - start;  // compute remaining wait_time
   }
   bool success = last_robot_motion_time_ >= t;
   // suppress warning if we received an update at all
   if (!success && prev_robot_motion_time != last_robot_motion_time_)
-    ROS_WARN_NAMED(LOGNAME, "Maybe failed to update robot state, time diff: %.3fs",
+    RCLCPP_WARN(logger, "Maybe failed to update robot state, time diff: %.3fs",
                    (t - last_robot_motion_time_).toSec());
 
-  ROS_DEBUG_STREAM_NAMED(LOGNAME, "sync done: robot motion: " << (t - last_robot_motion_time_).toSec()
-                                                              << " scene update: " << (t - last_update_time_).toSec());
+  RCLCPP_DEBUG(logger, "sync done: robot motion: %i scene update: %i",
+                            (t - last_robot_motion_time_).toSec(), (t - last_update_time_).toSec());
   return success;
 }
 
@@ -952,13 +953,13 @@ void PlanningSceneMonitor::startSceneMonitor(const std::string& scene_topic)
 {
   stopSceneMonitor();
 
-  ROS_INFO_NAMED(LOGNAME, "Starting planning scene monitor");
+  RCLCPP_INFO(logger, "Starting planning scene monitor");
   // listen for planning scene updates; these messages include transforms, so no need for filters
   if (!scene_topic.empty())
   {
     planning_scene_subscriber_ =
         root_nh_.subscribe(scene_topic, 100, &PlanningSceneMonitor::newPlanningSceneCallback, this);
-    ROS_INFO_NAMED(LOGNAME, "Listening to '%s'", root_nh_.resolveName(scene_topic).c_str());
+    RCLCPP_INFO(logger, "Listening to '%s'", root_nh_.resolveName(scene_topic).c_str());
   }
 }
 
@@ -966,7 +967,7 @@ void PlanningSceneMonitor::stopSceneMonitor()
 {
   if (planning_scene_subscriber_)
   {
-    ROS_INFO_NAMED(LOGNAME, "Stopping planning scene monitor");
+    RCLCPP_INFO(logger, "Stopping planning scene monitor");
     planning_scene_subscriber_.shutdown();
   }
 }
@@ -1023,7 +1024,7 @@ void PlanningSceneMonitor::startWorldGeometryMonitor(const std::string& collisio
                                                      const bool load_octomap_monitor)
 {
   stopWorldGeometryMonitor();
-  ROS_INFO_NAMED(LOGNAME, "Starting world geometry update monitor for collision objects, attached objects, octomap "
+  RCLCPP_INFO(logger, "Starting world geometry update monitor for collision objects, attached objects, octomap "
                           "updates.");
 
   // Listen to the /collision_objects topic to detect requests to add/remove/update collision objects to/from the world
@@ -1038,7 +1039,7 @@ void PlanningSceneMonitor::startWorldGeometryMonitor(const std::string& collisio
       collision_object_filter_->registerCallback(boost::bind(&PlanningSceneMonitor::collisionObjectCallback, this, _1));
       collision_object_filter_->registerFailureCallback(
           boost::bind(&PlanningSceneMonitor::collisionObjectFailTFCallback, this, _1, _2));
-      ROS_INFO_NAMED(LOGNAME, "Listening to '%s' using message notifier with target frame '%s'",
+      RCLCPP_INFO(logger, "Listening to '%s' using message notifier with target frame '%s'",
                      root_nh_.resolveName(collision_objects_topic).c_str(),
                      collision_object_filter_->getTargetFramesString().c_str());
     }
@@ -1046,7 +1047,7 @@ void PlanningSceneMonitor::startWorldGeometryMonitor(const std::string& collisio
     {
       collision_object_subscriber_->registerCallback(
           boost::bind(&PlanningSceneMonitor::collisionObjectCallback, this, _1));
-      ROS_INFO_NAMED(LOGNAME, "Listening to '%s'", root_nh_.resolveName(collision_objects_topic).c_str());
+      RCLCPP_INFO(logger, "Listening to '%s'", root_nh_.resolveName(collision_objects_topic).c_str());
     }
   }
 
@@ -1054,7 +1055,7 @@ void PlanningSceneMonitor::startWorldGeometryMonitor(const std::string& collisio
   {
     planning_scene_world_subscriber_ =
         root_nh_.subscribe(planning_scene_world_topic, 1, &PlanningSceneMonitor::newPlanningSceneWorldCallback, this);
-    ROS_INFO_NAMED(LOGNAME, "Listening to '%s' for planning scene world geometry",
+    RCLCPP_INFO(logger, "Listening to '%s' for planning scene world geometry",
                    root_nh_.resolveName(planning_scene_world_topic).c_str());
   }
 
@@ -1080,14 +1081,14 @@ void PlanningSceneMonitor::stopWorldGeometryMonitor()
 {
   if (collision_object_subscriber_ || collision_object_filter_)
   {
-    ROS_INFO_NAMED(LOGNAME, "Stopping world geometry monitor");
+    RCLCPP_INFO(logger, "Stopping world geometry monitor");
     collision_object_filter_.reset();
     collision_object_subscriber_.reset();
     planning_scene_world_subscriber_.shutdown();
   }
   else if (planning_scene_world_subscriber_)
   {
-    ROS_INFO_NAMED(LOGNAME, "Stopping world geometry monitor");
+    RCLCPP_INFO(logger, "Stopping world geometry monitor");
     planning_scene_world_subscriber_.shutdown();
   }
   if (octomap_monitor_)
@@ -1116,12 +1117,12 @@ void PlanningSceneMonitor::startStateMonitor(const std::string& joint_states_top
       // using regular message filter as there's no header
       attached_collision_object_subscriber_ =
           root_nh_.subscribe(attached_objects_topic, 1024, &PlanningSceneMonitor::attachObjectCallback, this);
-      ROS_INFO_NAMED(LOGNAME, "Listening to '%s' for attached collision objects",
+      RCLCPP_INFO(logger, "Listening to '%s' for attached collision objects",
                      root_nh_.resolveName(attached_objects_topic).c_str());
     }
   }
   else
-    ROS_ERROR_NAMED(LOGNAME, "Cannot monitor robot state because planning scene is not configured");
+    RCLCPP_ERROR(logger, "Cannot monitor robot state because planning scene is not configured");
 }
 
 void PlanningSceneMonitor::stopStateMonitor()
@@ -1139,7 +1140,7 @@ void PlanningSceneMonitor::stopStateMonitor()
   }
 }
 
-void PlanningSceneMonitor::onStateUpdate(const sensor_msgs::JointStateConstPtr& /* joint_state */)
+void PlanningSceneMonitor::onStateUpdate(/* const sensor_msgs::msg::JointStateConstPtr& joint_state */)
 {
   const ros::WallTime& n = ros::WallTime::now();
   ros::WallDuration dt = n - last_robot_state_update_wall_time_;
@@ -1181,8 +1182,8 @@ void PlanningSceneMonitor::stateUpdateTimerCallback(const ros::WallTimerEvent& e
         state_update_pending_ = false;
         last_robot_state_update_wall_time_ = ros::WallTime::now();
         update = true;
-        ROS_DEBUG_STREAM_NAMED(LOGNAME,
-                               "performPendingStateUpdate: " << fmod(last_robot_state_update_wall_time_.toSec(), 10));
+        RCLCPP_DEBUG(logger,
+                               "performPendingStateUpdate: %f", fmod(last_robot_state_update_wall_time_.toSec(), 10));
       }
     }
 
@@ -1190,7 +1191,7 @@ void PlanningSceneMonitor::stateUpdateTimerCallback(const ros::WallTimerEvent& e
     if (update)
     {
       updateSceneWithCurrentState();
-      ROS_DEBUG_NAMED(LOGNAME, "performPendingStateUpdate done");
+      RCLCPP_DEBUG(logger, "performPendingStateUpdate done");
     }
   }
 }
@@ -1238,7 +1239,7 @@ void PlanningSceneMonitor::setStateUpdateFrequency(double hz)
     if (state_update_pending_)
       update = true;
   }
-  ROS_INFO_NAMED(LOGNAME, "Updating internal planning scene state at most every %lf seconds", dt_state_update_.toSec());
+  RCLCPP_INFO(logger, "Updating internal planning scene state at most every %lf seconds", dt_state_update_.toSec());
 
   if (update)
     updateSceneWithCurrentState();
@@ -1253,21 +1254,21 @@ void PlanningSceneMonitor::updateSceneWithCurrentState()
         (ros::Time::now() - current_state_monitor_->getMonitorStartTime()).toSec() > 1.0)
     {
       std::string missing_str = boost::algorithm::join(missing, ", ");
-      ROS_WARN_THROTTLE_NAMED(1, LOGNAME, "The complete state of the robot is not yet known.  Missing %s",
+      RCUTILS_LOG_WARN_THROTTLE_NAMED(1,"The complete state of the robot is not yet known.  Missing %s",
                               missing_str.c_str());
     }
 
     {
       boost::unique_lock<boost::shared_mutex> ulock(scene_update_mutex_);
       last_update_time_ = last_robot_motion_time_ = current_state_monitor_->getCurrentStateTime();
-      ROS_DEBUG_STREAM_NAMED(LOGNAME, "robot state update " << fmod(last_robot_motion_time_.toSec(), 10.));
+      RCLCPP_DEBUG(logger, "robot state update %f", fmod(last_robot_motion_time_.toSec(), 10.));
       current_state_monitor_->setToCurrentState(scene_->getCurrentStateNonConst());
       scene_->getCurrentStateNonConst().update();  // compute all transforms
     }
     triggerSceneUpdateEvent(UPDATE_STATE);
   }
   else
-    ROS_ERROR_THROTTLE_NAMED(1, LOGNAME, "State monitor is not active. Unable to set the planning scene state");
+    RCUTILS_LOG_ERROR_THROTTLE_NAMED(1, "State monitor is not active. Unable to set the planning scene state");
 }
 
 void PlanningSceneMonitor::addUpdateCallback(const boost::function<void(SceneUpdateType)>& fn)
@@ -1286,11 +1287,11 @@ void PlanningSceneMonitor::clearUpdateCallbacks()
 void PlanningSceneMonitor::setPlanningScenePublishingFrequency(double hz)
 {
   publish_planning_scene_frequency_ = hz;
-  ROS_DEBUG_NAMED(LOGNAME, "Maximum frquency for publishing a planning scene is now %lf Hz",
+  RCLCPP_DEBUG(logger, "Maximum frquency for publishing a planning scene is now %lf Hz",
                   publish_planning_scene_frequency_);
 }
 
-void PlanningSceneMonitor::getUpdatedFrameTransforms(std::vector<geometry_msgs::TransformStamped>& transforms)
+void PlanningSceneMonitor::getUpdatedFrameTransforms(std::vector<geometry_msgs::msg::TransformStamped>& transforms)
 {
   const std::string& target = getRobotModel()->getModelFrame();
 
@@ -1301,16 +1302,15 @@ void PlanningSceneMonitor::getUpdatedFrameTransforms(std::vector<geometry_msgs::
     if (all_frame_names[i] == target || getRobotModel()->hasLinkModel(all_frame_names[i]))
       continue;
 
-    geometry_msgs::TransformStamped f;
+    geometry_msgs::msg::TransformStamped f;
     try
     {
       f = tf_buffer_->lookupTransform(target, all_frame_names[i], ros::Time(0));
     }
     catch (tf2::TransformException& ex)
     {
-      ROS_WARN_STREAM_NAMED(LOGNAME, "Unable to transform object from frame '"
-                                         << all_frame_names[i] << "' to planning frame '" << target << "' ("
-                                         << ex.what() << ")");
+      RCLCPP_WARN(logger, "Unable to transform object from frame '%s' to planning frame'%s' (%s)",
+                      all_frame_names[i], target, ex.what());
       continue;
     }
     f.header.frame_id = all_frame_names[i];
@@ -1326,7 +1326,7 @@ void PlanningSceneMonitor::updateFrameTransforms()
 
   if (scene_)
   {
-    std::vector<geometry_msgs::TransformStamped> transforms;
+    std::vector<geometry_msgs::msg::TransformStamped> transforms;
     getUpdatedFrameTransforms(transforms);
     {
       boost::unique_lock<boost::shared_mutex> ulock(scene_update_mutex_);
@@ -1353,23 +1353,23 @@ void PlanningSceneMonitor::configureCollisionMatrix(const planning_scene::Planni
 
   // first we do default collision operations
   if (!nh_.hasParam(robot_description_ + "_planning/default_collision_operations"))
-    ROS_DEBUG_NAMED(LOGNAME, "No additional default collision operations specified");
+    RCLCPP_DEBUG(logger, "No additional default collision operations specified");
   else
   {
-    ROS_DEBUG_NAMED(LOGNAME, "Reading additional default collision operations");
+    RCLCPP_DEBUG(logger, "Reading additional default collision operations");
 
     XmlRpc::XmlRpcValue coll_ops;
     nh_.getParam(robot_description_ + "_planning/default_collision_operations", coll_ops);
 
     if (coll_ops.getType() != XmlRpc::XmlRpcValue::TypeArray)
     {
-      ROS_WARN_NAMED(LOGNAME, "default_collision_operations is not an array");
+      RCLCPP_WARN(logger, "default_collision_operations is not an array");
       return;
     }
 
     if (coll_ops.size() == 0)
     {
-      ROS_WARN_NAMED(LOGNAME, "No collision operations in default collision operations");
+      RCLCPP_WARN(logger, "No collision operations in default collision operations");
       return;
     }
 
@@ -1377,7 +1377,7 @@ void PlanningSceneMonitor::configureCollisionMatrix(const planning_scene::Planni
     {
       if (!coll_ops[i].hasMember("object1") || !coll_ops[i].hasMember("object2") || !coll_ops[i].hasMember("operation"))
       {
-        ROS_WARN_NAMED(LOGNAME, "All collision operations must have two objects and an operation");
+        RCLCPP_WARN(logger, "All collision operations must have two objects and an operation");
         continue;
       }
       acm.setEntry(std::string(coll_ops[i]["object1"]), std::string(coll_ops[i]["object2"]),
@@ -1410,7 +1410,7 @@ void PlanningSceneMonitor::configureDefaultPadding()
   nh_.param(robot_description + "_planning/default_robot_link_scale", default_robot_link_scale_,
             std::map<std::string, double>());
 
-  ROS_DEBUG_STREAM_NAMED(LOGNAME, "Loaded " << default_robot_link_padd_.size() << " default link paddings");
-  ROS_DEBUG_STREAM_NAMED(LOGNAME, "Loaded " << default_robot_link_scale_.size() << " default link scales");
+  RCLCPP_DEBUG(logger, "Loaded %i default link paddings",default_robot_link_padd_.size());
+  RCLCPP_DEBUG(logger, "Loaded %i default link scales",default_robot_link_scale_.size());
 }
 }  // namespace planning_scene_monitor
