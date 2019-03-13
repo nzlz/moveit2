@@ -41,7 +41,7 @@
 #include <moveit/robot_state/robot_state.h>
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <boost/function.hpp>
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/signals2.hpp>
 #include "rclcpp/rclcpp.hpp"
@@ -209,7 +209,7 @@ private:
   double error_;
   rclcpp::Time current_state_time_;
 
-  mutable boost::mutex state_update_lock_;
+  mutable std::mutex state_update_lock_;
   mutable boost::condition_variable state_update_condition_;
   std::vector<JointStateUpdateCallback> update_callbacks_;
 
