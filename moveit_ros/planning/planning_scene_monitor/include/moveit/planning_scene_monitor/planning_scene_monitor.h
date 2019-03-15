@@ -154,7 +154,7 @@ public:
    *  @param name A name identifying this planning scene monitor
    */
   PlanningSceneMonitor(const planning_scene::PlanningScenePtr& scene,
-                       const robot_model_loader::RobotModelLoaderPtr& rml, const ros::NodeHandle& nh,
+                       const robot_model_loader::RobotModelLoaderPtr& rml, const std::shared_ptr<rclcpp::Node> node,
                        const std::shared_ptr<tf2_ros::Buffer>& tf_buffer = std::shared_ptr<tf2_ros::Buffer>(),
                        const std::string& name = "");
 
@@ -335,7 +335,7 @@ public:
   /** @brief Request planning scene state using a service call
    *  @param service_name The name of the service to use for requesting the
    *     planning scene.  This must be a service of type
-   *     moveit_msgs::msg::srv::GetPlanningScene and is usually called
+   *     moveit_msgs::srv::GetPlanningScene and is usually called
    *     "/get_planning_scene".
    */
   bool requestPlanningSceneState(const std::string& service_name = DEFAULT_PLANNING_SCENE_SERVICE);
@@ -417,20 +417,20 @@ protected:
   void configureDefaultPadding();
 
   /** @brief Callback for a new collision object msg*/
-  void collisionObjectCallback(const moveit_msgs::msg::CollisionObjectConstPtr& obj);
+  void collisionObjectCallback(const moveit_msgs::msg::CollisionObject::ConstPtr& obj);
 
   /** @brief Callback for a new collision object msg that failed to pass the TF filter */
-  void collisionObjectFailTFCallback(const moveit_msgs::msg::CollisionObjectConstPtr& obj,
+  void collisionObjectFailTFCallback(const moveit_msgs::msg::CollisionObject::ConstPtr& obj,
                                      tf2_ros::filter_failure_reasons::FilterFailureReason reason);
 
   /** @brief Callback for a new planning scene world*/
-  void newPlanningSceneWorldCallback(const moveit_msgs::msg::PlanningSceneWorldConstPtr& world);
+  void newPlanningSceneWorldCallback(const moveit_msgs::msg::PlanningSceneWorld::ConstPtr& world);
 
   /** @brief Callback for octomap updates */
   void octomapUpdateCallback();
 
   /** @brief Callback for a new attached object msg*/
-  void attachObjectCallback(const moveit_msgs::msg::AttachedCollisionObjectConstPtr& obj);
+  void attachObjectCallback(const moveit_msgs::msg::AttachedCollisionObject::SharedPtr obj);
 
   /** @brief Callback for a change for an attached object of the current state of the planning scene */
   void currentStateAttachedBodyUpdateCallback(robot_state::AttachedBody* attached_body, bool just_attached);
@@ -465,9 +465,10 @@ protected:
   rclcpp::Time last_update_time_;                     /// Last time the state was updated
   rclcpp::Time last_robot_motion_time_;               /// Last time the robot has moved
 
-  ros::NodeHandle nh_;
-  ros::NodeHandle root_nh_;
-  // ros::CallbackQueue queue_;
+  // ros::NodeHandle nh_;
+  // ros::NodeHandle root_nh_;
+  // TODO: (anasarrak) callbacks on ROS2? https://answers.ros.org/question/300874/how-do-you-use-callbackgroups-as-a-replacement-for-callbackqueues-in-ros2/
+  ros::CallbackQueue queue_;
   std::shared_ptr<ros::AsyncSpinner> spinner_;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
@@ -488,7 +489,7 @@ protected:
   std::map<std::string, double> default_robot_link_scale_;
 
   // variables for planning scene publishing
-  rclcpp::Publisher planning_scene_publisher_;
+  rclcpp::Publisher<moveit_msgs::msg::PlanningScene>::SharedPtr planning_scene_publisher_;
   std::unique_ptr<boost::thread> publish_planning_scene_;
   double publish_planning_scene_frequency_;
   SceneUpdateType publish_update_types_;
@@ -496,10 +497,11 @@ protected:
   boost::condition_variable_any new_scene_update_condition_;
 
   // subscribe to various sources of data
-  rclcpp::Subscriber planning_scene_subscriber_;
-  rclcpp::Subscriber planning_scene_world_subscriber_;
+  // rclcpp::Subscriber planning_scene_subscriber_;
+  rclcpp::Subscription<moveit_msgs::msg::PlanningScene>::SharedPtr planning_scene_subscriber_;
+  rclcpp::Subscription<moveit_msgs::msg::PlanningSceneWorld>::SharedPtr planning_scene_world_subscriber_;
 
-  rclcpp::Subscriber attached_collision_object_subscriber_;
+  rclcpp::Subscription<moveit_msgs::msg::AttachedCollisionObject>::SharedPtr attached_collision_object_subscriber_;
 
   std::unique_ptr<message_filters::Subscriber<moveit_msgs::msg::CollisionObject> > collision_object_subscriber_;
   std::unique_ptr<tf2_ros::MessageFilter<moveit_msgs::msg::CollisionObject> > collision_object_filter_;
@@ -542,7 +544,7 @@ private:
   void stateUpdateTimerCallback(const ros::WallTimerEvent& event);
 
   // Callback for a new planning scene msg
-  void newPlanningSceneCallback(const moveit_msgs::msg::PlanningSceneConstPtr& scene);
+  void newPlanningSceneCallback(const moveit_msgs::msg::PlanningScene::SharedPtr scene);
 
   // Lock for state_update_pending_ and dt_state_update_
   boost::mutex state_pending_mutex_;
@@ -576,6 +578,8 @@ private:
 
   class DynamicReconfigureImpl;
   DynamicReconfigureImpl* reconfigure_impl_;
+
+  std::shared_ptr<rclcpp::Node> node_;
 };
 
 /** \brief This is a convenience class for obtaining access to an
