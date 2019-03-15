@@ -82,7 +82,7 @@ rclcpp::Time planning_scene_monitor::CurrentStateMonitor::getCurrentStateTime() 
 }
 
 std::pair<robot_state::RobotStatePtr, rclcpp::Time>
-planning_scene_monitor::CurrentStateMonitor::getCurnode_rentStateAndTime() const
+planning_scene_monitor::CurrentStateMonitor::getCurrentStateAndTime() const
 {
   std::unique_lock<std::mutex> slock(state_update_lock_);
   robot_state::RobotState* result = new robot_state::RobotState(robot_state_);
@@ -168,7 +168,7 @@ void planning_scene_monitor::CurrentStateMonitor::stopStateMonitor()
 {
   if (state_monitor_started_)
   {
-    rclcpp::shutdown();
+    joint_state_subscriber_.reset();
     if (tf_buffer_ && tf_connection_)
     {
       tf_buffer_->_removeTransformsChangedListener(*tf_connection_);

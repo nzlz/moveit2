@@ -126,8 +126,6 @@ public:
    *  @return Returns the current state */
   robot_state::RobotStatePtr getCurrentState() const;
 
-  std::pair<robot_state::RobotStatePtr, rclcpp::Time> getCurrentStateAndTime() const;
-
   /** @brief Set the state \e upd to the current state maintained by this class. */
   void setToCurrentState(robot_state::RobotState& upd) const;
 
