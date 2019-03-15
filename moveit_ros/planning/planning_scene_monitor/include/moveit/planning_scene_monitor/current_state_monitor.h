@@ -214,6 +214,8 @@ private:
   std::shared_ptr<TFConnection> tf_connection_;
 
   std::shared_ptr<rclcpp::Node> node_;
+
+  rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_subscriber_;
 };
 
 MOVEIT_CLASS_FORWARD(CurrentStateMonitor);

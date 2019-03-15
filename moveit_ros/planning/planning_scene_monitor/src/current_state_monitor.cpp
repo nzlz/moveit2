@@ -146,7 +146,7 @@ void planning_scene_monitor::CurrentStateMonitor::startStateMonitor(const std::s
       RCLCPP_ERROR(logger, " The joint states topic cannot be an empty string");
     }
     else
-      auto joint_state_subscriber_ = node_->create_subscription<sensor_msgs::msg::JointState>(joint_states_topic,
+      joint_state_subscriber_ = node_->create_subscription<sensor_msgs::msg::JointState>(joint_states_topic,
                         std::bind(&planning_scene_monitor::CurrentStateMonitor::jointStateCallback, this, std::placeholders::_1));
     if (tf_buffer_ && !robot_model_->getMultiDOFJointModels().empty())
     {
@@ -182,7 +182,7 @@ void planning_scene_monitor::CurrentStateMonitor::stopStateMonitor()
 std::string planning_scene_monitor::CurrentStateMonitor::getMonitoredTopic(const std::string& joint_states_topic)
 {
   std::string result;
-  auto joint_state_subscriber_ = node_->create_subscription<sensor_msgs::msg::JointState>(joint_states_topic,
+  joint_state_subscriber_ = node_->create_subscription<sensor_msgs::msg::JointState>(joint_states_topic,
                     std::bind(&planning_scene_monitor::CurrentStateMonitor::jointStateCallback, this, std::placeholders::_1));
   if (joint_state_subscriber_)
     result = joint_state_subscriber_->get_topic_name();
