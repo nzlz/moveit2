@@ -51,6 +51,7 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <memory>
 #include "rcutils/logging_macros.h"
+#include "tf2_ros/transform_listener.h"
 
 namespace planning_scene_monitor
 {
@@ -322,7 +323,7 @@ public:
   double getStateUpdateFrequency()
   {
     rclcpp::Time t = dt_state_update_.now();
-    if (t.nanoseconds() == 0 && t.seconds() == 0  )
+    if (t.seconds() == 0 && t.nanoseconds() == 0)
       return 1.0 / t.seconds();
     else
       return 0.0;
@@ -418,14 +419,14 @@ protected:
   void configureDefaultPadding();
 
   /** @brief Callback for a new collision object msg*/
-  void collisionObjectCallback(const moveit_msgs::msg::CollisionObject::ConstPtr& obj);
+  void collisionObjectCallback(const moveit_msgs::msg::CollisionObject::SharedPtr obj);
 
   /** @brief Callback for a new collision object msg that failed to pass the TF filter */
-  void collisionObjectFailTFCallback(const moveit_msgs::msg::CollisionObject::ConstPtr& obj,
+  void collisionObjectFailTFCallback(const moveit_msgs::msg::CollisionObject::SharedPtr obj,
                                      tf2_ros::filter_failure_reasons::FilterFailureReason reason);
 
   /** @brief Callback for a new planning scene world*/
-  void newPlanningSceneWorldCallback(const moveit_msgs::msg::PlanningSceneWorld::ConstPtr& world);
+  void newPlanningSceneWorldCallback(const moveit_msgs::msg::PlanningSceneWorld::SharedPtr world);
 
   /** @brief Callback for octomap updates */
   void octomapUpdateCallback();
@@ -539,7 +540,7 @@ private:
   void scenePublishingThread();
 
   // called by current_state_monitor_ when robot state (as monitored on joint state topic) changes
-  void onStateUpdate(/*const sensor_msgs::msg::JointStateConstPtr& joint_state*/);
+  void onStateUpdate(const sensor_msgs::msg::JointState::ConstPtr& /*joint_state*/);
 
   // called by state_update_timer_ when a state update it pending
   void stateUpdateTimerCallback(/*const ros::WallTimerEvent& event*/);
@@ -566,7 +567,8 @@ private:
   /// timer for state updates.
   // Check if last_state_update_ is true and if so call updateSceneWithCurrentState()
   // Not safe to access from callback functions.
-  rclcpp::Clock state_update_timer_;
+  //TODO(anasarrak): fix for the apropiate Walltimer for ros2
+  // rclcpp::WallTimer state_update_timer_;
 
   /// Last time the state was updated from current_state_monitor_
   // Only access this from callback functions (and constructor)
