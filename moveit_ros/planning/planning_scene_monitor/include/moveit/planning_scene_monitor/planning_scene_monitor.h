@@ -319,10 +319,11 @@ public:
   void setStateUpdateFrequency(double hz);
 
   /** @brief Get the maximum frequency (Hz) at which the current state of the planning scene is updated.*/
-  double getStateUpdateFrequency() const
+  double getStateUpdateFrequency()
   {
-    if (!dt_state_update_.isZero())
-      return 1.0 / dt_state_update_.toSec();
+    rclcpp::Time t = dt_state_update_.now();
+    if (t.nanoseconds() == 0 && t.seconds() == 0  )
+      return 1.0 / t.seconds();
     else
       return 0.0;
   }
@@ -468,8 +469,8 @@ protected:
   // ros::NodeHandle nh_;
   // ros::NodeHandle root_nh_;
   // TODO: (anasarrak) callbacks on ROS2? https://answers.ros.org/question/300874/how-do-you-use-callbackgroups-as-a-replacement-for-callbackqueues-in-ros2/
-  ros::CallbackQueue queue_;
-  std::shared_ptr<ros::AsyncSpinner> spinner_;
+  // ros::CallbackQueue queue_;
+  std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> spinner_;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
 
@@ -541,7 +542,7 @@ private:
   void onStateUpdate(/*const sensor_msgs::msg::JointStateConstPtr& joint_state*/);
 
   // called by state_update_timer_ when a state update it pending
-  void stateUpdateTimerCallback(const ros::WallTimerEvent& event);
+  void stateUpdateTimerCallback(/*const ros::WallTimerEvent& event*/);
 
   // Callback for a new planning scene msg
   void newPlanningSceneCallback(const moveit_msgs::msg::PlanningScene::SharedPtr scene);
@@ -555,7 +556,7 @@ private:
 
   /// the amount of time to wait in between updates to the robot state
   // This field is protected by state_pending_mutex_
-  std::chrono::system_clock dt_state_update_;
+  rclcpp::Clock dt_state_update_;
 
   /// the amount of time to wait when looking up transforms
   // Setting this to a non-zero value resolves issues when the sensor data is
@@ -565,11 +566,11 @@ private:
   /// timer for state updates.
   // Check if last_state_update_ is true and if so call updateSceneWithCurrentState()
   // Not safe to access from callback functions.
-  std::chrono::system_clock state_update_timer_;
+  rclcpp::Clock state_update_timer_;
 
   /// Last time the state was updated from current_state_monitor_
   // Only access this from callback functions (and constructor)
-  std::chrono::system_clock last_robot_state_update_wall_time_;
+  rclcpp::Clock last_robot_state_update_wall_time_;
 
   robot_model_loader::RobotModelLoaderPtr rm_loader_;
   robot_model::RobotModelConstPtr robot_model_;

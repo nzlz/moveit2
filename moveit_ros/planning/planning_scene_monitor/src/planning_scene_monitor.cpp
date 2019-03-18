@@ -61,29 +61,31 @@ class PlanningSceneMonitor::DynamicReconfigureImpl
 {
 public:
   DynamicReconfigureImpl(PlanningSceneMonitor* owner)
-    : owner_(owner), dynamic_reconfigure_server_(ros::NodeHandle(decideNamespace(owner->getName())))
+    : owner_(owner)/*, dynamic_reconfigure_server_(ros::NodeHandle(decideNamespace(owner->getName())))*/
   {
-    dynamic_reconfigure_server_.setCallback(
-        boost::bind(&DynamicReconfigureImpl::dynamicReconfigureCallback, this, _1, _2));
+    //TODO (anasarrak): re-add when starting with the parameters for ros2
+    // dynamic_reconfigure_server_.setCallback(
+    //     boost::bind(&DynamicReconfigureImpl::dynamicReconfigureCallback, this, _1, _2));
   }
 
 private:
   // make sure we do not advertise the same service multiple times, in case we use multiple PlanningSceneMonitor
   // instances in a process
-  static std::string decideNamespace(const std::string& name)
-  {
-    std::string ns = "~/" + name;
-    std::replace(ns.begin(), ns.end(), ' ', '_');
-    std::transform(ns.begin(), ns.end(), ns.begin(), ::tolower);
-    if (ros::service::exists(ns + "/set_parameters", false))
-    {
-      unsigned int c = 1;
-      while (ros::service::exists(ns + boost::lexical_cast<std::string>(c) + "/set_parameters", false))
-        c++;
-      ns += boost::lexical_cast<std::string>(c);
-    }
-    return ns;
-  }
+  // TODO (anasarrak): Update advertise for ros2
+  // static std::string decideNamespace(const std::string& name)
+  // {
+  //   std::string ns = "~/" + name;
+  //   std::replace(ns.begin(), ns.end(), ' ', '_');
+  //   std::transform(ns.begin(), ns.end(), ns.begin(), ::tolower);
+  //   if (ros::service::exists(ns + "/set_parameters", false))
+  //   {
+  //     unsigned int c = 1;
+  //     while (ros::service::exists(ns + boost::lexical_cast<std::string>(c) + "/set_parameters", false))
+  //       c++;
+  //     ns += boost::lexical_cast<std::string>(c);
+  //   }
+  //   return ns;
+  // }
 // TODO(anasarrak): uncomment this once the config for ROS2 is generated
   // void dynamicReconfigureCallback(PlanningSceneMonitorDynamicReconfigureConfig& config, uint32_t level)
   // {
@@ -138,7 +140,7 @@ PlanningSceneMonitor::PlanningSceneMonitor(const robot_model_loader::RobotModelL
 PlanningSceneMonitor::PlanningSceneMonitor(const planning_scene::PlanningScenePtr& scene,
                                            const robot_model_loader::RobotModelLoaderPtr& rm_loader,
                                            const std::shared_ptr<tf2_ros::Buffer>& tf_buffer, const std::string& name)
-  : monitor_name_(name), node_(node), tf_buffer_(tf_buffer), rm_loader_(rm_loader)
+  : monitor_name_(name), tf_buffer_(tf_buffer), rm_loader_(rm_loader)
 {
   //TODO (anasarrak): A replacement for ros2? is it needed?
   // root_nh_.setCallbackQueue(&queue_);
@@ -146,19 +148,19 @@ PlanningSceneMonitor::PlanningSceneMonitor(const planning_scene::PlanningScenePt
   //TODO (anasarrak): Replace it with rclcpp::executors::SingleThreadedExecutor, the best idea? the spin() it might be needed to replace...
   // spinner_.reset(new ros::AsyncSpinner(1, &queue_));
   // spinner_->start();
-  spinner_.add_node(node);
-  spinner_.spin();
+  spinner_->add_node(node_);
+  spinner_->spin();
   initialize(scene);
 }
 
 PlanningSceneMonitor::PlanningSceneMonitor(const planning_scene::PlanningScenePtr& scene,
                                            const robot_model_loader::RobotModelLoaderPtr& rm_loader,
-                                           const std::shared_ptr<rclcpp::Node> node node, const std::shared_ptr<tf2_ros::Buffer>& tf_buffer,
+                                           const std::shared_ptr<rclcpp::Node> node , const std::shared_ptr<tf2_ros::Buffer>& tf_buffer,
                                            const std::string& name)
-  : monitor_name_(name), node_(node), root_nh_(nh), tf_buffer_(tf_buffer), rm_loader_(rm_loader)
+  : monitor_name_(name), node_(node), tf_buffer_(tf_buffer), rm_loader_(rm_loader)
 {
   // use same callback queue as root_nh_
-  nh_.setCallbackQueue(root_nh_.getCallbackQueue());
+  // nh_.setCallbackQueue(root_nh_.getCallbackQueue());
   initialize(scene);
 }
 
@@ -1167,7 +1169,7 @@ void PlanningSceneMonitor::onStateUpdate( const sensor_msgs::msg::JointState::Co
     updateSceneWithCurrentState();
 }
 
-void PlanningSceneMonitor::stateUpdateTimerCallback(const ros::WallTimerEvent& event)
+void PlanningSceneMonitor::stateUpdateTimerCallback(/*const ros::WallTimerEvent& event*/)
 {
   if (state_update_pending_)
   {
@@ -1206,7 +1208,7 @@ void PlanningSceneMonitor::octomapUpdateCallback()
   updateFrameTransforms();
   {
     boost::unique_lock<boost::shared_mutex> ulock(scene_update_mutex_);
-    rclcpp::Clock clok;
+    rclcpp::Clock clock;
     last_update_time_ = clock.now();
     octomap_monitor_->getOcTreePtr()->lockRead();
     try
@@ -1255,7 +1257,7 @@ void PlanningSceneMonitor::updateSceneWithCurrentState()
   {
     std::vector<std::string> missing;
     if (!current_state_monitor_->haveCompleteState(missing) &&
-        (time.seconds() - current_state_monitor_->getMonitorStartTime().seconds()) > 1.0)
+        (time - current_state_monitor_->getMonitorStartTime()).seconds() > 1.0)
     {
       std::string missing_str = boost::algorithm::join(missing, ", ");
       RCUTILS_LOG_WARN_THROTTLE_NAMED(logger, 1,"The complete state of the robot is not yet known.  Missing %s",
