@@ -138,12 +138,16 @@ PlanningSceneMonitor::PlanningSceneMonitor(const robot_model_loader::RobotModelL
 PlanningSceneMonitor::PlanningSceneMonitor(const planning_scene::PlanningScenePtr& scene,
                                            const robot_model_loader::RobotModelLoaderPtr& rm_loader,
                                            const std::shared_ptr<tf2_ros::Buffer>& tf_buffer, const std::string& name)
-  : monitor_name_(name), nh_("~"), tf_buffer_(tf_buffer), rm_loader_(rm_loader)
+  : monitor_name_(name), node_(node), tf_buffer_(tf_buffer), rm_loader_(rm_loader)
 {
-  root_nh_.setCallbackQueue(&queue_);
-  nh_.setCallbackQueue(&queue_);
-  spinner_.reset(new ros::AsyncSpinner(1, &queue_));
-  spinner_->start();
+  //TODO (anasarrak): A replacement for ros2? is it needed?
+  // root_nh_.setCallbackQueue(&queue_);
+  // nh_.setCallbackQueue(&queue_);
+  //TODO (anasarrak): Replace it with rclcpp::executors::SingleThreadedExecutor, the best idea? the spin() it might be needed to replace...
+  // spinner_.reset(new ros::AsyncSpinner(1, &queue_));
+  // spinner_->start();
+  spinner_.add_node(node);
+  spinner_.spin();
   initialize(scene);
 }
 
@@ -1305,7 +1309,7 @@ void PlanningSceneMonitor::getUpdatedFrameTransforms(std::vector<geometry_msgs::
     geometry_msgs::msg::TransformStamped f;
     try
     {
-      f = tf_buffer_->lookupTransform(target, all_frame_names[i], ros::Time(0));
+      f = tf_buffer_->lookupTransform(target, all_frame_names[i], rclcpp::Time(0));
     }
     catch (tf2::TransformException& ex)
     {
@@ -1321,6 +1325,7 @@ void PlanningSceneMonitor::getUpdatedFrameTransforms(std::vector<geometry_msgs::
 
 void PlanningSceneMonitor::updateFrameTransforms()
 {
+    rclcpp::Clock clock;
   if (!tf_buffer_)
     return;
 
@@ -1331,7 +1336,7 @@ void PlanningSceneMonitor::updateFrameTransforms()
     {
       boost::unique_lock<boost::shared_mutex> ulock(scene_update_mutex_);
       scene_->getTransformsNonConst().setTransforms(transforms);
-      last_update_time_ = ros::Time::now();
+      last_update_time_ = clock.now();
     }
     triggerSceneUpdateEvent(UPDATE_TRANSFORMS);
   }
