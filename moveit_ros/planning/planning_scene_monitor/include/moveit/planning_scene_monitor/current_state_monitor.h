@@ -197,7 +197,7 @@ private:
 
   // ros::NodeHandle nh_;
   rclcpp::Node::SharedPtr node;
-  std::shared_ptr<tf2::BufferCore> tf_buffer_;
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   robot_model::RobotModelConstPtr robot_model_;
   robot_state::RobotState robot_state_;
   std::map<const moveit::core::JointModel*, rclcpp::Time> joint_time_;
