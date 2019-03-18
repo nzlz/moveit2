@@ -1349,39 +1349,60 @@ void PlanningSceneMonitor::configureCollisionMatrix(const planning_scene::Planni
     return;
   collision_detection::AllowedCollisionMatrix& acm = scene->getAllowedCollisionMatrixNonConst();
 
+  auto parameter_robot_description = std::make_shared<rclcpp::SyncParametersClient>(node_);
   // read overriding values from the param server
 
   // first we do default collision operations
-  if (!nh_.hasParam(robot_description_ + "_planning/default_collision_operations"))
-    RCLCPP_DEBUG(logger, "No additional default collision operations specified");
-  else
-  {
-    RCLCPP_DEBUG(logger, "Reading additional default collision operations");
+  for(auto & parameter : parameter_robot_description->get_parameters({robot_description_ + "_planning/default_collision_operations"})){
+    if(parameter.get_name().compare(robot_description_ + "_planning/default_collision_operations")){
+      RCLCPP_DEBUG(logger, "No additional default collision operations specified");
+    }else{
+      RCLCPP_DEBUG(logger, "Reading additional default collision operations");
 
-    XmlRpc::XmlRpcValue coll_ops;
-    nh_.getParam(robot_description_ + "_planning/default_collision_operations", coll_ops);
+      //TODO (anasarrak): Review these changes, better use a struct?
 
-    if (coll_ops.getType() != XmlRpc::XmlRpcValue::TypeArray)
-    {
-      RCLCPP_WARN(logger, "default_collision_operations is not an array");
-      return;
-    }
+      std::vector<std::string> object1;
+      std::vector<std::string> object2;
+      bool operation;
 
-    if (coll_ops.size() == 0)
-    {
-      RCLCPP_WARN(logger, "No collision operations in default collision operations");
-      return;
-    }
+      auto parameters_coll_ops = std::make_shared<rclcpp::SyncParametersClient>(node_);
 
-    for (int i = 0; i < coll_ops.size(); ++i)
-    {
-      if (!coll_ops[i].hasMember("object1") || !coll_ops[i].hasMember("object2") || !coll_ops[i].hasMember("operation"))
-      {
-        RCLCPP_WARN(logger, "All collision operations must have two objects and an operation");
-        continue;
+      for (auto & parameter : parameters_coll_ops->get_parameters({"coll_ops/object1","coll_ops/operation"})) {
+        if(!parameter.get_type_name().find("array")){
+          RCLCPP_WARN(logger, "default_collision_operations is not an array");
+          return;
+        }else{
+          object1 = parameter.as_string_array();
+        }
+        if(parameter.get_type_name().compare("coll_ops/operation")){
+          operation = parameter.as_bool();
+        }
       }
-      acm.setEntry(std::string(coll_ops[i]["object1"]), std::string(coll_ops[i]["object2"]),
-                   std::string(coll_ops[i]["operation"]) == "disable");
+
+      for (auto & parameter : parameters_coll_ops->get_parameters({"coll_ops/object2"})) {
+        if(!parameter.get_type_name().find("array")){
+          RCLCPP_WARN(logger, "default_collision_operations is not an array");
+          return;
+        }else{
+          object2 = parameter.as_string_array();
+        }
+      }
+
+      if (object1.size() == 0 && object2.size() == 0)
+      {
+        RCLCPP_WARN(logger, "No collision operations in default collision operations");
+        return;
+      }else{
+        RCLCPP_WARN(logger, "All collision operations must have two objects and an operation");
+        //TODO (anasarrak): Look at a better way to do this
+        for (int x = 0; x < object1.size(); x++) {
+          if(object1[x].compare("") || object2[x].compare("") || !operation ){
+            RCLCPP_WARN(logger, "All collision operations must have two objects and an operation");
+            continue;
+          }
+          acm.setEntry(object1[x], object2[x], operation);
+        }
+      }
     }
   }
 }
