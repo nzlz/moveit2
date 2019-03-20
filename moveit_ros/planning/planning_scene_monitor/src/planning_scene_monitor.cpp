@@ -248,14 +248,14 @@ void PlanningSceneMonitor::initialize(const planning_scene::PlanningScenePtr& sc
   new_scene_update_ = UPDATE_NONE;
 
   last_update_time_ = last_robot_motion_time_ = clock.now();
-  last_robot_state_update_wall_time_.now() = std::chrono::system_clock::now();
+  // last_robot_state_update_wall_time_.now() = std::chrono::system_clock::now();
 
   double d = 0.1;
 
   int sec = (int32_t) floor(d);
   int nSec = (int32_t)((d - (double)sec)*1000000000);
 
-  dt_state_update_ = rclcpp::Duration(sec,nSec);
+  // dt_state_update_ = rclcpp::Duration(sec,nSec);
 
   double temp_wait_time = 0.05;
 
@@ -266,7 +266,7 @@ void PlanningSceneMonitor::initialize(const planning_scene::PlanningScenePtr& sc
   }
 
   int seconds = (int) temp_wait_time;
-  shape_transform_cache_lookup_wait_time_ = rclcpp::Duration((int32_t)seconds, (int32_t) (temp_wait_time - seconds)*1.0e+9);
+  // shape_transform_cache_lookup_wait_time_ = rclcpp::Duration((int32_t)seconds, (int32_t) (temp_wait_time - seconds)*1.0e+9);
 
   state_update_pending_ = false;
   //TODO (anasarrak): rethink and try to do a similar thing for ROS2
@@ -488,13 +488,13 @@ bool PlanningSceneMonitor::requestPlanningSceneState(const std::string& service_
 {
   // use global namespace for service
   auto client = node_->create_client<moveit_msgs::srv::GetPlanningScene>(service_name);
-  moveit_msgs::srv::GetPlanningScene::Request srv;
-  srv.components.components =
-      srv.components.SCENE_SETTINGS | srv.components.ROBOT_STATE |
-      srv.components.ROBOT_STATE_ATTACHED_OBJECTS | srv.components.WORLD_OBJECT_NAMES |
-      srv.components.WORLD_OBJECT_GEOMETRY | srv.components.OCTOMAP |
-      srv.components.TRANSFORMS | srv.components.ALLOWED_COLLISION_MATRIX |
-      srv.components.LINK_PADDING_AND_SCALING | srv.components.OBJECT_COLORS;
+  auto srv = std::make_shared<moveit_msgs::srv::GetPlanningScene::Request>();
+  srv->components.components =
+      srv->components.SCENE_SETTINGS | srv->components.ROBOT_STATE |
+      srv->components.ROBOT_STATE_ATTACHED_OBJECTS | srv->components.WORLD_OBJECT_NAMES |
+      srv->components.WORLD_OBJECT_GEOMETRY | srv->components.OCTOMAP |
+      srv->components.TRANSFORMS | srv->components.ALLOWED_COLLISION_MATRIX |
+      srv->components.LINK_PADDING_AND_SCALING | srv->components.OBJECT_COLORS;
 
   // Make sure client is connected to server
   while (!client->wait_for_service(std::chrono::seconds(5)))
@@ -1054,28 +1054,28 @@ void PlanningSceneMonitor::startWorldGeometryMonitor(const std::string& collisio
     if (tf_buffer_)
     {
       collision_object_filter_.reset(new tf2_ros::MessageFilter<moveit_msgs::msg::CollisionObject>(
-          *collision_object_subscriber_, *tf_buffer_, scene_->getPlanningFrame(), 1024, root_nh_));
+          *collision_object_subscriber_, *tf_buffer_, scene_->getPlanningFrame(), 1024, node_));
       collision_object_filter_->registerCallback(boost::bind(&PlanningSceneMonitor::collisionObjectCallback, this, _1));
       collision_object_filter_->registerFailureCallback(
           boost::bind(&PlanningSceneMonitor::collisionObjectFailTFCallback, this, _1, _2));
       RCLCPP_INFO(logger, "Listening to '%s' using message notifier with target frame '%s'",
-                     root_nh_.resolveName(collision_objects_topic).c_str(),
+                     collision_object_topic.c_str(),
                      collision_object_filter_->getTargetFramesString().c_str());
     }
     else
     {
       collision_object_subscriber_->registerCallback(
           boost::bind(&PlanningSceneMonitor::collisionObjectCallback, this, _1));
-      RCLCPP_INFO(logger, "Listening to '%s'", root_nh_.resolveName(collision_objects_topic).c_str());
+      RCLCPP_INFO(logger, "Listening to '%s'", collision_objects_topic.c_str());
     }
   }
 
   if (!planning_scene_world_topic.empty())
   {
-    planning_scene_world_subscriber_ =
-        root_nh_.subscribe(planning_scene_world_topic, 1, &PlanningSceneMonitor::newPlanningSceneWorldCallback, this);
+    planning_scene_world_subscriber_ =  node_->create_subscription<moveit_msgs::msg::PlanningSceneWorld>
+      (planning_scene_world_topic, std::bind(&PlanningSceneMonitor::newPlanningSceneWorldCallback, this, std::placeholders::_1));
     RCLCPP_INFO(logger, "Listening to '%s' for planning scene world geometry",
-                   root_nh_.resolveName(planning_scene_world_topic).c_str());
+                   planning_scene_world_topic.c_str());
   }
 
   // Ocotomap monitor is optional
