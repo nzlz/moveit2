@@ -609,12 +609,13 @@ bool PlanningSceneMonitor::newPlanningSceneMessage(const moveit_msgs::msg::Plann
 
 void PlanningSceneMonitor::newPlanningSceneWorldCallback(const moveit_msgs::msg::PlanningSceneWorld::SharedPtr world)
 {
+  rclcpp::Clock clock;
   if (scene_)
   {
     updateFrameTransforms();
     {
       boost::unique_lock<boost::shared_mutex> ulock(scene_update_mutex_);
-      last_update_time_ = ros::Time::now();
+      last_update_time_ = clock.now();
       scene_->getWorldNonConst()->clearObjects();
       scene_->processPlanningSceneWorldMsg(*world);
       if (octomap_monitor_)
@@ -641,7 +642,7 @@ void PlanningSceneMonitor::collisionObjectFailTFCallback(const moveit_msgs::msg:
 
 void PlanningSceneMonitor::collisionObjectCallback(const moveit_msgs::msg::CollisionObject::SharedPtr obj)
 {
-  clcpp::Clock clock;
+  rclcpp::Clock clock;
   if (!scene_)
   {
     return;
@@ -681,6 +682,7 @@ void PlanningSceneMonitor::excludeRobotLinksFromOctree()
   includeRobotLinksInOctree();
   const std::vector<const robot_model::LinkModel*>& links = getRobotModel()->getLinkModelsWithCollisionGeometry();
   auto start = std::chrono::system_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::duration<long, std::ratio<1, 1000000000>>>(std::chrono::seconds(30));
   bool warned = false;
   for (std::size_t i = 0; i < links.size(); ++i)
   {
@@ -699,7 +701,8 @@ void PlanningSceneMonitor::excludeRobotLinksFromOctree()
       if (h)
         link_shape_handles_[links[i]].push_back(std::make_pair(h, j));
     }
-    if (!warned && ((std::chrono::system_clock::now() - start) > ros::WallDuration(30.0)))
+
+    if (!warned && ((std::chrono::system_clock::now() - start) > duration ))
     {
       RCLCPP_WARN(logger, "It is likely there are too many vertices in collision geometry");
       warned = true;
@@ -886,10 +889,10 @@ bool PlanningSceneMonitor::waitForCurrentRobotState(const rclcpp::Time& t, doubl
 {
   if (t.seconds() == 0 && t.nanoseconds() == 0 )
     return false;
-  ros::WallTime start = ros::WallTime::now();
-  ros::WallDuration timeout(wait_time);
+  auto start = std::chrono::system_clock::now();
+  rclcpp::Duration timeout(wait_time);
 
-  RCLCPP_DEBUG(logger, "sync robot state to: %.3fs", fmod(t.toSec(), 10.));
+  RCLCPP_DEBUG(logger, "sync robot state to: %.3fs", fmod(t.seconds(), 10.));
 
   if (current_state_monitor_)
   {
