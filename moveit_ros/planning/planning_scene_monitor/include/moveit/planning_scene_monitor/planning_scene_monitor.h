@@ -562,7 +562,7 @@ private:
   /// the amount of time to wait when looking up transforms
   // Setting this to a non-zero value resolves issues when the sensor data is
   // arriving so fast that it is preceding the transform state.
-  // rclcpp::Duration shape_transform_cache_lookup_wait_time_;
+  rclcpp::Duration shape_transform_cache_lookup_wait_time_;
 
   /// timer for state updates.
   // Check if last_state_update_ is true and if so call updateSceneWithCurrentState()

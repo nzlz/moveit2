@@ -140,7 +140,7 @@ PlanningSceneMonitor::PlanningSceneMonitor(const robot_model_loader::RobotModelL
 PlanningSceneMonitor::PlanningSceneMonitor(const planning_scene::PlanningScenePtr& scene,
                                            const robot_model_loader::RobotModelLoaderPtr& rm_loader,
                                            const std::shared_ptr<tf2_ros::Buffer>& tf_buffer, const std::string& name)
-  : monitor_name_(name), tf_buffer_(tf_buffer), rm_loader_(rm_loader)
+  : monitor_name_(name), tf_buffer_(tf_buffer), rm_loader_(rm_loader), shape_transform_cache_lookup_wait_time_(rclcpp::Duration(0,0))
 {
   //TODO (anasarrak): A replacement for ros2? is it needed?
   // root_nh_.setCallbackQueue(&queue_);
@@ -157,7 +157,7 @@ PlanningSceneMonitor::PlanningSceneMonitor(const planning_scene::PlanningScenePt
                                            const robot_model_loader::RobotModelLoaderPtr& rm_loader,
                                            const std::shared_ptr<rclcpp::Node> node , const std::shared_ptr<tf2_ros::Buffer>& tf_buffer,
                                            const std::string& name)
-  : monitor_name_(name), node_(node), tf_buffer_(tf_buffer), rm_loader_(rm_loader)
+  : monitor_name_(name), node_(node), tf_buffer_(tf_buffer), rm_loader_(rm_loader), shape_transform_cache_lookup_wait_time_(rclcpp::Duration(0,0))
 {
   // use same callback queue as root_nh_
   // nh_.setCallbackQueue(root_nh_.getCallbackQueue());
@@ -248,25 +248,27 @@ void PlanningSceneMonitor::initialize(const planning_scene::PlanningScenePtr& sc
   new_scene_update_ = UPDATE_NONE;
 
   last_update_time_ = last_robot_motion_time_ = clock.now();
-  // last_robot_state_update_wall_time_.now() = std::chrono::system_clock::now();
+  last_robot_state_update_wall_time_ = clock.now();
 
-  double d = 0.1;
+  auto dur = std::chrono::duration<double>(0.1);
+  auto timeout = std::chrono::duration_cast<std::chrono::seconds>(dur).count();
+  int sec = (int32_t) floor(timeout);
+  int nSec = (int32_t)((timeout - (double)timeout)*1000000000);
 
-  int sec = (int32_t) floor(d);
-  int nSec = (int32_t)((d - (double)sec)*1000000000);
-
-  // dt_state_update_ = rclcpp::Duration(sec,nSec);
+  rclcpp::Time t(sec,nSec);
+  dt_state_update_.now() = clock.now();
 
   double temp_wait_time = 0.05;
 
   auto parameters_robot_description = std::make_shared<rclcpp::SyncParametersClient>(node_);
 
-  for (auto & parameter : parameters_robot_description->get_parameters({robot_description_ + "_planning/shape_transform_cache_lookup_wait_time"})) {
-      temp_wait_time = parameter.as_double();
+  std::string robot_des = robot_description_ + "_planning/shape_transform_cache_lookup_wait_time";
+  if(parameters_robot_description->has_parameter({robot_des})){
+      temp_wait_time = node_->get_parameter(robot_des).get_value<double>();
   }
 
   int seconds = (int) temp_wait_time;
-  // shape_transform_cache_lookup_wait_time_ = rclcpp::Duration((int32_t)seconds, (int32_t) (temp_wait_time - seconds)*1.0e+9);
+  shape_transform_cache_lookup_wait_time_ = rclcpp::Duration((int32_t)seconds, (int32_t) (temp_wait_time - seconds)*1.0e+9);
 
   state_update_pending_ = false;
   //TODO (anasarrak): rethink and try to do a similar thing for ROS2
@@ -1039,7 +1041,7 @@ bool PlanningSceneMonitor::getShapeTransformCache(const std::string& target_fram
   }
   catch (tf2::TransformException& ex)
   {
-    RCUTILS_LOG_ERROR_THROTTLE_NAMED(logger, 1, LOGNAME, "Transform error: %s", ex.what());
+    RCUTILS_LOG_ERROR_THROTTLE_NAMED(RCUTILS_STEADY_TIME,1 , "Transform error: %s", ex.what());
     return false;
   }
   return true;
@@ -1205,7 +1207,7 @@ void PlanningSceneMonitor::stateUpdateTimerCallback(/*const ros::WallTimerEvent&
       if (state_update_pending_ && dt >= dt_state_update_)
       {
         state_update_pending_ = false;
-        last_robot_state_update_wall_time_ = std::chrono::system_clock::now();
+        last_robot_state_update_wall_time_.now() = std::chrono::system_clock::now();
         update = true;
         RCLCPP_DEBUG(logger,
                                "performPendingStateUpdate: %f", fmod(last_robot_state_update_wall_time_.now().seconds(), 10));
@@ -1282,7 +1284,7 @@ void PlanningSceneMonitor::updateSceneWithCurrentState()
         (time - current_state_monitor_->getMonitorStartTime()).seconds() > 1.0)
     {
       std::string missing_str = boost::algorithm::join(missing, ", ");
-      RCUTILS_LOG_WARN_THROTTLE_NAMED(logger, 1,"The complete state of the robot is not yet known.  Missing %s",
+      RCUTILS_LOG_WARN_THROTTLE_NAMED(RCUTILS_STEADY_TIME,1,"The complete state of the robot is not yet known.  Missing %s",
                               missing_str.c_str());
     }
 
@@ -1296,7 +1298,7 @@ void PlanningSceneMonitor::updateSceneWithCurrentState()
     triggerSceneUpdateEvent(UPDATE_STATE);
   }
   else
-    RCUTILS_LOG_ERROR_THROTTLE_NAMED(logger, 1, "State monitor is not active. Unable to set the planning scene state");
+    RCUTILS_LOG_ERROR_THROTTLE_NAMED(RCUTILS_STEADY_TIME,1 , "State monitor is not active. Unable to set the planning scene state");
 }
 
 void PlanningSceneMonitor::addUpdateCallback(const boost::function<void(SceneUpdateType)>& fn)
