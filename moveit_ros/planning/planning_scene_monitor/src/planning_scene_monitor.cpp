@@ -510,7 +510,7 @@ bool PlanningSceneMonitor::requestPlanningSceneState(const std::string& service_
                     __FILE__, __LINE__);
      return false;
   }else{
-    newPlanningSceneMessage(result.get().scene);
+    newPlanningSceneMessage(result.get()->scene);
   }
   return true;
 }
