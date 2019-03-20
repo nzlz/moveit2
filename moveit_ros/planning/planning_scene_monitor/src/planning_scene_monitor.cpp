@@ -682,7 +682,6 @@ void PlanningSceneMonitor::excludeRobotLinksFromOctree()
   includeRobotLinksInOctree();
   const std::vector<const robot_model::LinkModel*>& links = getRobotModel()->getLinkModelsWithCollisionGeometry();
   auto start = std::chrono::system_clock::now();
-  auto duration = std::chrono::duration_cast<std::chrono::duration<long, std::ratio<1, 1000000000>>>(std::chrono::seconds(30));
   bool warned = false;
   for (std::size_t i = 0; i < links.size(); ++i)
   {
@@ -702,7 +701,7 @@ void PlanningSceneMonitor::excludeRobotLinksFromOctree()
         link_shape_handles_[links[i]].push_back(std::make_pair(h, j));
     }
 
-    if (!warned && ((std::chrono::system_clock::now() - start) > duration ))
+    if (!warned && ((std::chrono::system_clock::now() - start) > std::chrono::seconds(30) ))
     {
       RCLCPP_WARN(logger, "It is likely there are too many vertices in collision geometry");
       warned = true;
@@ -890,8 +889,10 @@ bool PlanningSceneMonitor::waitForCurrentRobotState(const rclcpp::Time& t, doubl
   if (t.seconds() == 0 && t.nanoseconds() == 0 )
     return false;
   auto start = std::chrono::system_clock::now();
-  rclcpp::Duration timeout(wait_time);
-
+  // rclcpp::Duration timeout(wait_time);
+  auto dur = std::chrono::duration<double>(wait_time);
+  auto timeout = std::chrono::duration_cast<std::chrono::seconds>(dur);
+  rclcpp::Clock clock;
   RCLCPP_DEBUG(logger, "sync robot state to: %.3fs", fmod(t.seconds(), 10.));
 
   if (current_state_monitor_)
@@ -908,7 +909,7 @@ bool PlanningSceneMonitor::waitForCurrentRobotState(const rclcpp::Time& t, doubl
       if (state_update_pending_)  // enforce state update
       {
         state_update_pending_ = false;
-        last_robot_state_update_wall_time_ = ros::WallTime::now();
+        last_robot_state_update_wall_time_ = clock.now();
         lock.unlock();
         updateSceneWithCurrentState();
       }
@@ -923,13 +924,15 @@ bool PlanningSceneMonitor::waitForCurrentRobotState(const rclcpp::Time& t, doubl
   // However, scene updates are only published if the robot actually moves. Hence we need a timeout!
   // As publishing planning scene updates is throttled (2Hz by default), a 1s timeout is a suitable default.
   boost::shared_lock<boost::shared_mutex> lock(scene_update_mutex_);
-  ros::Time prev_robot_motion_time = last_robot_motion_time_;
+  rclcpp::Time prev_robot_motion_time = last_robot_motion_time_;
+  auto wallDur = std::chrono::seconds();
   while (last_robot_motion_time_ < t &&  // Wait until the state update actually reaches the scene.
-         timeout > ros::WallDuration())
+         timeout > wallDur)
   {
     RCLCPP_DEBUG(logger, "last robot motion: %i ago",(t - last_robot_motion_time_));
-    new_scene_update_condition_.wait_for(lock, boost::chrono::nanoseconds(timeout.toNSec()));
-    timeout -= ros::WallTime::now() - start;  // compute remaining wait_time
+    new_scene_update_condition_.wait_for(lock, boost::chrono::nanoseconds(timeout.count()));
+    //TODO (anasarrak): look into this if the remaining wait_time its well calculated
+    dur -= std::chrono::system_clock::now() - start;  // compute remaining wait_time
   }
   bool success = last_robot_motion_time_ >= t;
   // suppress warning if we received an update at all
