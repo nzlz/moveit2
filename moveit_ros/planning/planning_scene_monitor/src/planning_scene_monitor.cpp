@@ -999,30 +999,32 @@ bool PlanningSceneMonitor::getShapeTransformCache(const std::string& target_fram
   {
     boost::recursive_mutex::scoped_lock _(shape_handles_lock_);
 
+    tf2::TimePoint tf2_time(std::chrono::nanoseconds(target_time.nanoseconds()));
+
     for (LinkShapeHandles::const_iterator it = link_shape_handles_.begin(); it != link_shape_handles_.end(); ++it)
     {
-      tf_buffer_->canTransform(target_frame, it->first->getName(), target_time,
+      tf_buffer_->canTransform(target_frame, it->first->getName(), tf2_time,
                                tf2::durationFromSec(shape_transform_cache_lookup_wait_time_.seconds()));
       Eigen::Isometry3d ttr =
-          tf2::transformToEigen(tf_buffer_->lookupTransform(target_frame, it->first->getName(), target_time));
+          tf2::transformToEigen(tf_buffer_->lookupTransform(target_frame, it->first->getName(), tf2_time));
       for (std::size_t j = 0; j < it->second.size(); ++j)
         cache[it->second[j].first] = ttr * it->first->getCollisionOriginTransforms()[it->second[j].second];
     }
     for (AttachedBodyShapeHandles::const_iterator it = attached_body_shape_handles_.begin();
          it != attached_body_shape_handles_.end(); ++it)
     {
-      tf_buffer_->canTransform(target_frame, it->first->getAttachedLinkName(), target_time,
+      tf_buffer_->canTransform(target_frame, it->first->getAttachedLinkName(), tf2_time,
                                tf2::durationFromSec(shape_transform_cache_lookup_wait_time_.seconds()));
       Eigen::Isometry3d transform = tf2::transformToEigen(
-          tf_buffer_->lookupTransform(target_frame, it->first->getAttachedLinkName(), target_time));
+          tf_buffer_->lookupTransform(target_frame, it->first->getAttachedLinkName(), tf2_time));
       for (std::size_t k = 0; k < it->second.size(); ++k)
         cache[it->second[k].first] = transform * it->first->getFixedTransforms()[it->second[k].second];
     }
     {
-      tf_buffer_->canTransform(target_frame, scene_->getPlanningFrame(), target_time,
-                              tf2::durationFromSec(shape_transform_cache_lookup_wait_time_.seconds()));
+      tf_buffer_->canTransform(target_frame, scene_->getPlanningFrame(), tf2_time,
+                               tf2::durationFromSec(shape_transform_cache_lookup_wait_time_.seconds()));
       Eigen::Isometry3d transform =
-          tf2::transformToEigen(tf_buffer_->lookupTransform(target_frame, scene_->getPlanningFrame(), target_time));
+          tf2::transformToEigen(tf_buffer_->lookupTransform(target_frame, scene_->getPlanningFrame(), tf2_time));
       for (CollisionBodyShapeHandles::const_iterator it = collision_body_shape_handles_.begin();
            it != collision_body_shape_handles_.end(); ++it)
         for (std::size_t k = 0; k < it->second.size(); ++k)
@@ -1325,7 +1327,9 @@ void PlanningSceneMonitor::getUpdatedFrameTransforms(std::vector<geometry_msgs::
     geometry_msgs::msg::TransformStamped f;
     try
     {
-      f = tf_buffer_->lookupTransform(target, all_frame_names[i], rclcpp::Time(0));
+      rclcpp::Time t(0.0);
+      tf2::TimePoint tf2_time(std::chrono::nanoseconds(t.nanoseconds()));
+      f = tf_buffer_->lookupTransform(target, all_frame_names[i], tf2_time);
     }
     catch (tf2::TransformException& ex)
     {
