@@ -25,6 +25,6 @@ RUN \
     # Setup ROS2 workspace
     && mkdir -p /ros2_ws/src && cd /ros2_ws \
     && wget https://raw.githubusercontent.com/AcutronicRobotics/moveit2/master/moveit2.repos \
-    && vcs import src < external-repos.repos
+    && vcs import src < moveit2.repos
 COPY ./docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
