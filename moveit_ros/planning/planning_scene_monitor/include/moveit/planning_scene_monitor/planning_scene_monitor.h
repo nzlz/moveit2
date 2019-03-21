@@ -568,7 +568,7 @@ private:
   // Check if last_state_update_ is true and if so call updateSceneWithCurrentState()
   // Not safe to access from callback functions.
 
-  // rclcpp::WallTimer<CallbackT>::SharedPtr state_update_timer_;
+  std::shared_ptr<rclcpp::TimerBase> state_update_timer_;
 
   /// Last time the state was updated from current_state_monitor_
   // Only access this from callback functions (and constructor)

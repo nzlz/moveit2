@@ -271,8 +271,10 @@ void PlanningSceneMonitor::initialize(const planning_scene::PlanningScenePtr& sc
   shape_transform_cache_lookup_wait_time_ = rclcpp::Duration((int32_t)seconds, (int32_t) (temp_wait_time - seconds)*1.0e+9);
 
   state_update_pending_ = false;
-  //TODO (anasarrak): rethink and try to do a similar thing for ROS2
-  // state_update_timer_ = node_->create_wall_timer(dt_state_update_,&PlanningSceneMonitor::stateUpdateTimerCallback,this)
+  // Period for 0.1 sec
+  auto period = std::chrono::milliseconds(1000);
+  state_update_timer_ = node_->create_wall_timer(period,
+                                  std::bind(&PlanningSceneMonitor::stateUpdateTimerCallback,this));
 
   reconfigure_impl_ = new DynamicReconfigureImpl(this);
 }
