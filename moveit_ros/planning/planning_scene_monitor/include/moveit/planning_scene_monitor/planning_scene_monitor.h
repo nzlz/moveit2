@@ -322,9 +322,9 @@ public:
   /** @brief Get the maximum frequency (Hz) at which the current state of the planning scene is updated.*/
   double getStateUpdateFrequency()
   {
-    rclcpp::Time t = dt_state_update_.now();
-    if (t.seconds() == 0 && t.nanoseconds() == 0)
-      return 1.0 / t.seconds();
+    auto t = dt_state_update_.count();
+    if (t == 0)
+      return 1.0 / t;
     else
       return 0.0;
   }
