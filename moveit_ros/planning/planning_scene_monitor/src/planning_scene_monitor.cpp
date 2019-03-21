@@ -47,6 +47,7 @@
 #include <moveit/profiler/profiler.h>
 #include <rcutils/logging_macros.h>
 
+#include <algorithm>
 #include <memory>
 
 rclcpp::Logger logger = rclcpp::get_logger("planning_scene_monitor");
@@ -634,7 +635,7 @@ void PlanningSceneMonitor::newPlanningSceneWorldCallback(const moveit_msgs::msg:
   }
 }
 
-void PlanningSceneMonitor::collisionObjectFailTFCallback(const moveit_msgs::msg::CollisionObject::SharedPtr obj,
+void PlanningSceneMonitor::collisionObjectFailTFCallback(const moveit_msgs::msg::CollisionObject::ConstPtr obj,
                                                          tf2_ros::filter_failure_reasons::FilterFailureReason reason)
 {
   // if we just want to remove objects, the frame does not matter
@@ -1063,7 +1064,8 @@ void PlanningSceneMonitor::startWorldGeometryMonitor(const std::string& collisio
     {
       collision_object_filter_.reset(new tf2_ros::MessageFilter<moveit_msgs::msg::CollisionObject>(
           *collision_object_subscriber_, *tf_buffer_, scene_->getPlanningFrame(), 1024, node_));
-      collision_object_filter_->registerCallback(boost::bind(&PlanningSceneMonitor::collisionObjectCallback, this, _1));
+          //TODO (anasarrak): fix the subscriber
+      // collision_object_filter_->registerCallback(boost::bind(&PlanningSceneMonitor::collisionObjectCallback, this, _1));
       collision_object_filter_->registerFailureCallback(
           boost::bind(&PlanningSceneMonitor::collisionObjectFailTFCallback, this, _1, _2));
       //TODO: uncomment
@@ -1073,8 +1075,9 @@ void PlanningSceneMonitor::startWorldGeometryMonitor(const std::string& collisio
     }
     else
     {
-      collision_object_subscriber_->registerCallback(
-          boost::bind(&PlanningSceneMonitor::collisionObjectCallback, this, _1));
+      //TODO (anasarrak): fix the subscriber
+      // collision_object_subscriber_->registerCallback(
+      //     boost::bind(&PlanningSceneMonitor::collisionObjectCallback, this, _1));
       RCLCPP_INFO(logger, "Listening to '%s'", collision_objects_topic.c_str());
     }
   }
@@ -1199,8 +1202,8 @@ void PlanningSceneMonitor::stateUpdateTimerCallback(/*const ros::WallTimerEvent&
     bool update = false;
     rclcpp::Clock clock;
 
-    rclcpp::Clock n = std::chrono::system_clock::now();
-    rclcpp::Clock dt = n - last_robot_state_update_wall_time_;
+    std::chrono::system_clock::time_point n = std::chrono::system_clock::now();
+    std::chrono::duration<double> dt = n - last_robot_state_update_wall_time_;
 
     {
       // lock for access to dt_state_update_ and state_update_pending_
@@ -1209,9 +1212,10 @@ void PlanningSceneMonitor::stateUpdateTimerCallback(/*const ros::WallTimerEvent&
       {
         state_update_pending_ = false;
         last_robot_state_update_wall_time_ = std::chrono::system_clock::now();
+        auto sec = std::chrono::duration<double>(last_robot_state_update_wall_time_.time_since_epoch()).count();
         update = true;
         RCLCPP_DEBUG(logger,
-                               "performPendingStateUpdate: %f", fmod(last_robot_state_update_wall_time_.count(), 10));
+                               "performPendingStateUpdate: %f", fmod(sec, 10));
       }
     }
 
@@ -1269,7 +1273,7 @@ void PlanningSceneMonitor::setStateUpdateFrequency(double hz)
     if (state_update_pending_)
       update = true;
   }
-  RCLCPP_INFO(logger, "Updating internal planning scene state at most every %lf seconds", dt_state_update_.now().seconds());
+  RCLCPP_INFO(logger, "Updating internal planning scene state at most every %lf seconds", dt_state_update_.count());
 
   if (update)
     updateSceneWithCurrentState();
@@ -1284,7 +1288,7 @@ void PlanningSceneMonitor::updateSceneWithCurrentState()
     if (!current_state_monitor_->haveCompleteState(missing) &&
         (time - current_state_monitor_->getMonitorStartTime()).seconds() > 1.0)
     {
-      std::string missing_str = boost::algorithm::join(missing, ", ");
+      std::string missing_str = std::algorithm::join(missing, ", ");
       RCUTILS_LOG_WARN_THROTTLE_NAMED(RCUTILS_STEADY_TIME,1,"The complete state of the robot is not yet known.  Missing %s",
                               missing_str.c_str());
     }
@@ -1455,17 +1459,17 @@ void PlanningSceneMonitor::configureDefaultPadding()
   // Ensure no leading slash creates a bad param server address
   static const std::string robot_description =
       (robot_description_[0] == '/') ? robot_description_.substr(1) : robot_description_;
+    //TODO (anasarrak): get params for ros2
+  // nh_.param(robot_description + "_planning/default_robot_padding", default_robot_padd_, 0.0);
+  // nh_.param(robot_description + "_planning/default_robot_scale", default_robot_scale_, 1.0);
+  // nh_.param(robot_description + "_planning/default_object_padding", default_object_padd_, 0.0);
+  // nh_.param(robot_description + "_planning/default_attached_padding", default_attached_padd_, 0.0);
+  // nh_.param(robot_description + "_planning/default_robot_link_padding", default_robot_link_padd_,
+  //           std::map<std::string, double>());
+  // nh_.param(robot_description + "_planning/default_robot_link_scale", default_robot_link_scale_,
+  //           std::map<std::string, double>());
 
-  nh_.param(robot_description + "_planning/default_robot_padding", default_robot_padd_, 0.0);
-  nh_.param(robot_description + "_planning/default_robot_scale", default_robot_scale_, 1.0);
-  nh_.param(robot_description + "_planning/default_object_padding", default_object_padd_, 0.0);
-  nh_.param(robot_description + "_planning/default_attached_padding", default_attached_padd_, 0.0);
-  nh_.param(robot_description + "_planning/default_robot_link_padding", default_robot_link_padd_,
-            std::map<std::string, double>());
-  nh_.param(robot_description + "_planning/default_robot_link_scale", default_robot_link_scale_,
-            std::map<std::string, double>());
-
-  RCLCPP_DEBUG(logger, "Loaded %i default link paddings",default_robot_link_padd_.size());
-  RCLCPP_DEBUG(logger, "Loaded %i default link scales",default_robot_link_scale_.size());
+  // RCLCPP_DEBUG(logger, "Loaded %i default link paddings",default_robot_link_padd_.size());
+  // RCLCPP_DEBUG(logger, "Loaded %i default link scales",default_robot_link_scale_.size());
 }
 }  // namespace planning_scene_monitor
