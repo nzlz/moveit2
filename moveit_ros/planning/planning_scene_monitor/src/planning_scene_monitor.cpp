@@ -47,7 +47,7 @@
 #include <moveit/profiler/profiler.h>
 #include <rcutils/logging_macros.h>
 
-#include <algorithm>
+#include <boost/algorithm/string/join.hpp>
 #include <memory>
 
 rclcpp::Logger logger = rclcpp::get_logger("planning_scene_monitor");
@@ -635,7 +635,7 @@ void PlanningSceneMonitor::newPlanningSceneWorldCallback(const moveit_msgs::msg:
   }
 }
 
-void PlanningSceneMonitor::collisionObjectFailTFCallback(const moveit_msgs::msg::CollisionObject::ConstPtr obj,
+void PlanningSceneMonitor::collisionObjectFailTFCallback(const moveit_msgs::msg::CollisionObject::SharedPtr obj,
                                                          tf2_ros::filter_failure_reasons::FilterFailureReason reason)
 {
   // if we just want to remove objects, the frame does not matter
@@ -1133,7 +1133,7 @@ void PlanningSceneMonitor::startStateMonitor(const std::string& joint_states_top
   if (scene_)
   {
     if (!current_state_monitor_)
-      current_state_monitor_.reset(new CurrentStateMonitor(getRobotModel(), tf_buffer_, root_nh_));
+      current_state_monitor_.reset(new CurrentStateMonitor(getRobotModel(), tf_buffer_, node_));
     current_state_monitor_->addUpdateCallback(boost::bind(&PlanningSceneMonitor::onStateUpdate, this, _1));
     current_state_monitor_->startStateMonitor(joint_states_topic);
 
@@ -1288,7 +1288,7 @@ void PlanningSceneMonitor::updateSceneWithCurrentState()
     if (!current_state_monitor_->haveCompleteState(missing) &&
         (time - current_state_monitor_->getMonitorStartTime()).seconds() > 1.0)
     {
-      std::string missing_str = std::algorithm::join(missing, ", ");
+      std::string missing_str = boost::algorithm::join(missing, ", ");
       RCUTILS_LOG_WARN_THROTTLE_NAMED(RCUTILS_STEADY_TIME,1,"The complete state of the robot is not yet known.  Missing %s",
                               missing_str.c_str());
     }
@@ -1302,8 +1302,9 @@ void PlanningSceneMonitor::updateSceneWithCurrentState()
     }
     triggerSceneUpdateEvent(UPDATE_STATE);
   }
-  else
-    RCUTILS_LOG_ERROR_THROTTLE_NAMED(RCUTILS_STEADY_TIME,1 , "State monitor is not active. Unable to set the planning scene state");
+  else{
+    RCUTILS_LOG_ERROR_THROTTLE(RCUTILS_STEADY_TIME, 1 , "State monitor is not active. Unable to set the planning scene state");
+  }
 }
 
 void PlanningSceneMonitor::addUpdateCallback(const boost::function<void(SceneUpdateType)>& fn)
