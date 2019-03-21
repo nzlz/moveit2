@@ -1146,7 +1146,7 @@ void PlanningSceneMonitor::startStateMonitor(const std::string& joint_states_top
       attached_collision_object_subscriber_ =  node_->create_subscription<moveit_msgs::msg::AttachedCollisionObject>
         (attached_objects_topic, std::bind(&PlanningSceneMonitor::attachObjectCallback, this, std::placeholders::_1));
       RCLCPP_INFO(logger, "Listening to '%s' for attached collision objects",
-                     attached_collision_object_subscriber_->get_topic_names());
+                     attached_collision_object_subscriber_->get_topic_name());
     }
   }
   else
