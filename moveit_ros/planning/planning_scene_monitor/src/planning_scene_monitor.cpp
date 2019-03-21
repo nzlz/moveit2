@@ -54,7 +54,9 @@ rclcpp::Logger logger = rclcpp::get_logger("planning_scene_monitor");
 
 namespace planning_scene_monitor
 {
-using namespace moveit_ros_planning;
+//TODO (anasarrak): Is this namespace related to the config?
+// not finding the actual declaration path
+// using namespace moveit_ros_planning;
 
 static const std::string LOGNAME = "planning_scene_monitor";
 
