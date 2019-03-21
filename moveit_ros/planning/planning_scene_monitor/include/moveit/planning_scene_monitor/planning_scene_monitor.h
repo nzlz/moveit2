@@ -499,13 +499,13 @@ protected:
   boost::condition_variable_any new_scene_update_condition_;
 
   // subscribe to various sources of data
-  // rclcpp::Subscriber planning_scene_subscriber_;
   rclcpp::Subscription<moveit_msgs::msg::PlanningScene>::SharedPtr planning_scene_subscriber_;
   rclcpp::Subscription<moveit_msgs::msg::PlanningSceneWorld>::SharedPtr planning_scene_world_subscriber_;
 
   rclcpp::Subscription<moveit_msgs::msg::AttachedCollisionObject>::SharedPtr attached_collision_object_subscriber_;
 
-  rclcpp::Subscription<moveit_msgs::msg::CollisionObject>::SharedPtr collision_object_subscriber_;
+  // rclcpp::Subscription<moveit_msgs::msg::CollisionObject>::SharedPtr collision_object_subscriber_;
+  std::unique_ptr<message_filters::Subscriber<moveit_msgs::msg::CollisionObject> > collision_object_subscriber_;
   std::unique_ptr<tf2_ros::MessageFilter<moveit_msgs::msg::CollisionObject> > collision_object_filter_;
 
   // include a octomap monitor
@@ -557,7 +557,7 @@ private:
 
   /// the amount of time to wait in between updates to the robot state
   // This field is protected by state_pending_mutex_
-  rclcpp::Clock dt_state_update_;
+  std::chrono::duration<double> dt_state_update_;
 
   /// the amount of time to wait when looking up transforms
   // Setting this to a non-zero value resolves issues when the sensor data is
@@ -567,12 +567,12 @@ private:
   /// timer for state updates.
   // Check if last_state_update_ is true and if so call updateSceneWithCurrentState()
   // Not safe to access from callback functions.
-  //TODO(anasarrak): fix for the apropiate Walltimer for ros2
-  // rclcpp::WallTimer state_update_timer_;
+
+  // rclcpp::WallTimer<CallbackT>::SharedPtr state_update_timer_;
 
   /// Last time the state was updated from current_state_monitor_
   // Only access this from callback functions (and constructor)
-  rclcpp::Time last_robot_state_update_wall_time_;
+  std::chrono::system_clock::time_point last_robot_state_update_wall_time_;
 
   robot_model_loader::RobotModelLoaderPtr rm_loader_;
   robot_model::RobotModelConstPtr robot_model_;

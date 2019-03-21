@@ -248,15 +248,14 @@ void PlanningSceneMonitor::initialize(const planning_scene::PlanningScenePtr& sc
   new_scene_update_ = UPDATE_NONE;
 
   last_update_time_ = last_robot_motion_time_ = clock.now();
-  last_robot_state_update_wall_time_ = clock.now();
+  last_robot_state_update_wall_time_ = std::chrono::system_clock::now();
 
-  auto dur = std::chrono::duration<double>(0.1);
-  auto timeout = std::chrono::duration_cast<std::chrono::seconds>(dur).count();
-  int sec = (int32_t) floor(timeout);
-  int nSec = (int32_t)((timeout - (double)timeout)*1000000000);
-
-  rclcpp::Time t(sec,nSec);
-  dt_state_update_.now() = clock.now();
+  // auto dur = std::chrono::duration<double>(0.1);
+  // auto timeout = std::chrono::duration_cast<std::chrono::seconds>(dur).count();
+  // int sec = (int32_t) floor(timeout);
+  // int nSec = (int32_t)((timeout - (double)timeout)*1000000000);
+  // rclcpp::Time t(sec,nSec);
+  dt_state_update_ = std::chrono::duration<double>(0.1);
 
   double temp_wait_time = 0.05;
 
@@ -447,7 +446,8 @@ void PlanningSceneMonitor::getMonitoredTopics(std::vector<std::string>& topics) 
   if (planning_scene_subscriber_)
     topics.push_back(planning_scene_subscriber_->get_topic_name());
   if (collision_object_subscriber_)
-    topics.push_back(collision_object_subscriber_->get_topic_name());
+    //TODO (anasarrak) get topic name?
+    // topics.push_back(collision_object_subscriber_->get_topic_name());
   if (planning_scene_world_subscriber_)
     topics.push_back(planning_scene_world_subscriber_->get_topic_name());
 }
@@ -911,7 +911,7 @@ bool PlanningSceneMonitor::waitForCurrentRobotState(const rclcpp::Time& t, doubl
       if (state_update_pending_)  // enforce state update
       {
         state_update_pending_ = false;
-        last_robot_state_update_wall_time_ = clock.now();
+        last_robot_state_update_wall_time_ = std::chrono::system_clock::now();
         lock.unlock();
         updateSceneWithCurrentState();
       }
@@ -1066,9 +1066,10 @@ void PlanningSceneMonitor::startWorldGeometryMonitor(const std::string& collisio
       collision_object_filter_->registerCallback(boost::bind(&PlanningSceneMonitor::collisionObjectCallback, this, _1));
       collision_object_filter_->registerFailureCallback(
           boost::bind(&PlanningSceneMonitor::collisionObjectFailTFCallback, this, _1, _2));
-      RCLCPP_INFO(logger, "Listening to '%s' using message notifier with target frame '%s'",
-                     collision_object_topic.c_str(),
-                     collision_object_filter_->getTargetFramesString().c_str());
+      //TODO: uncomment
+      // RCLCPP_INFO(logger, "Listening to '%s' using message notifier with target frame '%s'",
+      //                collision_object_subscriber_->get_topic_name(),
+      //                collision_object_filter_->getTargetFramesString().c_str());
     }
     else
     {
@@ -1207,10 +1208,10 @@ void PlanningSceneMonitor::stateUpdateTimerCallback(/*const ros::WallTimerEvent&
       if (state_update_pending_ && dt >= dt_state_update_)
       {
         state_update_pending_ = false;
-        last_robot_state_update_wall_time_.now() = std::chrono::system_clock::now();
+        last_robot_state_update_wall_time_ = std::chrono::system_clock::now();
         update = true;
         RCLCPP_DEBUG(logger,
-                               "performPendingStateUpdate: %f", fmod(last_robot_state_update_wall_time_.now().seconds(), 10));
+                               "performPendingStateUpdate: %f", fmod(last_robot_state_update_wall_time_.count(), 10));
       }
     }
 
