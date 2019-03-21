@@ -1141,8 +1141,13 @@ void PlanningSceneMonitor::startStateMonitor(const std::string& joint_states_top
 
     {
       boost::mutex::scoped_lock lock(state_pending_mutex_);
+      auto period = std::chrono::milliseconds(int(dt_state_update_.count()*1000));
       if (dt_state_update_.count() > 0)
-        state_update_timer_.start();
+        // Internal implementation to instanciate the start walltimer http://docs.ros.org/indigo/api/roscpp/html/wall__timer_8cpp_source.html
+        // state_update_timer_.start();
+        state_update_timer_ = node_->create_wall_timer(period,
+                                        std::bind(&PlanningSceneMonitor::stateUpdateTimerCallback,this));
+
     }
 
     if (!attached_objects_topic.empty())
@@ -1165,7 +1170,10 @@ void PlanningSceneMonitor::stopStateMonitor()
   if (attached_collision_object_subscriber_)
    attached_collision_object_subscriber_.reset();
   // stop must be called with state_pending_mutex_ unlocked to avoid deadlock
-  state_update_timer_.stop();
+  // Internal implementation to stop the walltimer ros 1
+  // http://docs.ros.org/indigo/api/roscpp/html/classros_1_1WallTimer.html#ac3f697bdf6f0d86150f0bc9ac106d9aa
+  //TODO (anasarrak): review these changes
+  delete &state_update_timer_;
   {
     boost::mutex::scoped_lock lock(state_pending_mutex_);
     state_update_pending_ = false;
@@ -1262,8 +1270,12 @@ void PlanningSceneMonitor::setStateUpdateFrequency(double hz)
   {
     boost::mutex::scoped_lock lock(state_pending_mutex_);
     dt_state_update_ = std::chrono::duration<double>(1.0 / hz);
-    state_update_timer_.setPeriod(dt_state_update_.count());
-    state_update_timer_.start();
+    // state_update_timer_.setPeriod(dt_state_update_.count());
+    // state_update_timer_.start();
+    //TODO(anasarrak): review these walltimer changes
+    auto period = std::chrono::milliseconds(int(dt_state_update_.count()*1000));
+    state_update_timer_ = node_->create_wall_timer(period,
+                                    std::bind(&PlanningSceneMonitor::stateUpdateTimerCallback,this));
   }
   else
   {
