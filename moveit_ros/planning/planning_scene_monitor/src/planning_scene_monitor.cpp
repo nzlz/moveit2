@@ -1066,8 +1066,8 @@ void PlanningSceneMonitor::startWorldGeometryMonitor(const std::string& collisio
           *collision_object_subscriber_, *tf_buffer_, scene_->getPlanningFrame(), 1024, node_));
           //TODO (anasarrak): fix the subscriber
       // collision_object_filter_->registerCallback(boost::bind(&PlanningSceneMonitor::collisionObjectCallback, this, _1));
-      collision_object_filter_->registerFailureCallback(
-          boost::bind(&PlanningSceneMonitor::collisionObjectFailTFCallback, this, _1, _2));
+      // collision_object_filter_->registerFailureCallback(
+      //     boost::bind(&PlanningSceneMonitor::collisionObjectFailTFCallback, this, _1, _2));
       //TODO: uncomment
       // RCLCPP_INFO(logger, "Listening to '%s' using message notifier with target frame '%s'",
       //                collision_object_subscriber_->get_topic_name(),
@@ -1259,8 +1259,8 @@ void PlanningSceneMonitor::setStateUpdateFrequency(double hz)
   if (hz > std::numeric_limits<double>::epsilon())
   {
     boost::mutex::scoped_lock lock(state_pending_mutex_);
-    dt_state_update_.fromSec(1.0 / hz);
-    state_update_timer_.setPeriod(dt_state_update_);
+    dt_state_update_ = std::chrono::duration<double>(1.0 / hz);
+    state_update_timer_.setPeriod(dt_state_update_.count());
     state_update_timer_.start();
   }
   else
