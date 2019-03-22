@@ -18,8 +18,8 @@ ament_target_dependencies(${MOVEIT_LIB_NAME}
   ${rclcpp_LIBRARIES})
 
 #TODO: (anasarrak) Fix this once moveit_ros_planning is converted to ROS2
-# add_executable(demo_scene demos/demo_scene.cpp)
-# target_link_libraries(demo_scene ${MOVEIT_LIB_NAME} ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(demo_scene demos/demo_scene.cpp)
+target_link_libraries(demo_scene ${MOVEIT_LIB_NAME} ${rclcpp_LIBRARIES} ${Boost_LIBRARIES} ${moveit_msgs_LIBRARIES})
 
 install(TARGETS ${MOVEIT_LIB_NAME}
   ARCHIVE DESTINATION lib

@@ -42,7 +42,8 @@
 static const std::string ROBOT_DESCRIPTION = "robot_description";
 
 bool shutdown_req = false;
-auto node = rclcpp::Node::make_shared("demo");
+std::shared_ptr<rclcpp::Node> node;
+
 void signalHandler(int signum) {
   shutdown_req = true;
 }
@@ -88,7 +89,6 @@ void sendKnife()
   pub_aco->publish(aco);
 
   RCLCPP_INFO(node->get_logger(), "Object published.");
-  // rclcpp::Duration(1.5).sleep();
   rclcpp::sleep_for(std::chrono::milliseconds(1500));
 }
 
@@ -99,14 +99,12 @@ int main(int argc, char** argv)
   rclcpp::init(argc, argv);
   rclcpp::executors::SingleThreadedExecutor executor;
 
+  node = rclcpp::Node::make_shared("demo");
 
   while (!shutdown_req){
   sendKnife();
   executor.spin_node_some(node);
   }
-
-
-  // rclcpp::waitForShutdown();
 
   return 0;
 }
