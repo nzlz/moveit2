@@ -77,7 +77,7 @@ include_directories(SYSTEM
 # add_subdirectory(rdf_loader)
 add_subdirectory(collision_plugin_loader)
 # add_subdirectory(kinematics_plugin_loader)
-# add_subdirectory(robot_model_loader)
+add_subdirectory(robot_model_loader)
 # add_subdirectory(constraint_sampler_manager_loader)
 # add_subdirectory(planning_pipeline)
 # add_subdirectory(planning_request_adapter_plugins)
