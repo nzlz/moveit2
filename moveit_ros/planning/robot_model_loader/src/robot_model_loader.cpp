@@ -36,7 +36,7 @@
 
 #include <moveit/robot_model_loader/robot_model_loader.h>
 #include <moveit/profiler/profiler.h>
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
 #include <typeinfo>
 
 namespace robot_model_loader
@@ -105,7 +105,9 @@ void RobotModelLoader::configure(const Options& opt)
     moveit::tools::Profiler::ScopedBlock prof_block2("RobotModelLoader::configure joint limits");
 
     // if there are additional joint limits specified in some .yaml file, read those in
-    ros::NodeHandle nh("~");
+    // TODO (anasarrak): Add the correct node name to the .yaml
+    auto node = rclcpp::Node::make_shared("additional_joints");
+    auto additional_joints_parameters = std::make_shared<rclcpp::SyncParametersClient>(node);
 
     for (std::size_t i = 0; i < model_->getJointModels().size(); ++i)
     {
@@ -116,8 +118,9 @@ void RobotModelLoader::configure(const Options& opt)
         std::string prefix = rdf_loader_->getRobotDescription() + "_planning/joint_limits/" + jlim[j].joint_name + "/";
 
         double max_position;
-        if (nh.getParam(prefix + "max_position", max_position))
+        if (additional_joints_parameters->has_parameter(prefix + "max_position"))
         {
+          max_position = node->get_parameter(prefix + "max_position").get_value<double>();
           if (canSpecifyPosition(jmodel, j))
           {
             jlim[j].has_position_limits = true;
@@ -125,8 +128,9 @@ void RobotModelLoader::configure(const Options& opt)
           }
         }
         double min_position;
-        if (nh.getParam(prefix + "min_position", min_position))
+        if (additional_joints_parameters->has_parameter(prefix + "min_position"))
         {
+          min_position = node->get_parameter(prefix + "min_position").get_value<double>();
           if (canSpecifyPosition(jmodel, j))
           {
             jlim[j].has_position_limits = true;
@@ -134,23 +138,27 @@ void RobotModelLoader::configure(const Options& opt)
           }
         }
         double max_velocity;
-        if (nh.getParam(prefix + "max_velocity", max_velocity))
+        if (additional_joints_parameters->has_parameter(prefix + "max_velocity"))
         {
+          max_velocity = node->get_parameter(prefix + "max_velocity").get_value<double>();
           jlim[j].has_velocity_limits = true;
           jlim[j].max_velocity = max_velocity;
         }
         bool has_vel_limits;
-        if (nh.getParam(prefix + "has_velocity_limits", has_vel_limits))
+        if (additional_joints_parameters->has_parameter(prefix + "has_velocity_limits"))
+          has_vel_limits = node->get_parameter(prefix + "has_velocity_limits").get_value<bool>();
           jlim[j].has_velocity_limits = has_vel_limits;
 
         double max_acc;
-        if (nh.getParam(prefix + "max_acceleration", max_acc))
+        if (additional_joints_parameters->has_parameter(prefix + "max_acceleration"))
         {
+          max_acc = node->get_parameter(prefix + "max_acceleration").get_value<double>();
           jlim[j].has_acceleration_limits = true;
           jlim[j].max_acceleration = max_acc;
         }
         bool has_acc_limits;
-        if (nh.getParam(prefix + "has_acceleration_limits", has_acc_limits))
+        if (additional_joints_parameters->has_parameter.getParam(prefix + "has_acceleration_limits"))
+        has_acc_limits = node->get_parameter(prefix + "has_acceleration_limits").get_value<bool>();
           jlim[j].has_acceleration_limits = has_acc_limits;
       }
       jmodel->setVariableBounds(jlim);
