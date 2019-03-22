@@ -37,13 +37,21 @@
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 #include <geometric_shapes/solid_primitive_dims.h>
 
+#include "rclcpp/rclcpp.hpp"
+
 static const std::string ROBOT_DESCRIPTION = "robot_description";
+
+bool shutdown_req = false;
+auto node = rclcpp::Node::make_shared("demo");
+void signalHandler(int signum) {
+  shutdown_req = true;
+}
 
 void sendKnife()
 {
-  ros::NodeHandle nh;
-  ros::Publisher pub_aco = nh.advertise<moveit_msgs::msg::AttachedCollisionObject>("attached_collision_object", 10);
-
+  auto pub_aco = node->create_publisher<moveit_msgs::msg::AttachedCollisionObject>("attached_collision_object",
+  rmw_qos_profile_default);
+  rclcpp::Clock clock;
   moveit_msgs::msg::AttachedCollisionObject aco;
   aco.link_name = "r_wrist_roll_link";
   aco.touch_links.push_back("r_wrist_roll_link");
@@ -61,11 +69,11 @@ void sendKnife()
 
   moveit_msgs::msg::CollisionObject& co = aco.object;
   co.id = "knife";
-  co.header.stamp = ros::Time::now();
+  co.header.stamp = clock.now();
   co.header.frame_id = aco.link_name;
   co.operation = moveit_msgs::msg::CollisionObject::ADD;
   co.primitives.resize(1);
-  co.primitives[0].type = shape_msgs::SolidPrimitive::BOX;
+  co.primitives[0].type = shape_msgs::msg::SolidPrimitive::BOX;
   co.primitives[0].dimensions.push_back(0.1);
   co.primitives[0].dimensions.push_back(0.1);
   co.primitives[0].dimensions.push_back(0.4);
@@ -75,23 +83,30 @@ void sendKnife()
   co.primitive_poses[0].position.z = -0.2;
   co.primitive_poses[0].orientation.w = 1.0;
 
-  pub_aco.publish(aco);
+  pub_aco->publish(aco);
   sleep(1);
-  pub_aco.publish(aco);
-  ROS_INFO("Object published.");
-  ros::Duration(1.5).sleep();
+  pub_aco->publish(aco);
+
+  RCLCPP_INFO(node->get_logger(), "Object published.");
+  // rclcpp::Duration(1.5).sleep();
+  rclcpp::sleep_for(std::chrono::milliseconds(1500));
 }
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "demo", ros::init_options::AnonymousName);
+  signal(SIGINT, signalHandler);
 
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
+  rclcpp::init(argc, argv);
+  rclcpp::executors::SingleThreadedExecutor executor;
 
+
+  while (!shutdown_req){
   sendKnife();
+  executor.spin_node_some(node);
+  }
 
-  ros::waitForShutdown();
+
+  // rclcpp::waitForShutdown();
 
   return 0;
 }
