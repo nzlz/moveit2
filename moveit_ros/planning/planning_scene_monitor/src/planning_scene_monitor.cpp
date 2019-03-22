@@ -1476,17 +1476,54 @@ void PlanningSceneMonitor::configureDefaultPadding()
   // Ensure no leading slash creates a bad param server address
   static const std::string robot_description =
       (robot_description_[0] == '/') ? robot_description_.substr(1) : robot_description_;
-    //TODO (anasarrak): get params for ros2
-  // nh_.param(robot_description + "_planning/default_robot_padding", default_robot_padd_, 0.0);
-  // nh_.param(robot_description + "_planning/default_robot_scale", default_robot_scale_, 1.0);
-  // nh_.param(robot_description + "_planning/default_object_padding", default_object_padd_, 0.0);
-  // nh_.param(robot_description + "_planning/default_attached_padding", default_attached_padd_, 0.0);
-  // nh_.param(robot_description + "_planning/default_robot_link_padding", default_robot_link_padd_,
-  //           std::map<std::string, double>());
-  // nh_.param(robot_description + "_planning/default_robot_link_scale", default_robot_link_scale_,
-  //           std::map<std::string, double>());
 
-  // RCLCPP_DEBUG(logger, "Loaded %i default link paddings",default_robot_link_padd_.size());
-  // RCLCPP_DEBUG(logger, "Loaded %i default link scales",default_robot_link_scale_.size());
+    auto parameters_robot_description = std::make_shared<rclcpp::SyncParametersClient>(node_);
+
+    std::string robot_des = robot_description + "_planning/default_robot_padding";
+
+    if(parameters_robot_description->has_parameter({robot_des}))
+        default_robot_padd_ = node_->get_parameter(robot_des).get_value<double>();
+    else
+        default_robot_padd_ = 0.0;
+
+    robot_des = robot_description + "_planning/default_robot_scale";
+
+    if(parameters_robot_description->has_parameter({robot_des}))
+        default_robot_scale_ = node_->get_parameter(robot_des).get_value<double>();
+    else
+        default_robot_scale_ = 1.0;
+
+    robot_des = robot_description + "_planning/default_object_padding";
+
+    if(parameters_robot_description->has_parameter({robot_des}))
+        default_object_padd_ = node_->get_parameter(robot_des).get_value<double>();
+    else
+        default_object_padd_ = 1.0;
+
+    robot_des = robot_description + "_planning/default_attached_padding";
+
+    if(parameters_robot_description->has_parameter({robot_des}))
+        default_attached_padd_ = node_->get_parameter(robot_des).get_value<double>();
+    else
+        default_attached_padd_ = 0.0;
+
+    robot_des = robot_description + "_planning/default_robot_link_padding";
+
+    if(parameters_robot_description->has_parameter({robot_des})){
+        // TODO(anasarrak): no get_value for hashmap
+        // default_robot_link_padd_ = node_->get_parameter(robot_des).get_value<std::map<std::string, double>>();
+    }else
+        default_robot_link_padd_ = std::map<std::string, double>();
+
+    robot_des = robot_description + "_planning/default_robot_link_scale";
+
+    if(parameters_robot_description->has_parameter({robot_des})){
+        // TODO(anasarrak): no get_value for hashmap
+        // default_robot_link_scale_ = node_->get_parameter(robot_des).get_value<std::map<std::string, double>>();
+    }else
+        default_robot_link_scale_ = std::map<std::string, double>();
+
+  RCLCPP_DEBUG(logger, "Loaded %i default link paddings",default_robot_link_padd_.size());
+  RCLCPP_DEBUG(logger, "Loaded %i default link scales",default_robot_link_scale_.size());
 }
 }  // namespace planning_scene_monitor
