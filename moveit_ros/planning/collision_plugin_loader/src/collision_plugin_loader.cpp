@@ -63,7 +63,7 @@ public:
     }
     catch (pluginlib::PluginlibException& ex)
     {
-      RCLCPP_ERROR(logger, "Exception while loading %s : %s",name, ex.what());
+      RCLCPP_ERROR(logger, "Exception while loading %s : %s",name.c_str(), ex.what());
     }
     return plugin;
   }
