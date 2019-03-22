@@ -195,7 +195,7 @@ void RobotModelLoader::loadKinematicsSolvers(const kinematics_plugin_loader::Kin
     const std::vector<std::string>& groups = kinematics_loader_->getKnownGroups();
     std::stringstream ss;
     std::copy(groups.begin(), groups.end(), std::ostream_iterator<std::string>(ss, " "));
-    RCLCPP_DEBUG(LOGGER,"Loaded information about the following groups: '%S' ", ss.str());
+    RCLCPP_DEBUG(LOGGER,"Loaded information about the following groups: '%S' ", ss.str().c_str());
     if (groups.empty() && !model_->getJointModelGroups().empty())
       RCLCPP_WARN(LOGGER,"No kinematics plugins defined. Fill and load kinematics.yaml!");
 
