@@ -95,8 +95,8 @@ void RobotModelLoader::configure(const Options& opt)
   moveit::tools::Profiler::ScopedBlock prof_block("RobotModelLoader::configure");
 
   auto node = rclcpp::Node::make_shared("additional_joints");
-
-  ros::WallTime start = ros::WallTime::now();
+  rclcpp::Clock clock;
+  rclcpp::Time start = clock.now();
   if (!opt.urdf_string_.empty() && !opt.srdf_string_.empty())
     rdf_loader_.reset(new rdf_loader::RDFLoader(opt.urdf_string_, opt.srdf_string_));
   else
@@ -175,7 +175,7 @@ void RobotModelLoader::configure(const Options& opt)
   if (model_ && opt.load_kinematics_solvers_)
     loadKinematicsSolvers();
 
-    RCLCPP_DEBUG_NAMED(node->get_logger(), "Loaded kinematic model in %d seconds", (ros::WallTime::now() - start).toSec());
+    RCLCPP_DEBUG(node->get_logger(), "Loaded kinematic model in %d seconds", (clock.now() - start).seconds());
 }
 
 void RobotModelLoader::loadKinematicsSolvers(const kinematics_plugin_loader::KinematicsPluginLoaderPtr& kloader)
