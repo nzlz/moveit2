@@ -506,7 +506,7 @@ bool PlanningSceneMonitor::requestPlanningSceneState(const std::string& service_
   // Make sure client is connected to server
   while (!client->wait_for_service(std::chrono::seconds(5)))
   {
-    RCLCPP_DEBUG(logger, "Waiting for service `%s` to exist.", service_name);
+    RCLCPP_DEBUG(logger, "Waiting for service `%s` to exist.", service_name.c_str());
   }
 
   auto result = client->async_send_request(srv);
@@ -1284,6 +1284,7 @@ void PlanningSceneMonitor::setStateUpdateFrequency(double hz)
     // stop must be called with state_pending_mutex_ unlocked to avoid deadlock
     // TODO (anasarrak): fix wallTime
     // state_update_timer_.stop();
+    delete &state_update_timer_;
     boost::mutex::scoped_lock lock(state_pending_mutex_);
     dt_state_update_ = std::chrono::duration<double>(0.0);
     if (state_update_pending_)
