@@ -9,7 +9,8 @@ set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_V
 ament_target_dependencies(${MOVEIT_LIB_NAME}
   moveit_rdf_loader
   moveit_kinematics_plugin_loader
-  ${rclcpp_LIBRARIES})
+  ${rclcpp_LIBRARIES}
+  urdf)
 
 install(TARGETS ${MOVEIT_LIB_NAME}
   ARCHIVE DESTINATION lib
