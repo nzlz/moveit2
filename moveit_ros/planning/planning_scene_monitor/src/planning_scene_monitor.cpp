@@ -1357,7 +1357,7 @@ void PlanningSceneMonitor::getUpdatedFrameTransforms(std::vector<geometry_msgs::
     catch (tf2::TransformException& ex)
     {
       RCLCPP_WARN(LOGGER, "Unable to transform object from frame '%s' to planning frame'%s' (%s)",
-                      all_frame_names[i], target, ex.what());
+                      all_frame_names[i], target.c_str(), ex.what());
       continue;
     }
     f.header.frame_id = all_frame_names[i];
