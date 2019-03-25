@@ -27,8 +27,9 @@ RUN \
          python3-colcon-common-extensions \
          python3-pip \
          python3-vcstool \
+         python3-numpy-dev \
          wget \
-      	 libboost-all-dev \
+         libboost-all-dev \
          libglew-dev \
          freeglut3-dev \
          pkg-config \
