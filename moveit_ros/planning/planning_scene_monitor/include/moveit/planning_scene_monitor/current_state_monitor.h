@@ -143,7 +143,7 @@ public:
   /** @brief Wait for at most \e wait_time seconds (default 1s) for a robot state more recent than t
    *  @return true on success, false if up-to-date robot state wasn't received within \e wait_time
   */
-  bool waitForCurrentState(rclcpp::Time t, double wait_time = 1.0) const;
+  bool waitForCurrentState(rclcpp::Time t, double wait_time = 1.0);
 
   /** @brief Wait for at most \e wait_time seconds until the complete robot state is known.
       @return true if the full state is known */
@@ -208,7 +208,7 @@ private:
   rclcpp::Time current_state_time_;
 
   mutable std::mutex state_update_lock_;
-  mutable boost::condition_variable state_update_condition_;
+  mutable std::condition_variable state_update_condition_;
   std::vector<JointStateUpdateCallback> update_callbacks_;
 
   std::shared_ptr<TFConnection> tf_connection_;

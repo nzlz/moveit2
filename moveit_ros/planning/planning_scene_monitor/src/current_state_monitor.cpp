@@ -150,8 +150,10 @@ void planning_scene_monitor::CurrentStateMonitor::startStateMonitor(const std::s
                         std::bind(&planning_scene_monitor::CurrentStateMonitor::jointStateCallback, this, std::placeholders::_1));
     if (tf_buffer_ && !robot_model_->getMultiDOFJointModels().empty())
     {
-      tf_connection_.reset(new TFConnection(
-          tf_buffer_->addTransformableCallback(std::bind(&CurrentStateMonitor::tfCallback, this))));
+      //TODO (anasarrak): replace this for the appropiate function, there is no similar
+      //function in ros2/geometry2.
+      // tf_connection_.reset(new TFConnection(
+      //     tf_buffer_->_addTransformsChangedListener(std::bind(&CurrentStateMonitor::tfCallback, this))));
     }
     state_monitor_started_ = true;
     monitor_start_time_ = ros_clock.now();
@@ -171,7 +173,9 @@ void planning_scene_monitor::CurrentStateMonitor::stopStateMonitor()
     joint_state_subscriber_.reset();
     if (tf_buffer_ && tf_connection_)
     {
-      tf_buffer_->_removeTransformsChangedListener(*tf_connection_);
+      //TODO (anasarrak): replace this for the appropiate function, there is no similar
+      //function in ros2/geometry2.
+      // tf_buffer_->_removeTransformsChangedListener(*tf_connection_);
       tf_connection_.reset();
     }
     RCLCPP_DEBUG(logger,"No longer listening for joint states");
@@ -283,21 +287,25 @@ bool planning_scene_monitor::CurrentStateMonitor::haveCompleteState(const rclcpp
   return result;
 }
 
-bool planning_scene_monitor::CurrentStateMonitor::waitForCurrentState(rclcpp::Time t, double wait_time) const
+bool planning_scene_monitor::CurrentStateMonitor::waitForCurrentState(rclcpp::Time t, double wait_time)
 {
   rclcpp::Clock ros_clock;
   t = ros_clock.now();
 
   auto start = std::chrono::system_clock::now();
 
-  auto elapsed = std::chrono::duration<double, std::nano>(0.0);
-  auto timeout = std::chrono::duration<double, std::nano>(wait_time);
+  auto durElapsed = std::chrono::duration<double>(0.0);
+  auto durTimeout = std::chrono::duration<double>(wait_time);
+
+  auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(durElapsed);
+  auto timeout = std::chrono::duration_cast<std::chrono::seconds>(durTimeout);
+
   std::chrono::duration<double> dur;
 
   std::unique_lock<std::mutex> lock(state_update_lock_);
   while (current_state_time_ < t)
   {
-    state_update_condition_.wait_for(lock, std::chrono::nanoseconds(std::chrono::duration_cast<std::chrono::nanoseconds>(timeout-elapsed).count()));
+    state_update_condition_.wait_for(lock, std::chrono::nanoseconds(elapsed - timeout));
     dur = std::chrono::system_clock::now() - start;
     if (dur > timeout)
     {
