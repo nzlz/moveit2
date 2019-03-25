@@ -13,20 +13,16 @@ ament_target_dependencies(${MOVEIT_LIB_NAME}
   urdf
   pluginlib
   ${rclcpp_LIBRARIES}
-  ${Boost_LIBRARIES})
+  ${Boost_LIBRARIES}
+  ${moveit_msgs_LIBRARIES})
 
-# ament_target_dependencies(${MOVEIT_LIB_NAME}
-#   moveit_robot_model_loader
-#   moveit_collision_plugin_loader
-#   ${rclcpp_LIBRARIES})
 
-#TODO: (anasarrak) Fix this once moveit_ros_planning is converted to ROS2
 add_executable(demo_scene demos/demo_scene.cpp)
 ament_target_dependencies(demo_scene
+  rclcpp
   ${MOVEIT_LIB_NAME}
-  ${rclcpp_LIBRARIES}
-  ${Boost_LIBRARIES}
-  ${moveit_msgs_LIBRARIES}
+  Boost
+  moveit_msgs
   urdf
   message_filters
   pluginlib)
