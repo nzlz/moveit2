@@ -44,13 +44,13 @@ set(THIS_PACKAGE_INCLUDE_DIRS
 )
 
 set(libraries
-  moveit_rdf_loader
-  moveit_kinematics_plugin_loader
+  # moveit_rdf_loader
+  # moveit_kinematics_plugin_loader
   moveit_robot_model_loader
-  moveit_constraint_sampler_manager_loader
-  moveit_planning_pipeline
-  moveit_trajectory_execution_manager
-  moveit_plan_execution
+  # moveit_constraint_sampler_manager_loader
+  # moveit_planning_pipeline
+  # moveit_trajectory_execution_manager
+  # moveit_plan_execution
   moveit_planning_scene_monitor
   moveit_collision_plugin_loader
 )
@@ -94,5 +94,6 @@ install(
 
 ament_export_include_directories(include)
 ament_export_libraries(${libraries})
+ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
 
 ament_package()
