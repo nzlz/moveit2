@@ -583,6 +583,8 @@ private:
   DynamicReconfigureImpl* reconfigure_impl_;
 
   std::shared_ptr<rclcpp::Node> node_;
+
+  rclcpp::Clock clock_;
 };
 
 /** \brief This is a convenience class for obtaining access to an
