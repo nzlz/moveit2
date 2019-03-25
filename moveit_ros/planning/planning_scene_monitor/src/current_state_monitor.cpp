@@ -287,7 +287,7 @@ bool planning_scene_monitor::CurrentStateMonitor::haveCompleteState(const rclcpp
   return result;
 }
 
-bool planning_scene_monitor::CurrentStateMonitor::waitForCurrentState(rclcpp::Time t, double wait_time)
+bool planning_scene_monitor::CurrentStateMonitor::waitForCurrentState(rclcpp::Time t, double wait_time) const
 {
   rclcpp::Clock ros_clock;
   t = ros_clock.now();
