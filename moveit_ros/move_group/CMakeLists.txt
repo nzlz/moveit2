@@ -22,19 +22,20 @@ find_package(tf2_ros REQUIRED)
 
 include_directories(include)
 include_directories(${rclcpp_INCLUDE_DIRS}
-                    ${Boost_INCLUDE_DIRS})
+                    ${Boost_INCLUDE_DIRS}
+                    ${moveit_core_INCLUDE_DIRS})
 
 add_library(moveit_move_group_capabilities_base
-  src/move_group_context.cpp
-  # src/move_group_capability.cpp
+  # src/move_group_context.cpp
+  src/move_group_capability.cpp
   )
 set_target_properties(moveit_move_group_capabilities_base PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 
-add_executable(move_group src/move_group.cpp)
+# add_executable(move_group src/move_group.cpp)
 
-add_executable(list_move_group_capabilities src/list_capabilities.cpp)
+# add_executable(list_move_group_capabilities src/list_capabilities.cpp)
 
-add_library(moveit_move_group_default_capabilities
+# add_library(moveit_move_group_default_capabilities
   # src/default_capabilities/move_action_capability.cpp
   # src/default_capabilities/plan_service_capability.cpp
   # src/default_capabilities/execute_trajectory_action_capability.cpp
@@ -45,18 +46,18 @@ add_library(moveit_move_group_default_capabilities
   # src/default_capabilities/get_planning_scene_service_capability.cpp
   # src/default_capabilities/apply_planning_scene_service_capability.cpp
   # src/default_capabilities/clear_octomap_service_capability.cpp
-  )
-set_target_properties(moveit_move_group_default_capabilities PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
+  # )
+# set_target_properties(moveit_move_group_default_capabilities PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 
-target_link_libraries(moveit_move_group_capabilities_base ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
-target_link_libraries(move_group moveit_move_group_capabilities_base ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
-target_link_libraries(moveit_move_group_default_capabilities moveit_move_group_capabilities_base ${catkin_LIBRARIES} ${Boost_LIBRARIES})
-target_link_libraries(list_move_group_capabilities ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
+# target_link_libraries(moveit_move_group_capabilities_base ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
+# target_link_libraries(move_group moveit_move_group_capabilities_base ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
+# target_link_libraries(moveit_move_group_default_capabilities moveit_move_group_capabilities_base ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
+# target_link_libraries(list_move_group_capabilities ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
 
-install(TARGETS move_group list_move_group_capabilities moveit_move_group_capabilities_base moveit_move_group_default_capabilities
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin)
+# install(TARGETS move_group list_move_group_capabilities moveit_move_group_capabilities_base moveit_move_group_default_capabilities
+#   ARCHIVE DESTINATION lib
+#   LIBRARY DESTINATION lib
+#   RUNTIME DESTINATION bin)
 
 install(DIRECTORY include/ DESTINATION include)
 
@@ -68,7 +69,7 @@ install(FILES
   default_capabilities_plugin_description.xml
   DESTINATION share/${PROJECT_NAME})
 
-#TODO (anasarrak): Update this once everything is ported to ros2
+#TODO (anasarrak): Update the testing once everything is ported to ros2
 if(BUILD_TESTING)
   # find_package(rostest REQUIRED)
   # this test is flaky
