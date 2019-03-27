@@ -73,9 +73,9 @@ public:
 
   bp::dict getObjectPosesPython(const bp::list& object_ids)
   {
-    std::map<std::string, geometry_msgs::Pose> ops = getObjectPoses(py_bindings_tools::stringFromList(object_ids));
+    std::map<std::string, geometry_msgs::msg::Pose> ops = getObjectPoses(py_bindings_tools::stringFromList(object_ids));
     std::map<std::string, std::string> ser_ops;
-    for (std::map<std::string, geometry_msgs::Pose>::const_iterator it = ops.begin(); it != ops.end(); ++it)
+    for (std::map<std::string, geometry_msgs::msg::Pose>::const_iterator it = ops.begin(); it != ops.end(); ++it)
       ser_ops[it->first] = py_bindings_tools::serializeMsg(it->second);
 
     return py_bindings_tools::dictFromType(ser_ops);

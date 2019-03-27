@@ -168,8 +168,9 @@ void TrajectoryExecutionManager::initialize()
   // other configuration steps
   reloadControllerInformation();
 
-  event_topic_subscriber_ =
-      root_node_handle_.subscribe(EXECUTION_EVENT_TOPIC, 100, &TrajectoryExecutionManager::receiveEvent, this);
+  event_topic_subscriber_ = node_->create_subscription<std_msgs::msg::String>(
+    EXECUTION_EVENT_TOPIC, std::bind(&TrajectoryExecutionManager::receiveEvent, this))
+      // root_node_handle_.subscribe(EXECUTION_EVENT_TOPIC, 100, &TrajectoryExecutionManager::receiveEvent, this);
 
   reconfigure_impl_ = new DynamicReconfigureImpl(this);
 
@@ -227,7 +228,7 @@ void TrajectoryExecutionManager::processEvent(const std::string& event)
     ROS_WARN_STREAM_NAMED(name_, "Unknown event type: '" << event << "'");
 }
 
-void TrajectoryExecutionManager::receiveEvent(const std_msgs::StringConstPtr& event)
+void TrajectoryExecutionManager::receiveEvent(const std_msgs::String::ConstPtr& event)
 {
   ROS_INFO_STREAM_NAMED(name_, "Received event '" << event->data << "'");
   processEvent(event->data);

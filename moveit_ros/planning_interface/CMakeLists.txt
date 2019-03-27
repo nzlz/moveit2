@@ -16,7 +16,7 @@ find_package(moveit_msgs REQUIRED)
 # find_package(moveit_ros_planning REQUIRED)
 # find_package(moveit_ros_warehouse REQUIRED)
 # find_package(moveit_ros_manipulation REQUIRED)
-# find_package(moveit_ros_move_group REQUIRED)
+find_package(moveit_ros_move_group REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_eigen REQUIRED)
@@ -36,14 +36,6 @@ elseif()
   set(BOOST_PYTHON_COMPONENT python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
 endif()
 
-find_package(Boost REQUIRED COMPONENTS
-  date_time
-  filesystem
-  program_options
-  ${BOOST_PYTHON_COMPONENT}
-  system
-  thread
-)
 
 set(THIS_PACKAGE_INCLUDE_DIRS
   py_bindings_tools/include
@@ -84,7 +76,7 @@ ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDENCIES})
 # add_subdirectory(py_bindings_tools)
 # add_subdirectory(common_planning_interface_objects)
 # add_subdirectory(planning_scene_interface)
-# add_subdirectory(move_group_interface)
+add_subdirectory(move_group_interface)
 # add_subdirectory(robot_interface)
 # add_subdirectory(test)
 

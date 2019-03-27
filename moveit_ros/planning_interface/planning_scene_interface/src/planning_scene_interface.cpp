@@ -36,9 +36,9 @@
 
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit/move_group/capability_names.h>
-#include <moveit_msgs/GetPlanningScene.h>
-#include <moveit_msgs/ApplyPlanningScene.h>
-#include <ros/ros.h>
+#include <moveit_msgs/srv/get_planning_scene.hpp>
+#include <moveit_msgs/srv/apply_planning_scene.hpp>
+#include "rclcpp/rclcpp.hpp"
 #include <algorithm>
 
 namespace moveit
@@ -133,11 +133,11 @@ public:
     return result;
   }
 
-  std::map<std::string, geometry_msgs::Pose> getObjectPoses(const std::vector<std::string>& object_ids)
+  std::map<std::string, geometry_msgs::msg::Pose> getObjectPoses(const std::vector<std::string>& object_ids)
   {
     moveit_msgs::srv::GetPlanningScene::Request request;
     moveit_msgs::srv::GetPlanningScene::Response response;
-    std::map<std::string, geometry_msgs::Pose> result;
+    std::map<std::string, geometry_msgs::msg::::Pose> result;
     request.components.components = request.components.WORLD_OBJECT_GEOMETRY;
     if (!planning_scene_service_.call(request, response))
     {
@@ -262,7 +262,8 @@ public:
   }
 
 private:
-  ros::NodeHandle node_handle_;
+  // ros::NodeHandle node_handle_;
+  std::shared_ptr<rclcpp::node> node;
   ros::ServiceClient planning_scene_service_;
   ros::ServiceClient apply_planning_scene_service_;
   ros::Publisher planning_scene_diff_publisher_;
@@ -292,7 +293,7 @@ std::vector<std::string> PlanningSceneInterface::getKnownObjectNamesInROI(double
   return impl_->getKnownObjectNamesInROI(minx, miny, minz, maxx, maxy, maxz, with_type, types);
 }
 
-std::map<std::string, geometry_msgs::Pose>
+std::map<std::string, geometry_msgs::msg::::Pose>
 PlanningSceneInterface::getObjectPoses(const std::vector<std::string>& object_ids)
 {
   return impl_->getObjectPoses(object_ids);
