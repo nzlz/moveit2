@@ -28,25 +28,25 @@ install(TARGETS ${MOVEIT_LIB_NAME}
         ARCHIVE DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)
 
-# if(BUILD_TESTING)
-#   find_package(ament_cmake_gtest REQUIRED)
-#   find_package(moveit_resources REQUIRED)
-#   find_package(geometric_shapes REQUIRED)
-#   include_directories(${moveit_resources_INCLUDE_DIRS})
-#
-#   ament_add_gtest(test_robot_model test/test.cpp)
-#   ament_target_dependencies(test_robot_model
-#     moveit_test_utils
-#     Boost
-#     rclcpp
-#     rmw_implementation
-#     urdfdom
-#     urdfdom_headers
-#     random_numbers
-#     srdf
-#     urdf
-#     geometric_shapes
-#     moveit_robot_model
-#     ${MOVEIT_LIB_NAME}
-#   )
-# endif()
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  find_package(moveit_resources REQUIRED)
+  find_package(geometric_shapes REQUIRED)
+  include_directories(${moveit_resources_INCLUDE_DIRS})
+
+  ament_add_gtest(test_robot_model test/test.cpp)
+  ament_target_dependencies(test_robot_model
+    moveit_test_utils
+    Boost
+    rclcpp
+    rmw_implementation
+    urdfdom
+    urdfdom_headers
+    random_numbers
+    srdf
+    urdf
+    geometric_shapes
+    moveit_robot_model
+    ${MOVEIT_LIB_NAME}
+  )
+endif()
