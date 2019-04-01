@@ -1384,8 +1384,9 @@ const ros::NodeHandle& moveit::planning_interface::MoveGroupInterface::getNodeHa
   return impl_->getOptions().node_;
 }
 //
-bool moveit::planning_interface::MoveGroupInterface::getInterfaceDescription(
-    moveit_msgs::msg::PlannerInterfaceDescription& desc)
+bool moveit::planning_interface::MoveGroupInterface::getInterfaceDescription(std::shared_ptr<rmw_request_id_t> request_header,
+                     const std::shared_ptr<moveit_msgs::srv::QueryPlannerInterfaces::Request> req,
+                     std::shared_ptr<moveit_msgs::srv::QueryPlannerInterfaces::Response> res)
 {
   return impl_->getInterfaceDescription(desc);
 }
