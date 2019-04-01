@@ -137,7 +137,7 @@ public:
   {
     moveit_msgs::srv::GetPlanningScene::Request request;
     moveit_msgs::srv::GetPlanningScene::Response response;
-    std::map<std::string, geometry_msgs::msg::::Pose> result;
+    std::map<std::string, geometry_msgs::msg::Pose> result;
     request.components.components = request.components.WORLD_OBJECT_GEOMETRY;
     if (!planning_scene_service_.call(request, response))
     {
@@ -293,7 +293,7 @@ std::vector<std::string> PlanningSceneInterface::getKnownObjectNamesInROI(double
   return impl_->getKnownObjectNamesInROI(minx, miny, minz, maxx, maxy, maxz, with_type, types);
 }
 
-std::map<std::string, geometry_msgs::msg::::Pose>
+std::map<std::string, geometry_msgs::msg::Pose>
 PlanningSceneInterface::getObjectPoses(const std::vector<std::string>& object_ids)
 {
   return impl_->getObjectPoses(object_ids);
