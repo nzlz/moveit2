@@ -267,11 +267,11 @@ public:
   {
     return opt_;
   }
-//
-//   const robot_model::RobotModelConstPtr& getRobotModel() const
-//   {
-//     return robot_model_;
-//   }
+
+  const robot_model::RobotModelConstPtr& getRobotModel() const
+  {
+    return robot_model_;
+  }
 //
 //   const robot_model::JointModelGroup* getJointModelGroup() const
 //   {
