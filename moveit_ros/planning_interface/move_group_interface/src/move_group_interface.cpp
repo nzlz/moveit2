@@ -39,6 +39,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <memory>
+#include <chrono>
 // #include <moveit/warehouse/constraints_storage.h>
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit/move_group/capability_names.h>
@@ -92,7 +93,7 @@ class MoveGroupInterface::MoveGroupInterfaceImpl
 {
 public:
   MoveGroupInterfaceImpl(const Options& opt, const std::shared_ptr<tf2_ros::Buffer>& tf_buffer,
-                         const ros::WallDuration& wait_for_servers)
+                         const std::chrono::duration<double>& wait_for_servers)
     : opt_(opt), node_handle_(opt.node_handle_), tf_buffer_(tf_buffer)
   {
     robot_model_ = opt.robot_model_ ? opt.robot_model_ : getSharedRobotModel(opt.robot_description_);
@@ -139,11 +140,11 @@ public:
 
     current_state_monitor_ = getSharedStateMonitor(robot_model_, tf_buffer_, node_handle_);
 
-    ros::WallTime timeout_for_servers = ros::WallTime::now() + wait_for_servers;
-    if (wait_for_servers == ros::WallDuration())
-      timeout_for_servers = ros::WallTime();  // wait for ever
-    double allotted_time = wait_for_servers.toSec();
-
+    auto timeout_for_servers = std::chrono::system_clock::now() + wait_for_servers;
+    if (wait_for_servers == std::chrono::duration<double>(0.0))
+      timeout_for_servers = std::chrono::system_clock::now();  // wait for ever
+    auto wait_for_servers_ec = std::chrono::duration_cast<std::chrono::nanoseconds>(timeout_for_servers).count();
+    double allotted_time = wait_for_servers_ec;
     move_action_client_.reset(
         new actionlib::SimpleActionClient<moveit_msgs::action::MoveGroupAction>(node_handle_, move_group::MOVE_ACTION, false));
     waitForAction(move_action_client_, move_group::MOVE_ACTION, timeout_for_servers, allotted_time);
@@ -1199,7 +1200,7 @@ public:
 //     workspace_parameters_.max_corner.z = maxz;
 //   }
 //
-// private:
+private:
 //   void initializeConstraintsStorageThread(const std::string& host, unsigned int port)
 //   {
 //     // Set up db
@@ -1219,58 +1220,58 @@ public:
 //     initializing_constraints_ = false;
 //   }
 //
-//   Options opt_;
-//   ros::NodeHandle node_handle_;
-//   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
-//   robot_model::RobotModelConstPtr robot_model_;
-//   planning_scene_monitor::CurrentStateMonitorPtr current_state_monitor_;
-//   std::unique_ptr<actionlib::SimpleActionClient<moveit_msgs::action::MoveGroupAction> > move_action_client_;
-//   std::unique_ptr<actionlib::SimpleActionClient<moveit_msgs::action::ExecuteTrajectoryAction> > execute_action_client_;
-//   std::unique_ptr<actionlib::SimpleActionClient<moveit_msgs::action::PickupAction> > pick_action_client_;
-//   std::unique_ptr<actionlib::SimpleActionClient<moveit_msgs::action::PlaceAction> > place_action_client_;
-//
-//   // general planning params
-//   robot_state::RobotStatePtr considered_start_state_;
-//   moveit_msgs::msg::WorkspaceParameters workspace_parameters_;
-//   double allowed_planning_time_;
-//   std::string planner_id_;
-//   unsigned int num_planning_attempts_;
-//   double max_velocity_scaling_factor_;
-//   double max_acceleration_scaling_factor_;
-//   double goal_joint_tolerance_;
-//   double goal_position_tolerance_;
-//   double goal_orientation_tolerance_;
-//   bool can_look_;
-//   bool can_replan_;
-//   double replan_delay_;
-//
-//   // joint state goal
-//   robot_state::RobotStatePtr joint_state_target_;
-//   const robot_model::JointModelGroup* joint_model_group_;
-//
-//   // pose goal;
-//   // for each link we have a set of possible goal locations;
-//   std::map<std::string, std::vector<geometry_msgs::PoseStamped> > pose_targets_;
-//
-//   // common properties for goals
-//   ActiveTargetType active_target_;
-//   std::unique_ptr<moveit_msgs::msg::Constraints> path_constraints_;
-//   std::unique_ptr<moveit_msgs::msg::TrajectoryConstraints> trajectory_constraints_;
-//   std::string end_effector_link_;
-//   std::string pose_reference_frame_;
-//   std::string support_surface_;
-//
-//   // ROS communication
-//   ros::Publisher trajectory_event_publisher_;
-//   ros::Publisher attached_object_publisher_;
-//   ros::ServiceClient query_service_;
-//   ros::ServiceClient get_params_service_;
-//   ros::ServiceClient set_params_service_;
-//   ros::ServiceClient cartesian_path_service_;
-//   ros::ServiceClient plan_grasps_service_;
-//   std::unique_ptr<moveit_warehouse::ConstraintsStorage> constraints_storage_;
-//   std::unique_ptr<boost::thread> constraints_init_thread_;
-//   bool initializing_constraints_;
+  Options opt_;
+  ros::NodeHandle node_handle_;
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  robot_model::RobotModelConstPtr robot_model_;
+  planning_scene_monitor::CurrentStateMonitorPtr current_state_monitor_;
+  std::unique_ptr<actionlib::SimpleActionClient<moveit_msgs::action::MoveGroupAction> > move_action_client_;
+  std::unique_ptr<actionlib::SimpleActionClient<moveit_msgs::action::ExecuteTrajectoryAction> > execute_action_client_;
+  std::unique_ptr<actionlib::SimpleActionClient<moveit_msgs::action::PickupAction> > pick_action_client_;
+  std::unique_ptr<actionlib::SimpleActionClient<moveit_msgs::action::PlaceAction> > place_action_client_;
+
+  // general planning params
+  robot_state::RobotStatePtr considered_start_state_;
+  moveit_msgs::msg::WorkspaceParameters workspace_parameters_;
+  double allowed_planning_time_;
+  std::string planner_id_;
+  unsigned int num_planning_attempts_;
+  double max_velocity_scaling_factor_;
+  double max_acceleration_scaling_factor_;
+  double goal_joint_tolerance_;
+  double goal_position_tolerance_;
+  double goal_orientation_tolerance_;
+  bool can_look_;
+  bool can_replan_;
+  double replan_delay_;
+
+  // joint state goal
+  robot_state::RobotStatePtr joint_state_target_;
+  const robot_model::JointModelGroup* joint_model_group_;
+
+  // pose goal;
+  // for each link we have a set of possible goal locations;
+  std::map<std::string, std::vector<geometry_msgs::PoseStamped> > pose_targets_;
+
+  // common properties for goals
+  ActiveTargetType active_target_;
+  std::unique_ptr<moveit_msgs::msg::Constraints> path_constraints_;
+  std::unique_ptr<moveit_msgs::msg::TrajectoryConstraints> trajectory_constraints_;
+  std::string end_effector_link_;
+  std::string pose_reference_frame_;
+  std::string support_surface_;
+
+  // ROS communication
+  ros::Publisher trajectory_event_publisher_;
+  ros::Publisher attached_object_publisher_;
+  ros::ServiceClient query_service_;
+  ros::ServiceClient get_params_service_;
+  ros::ServiceClient set_params_service_;
+  ros::ServiceClient cartesian_path_service_;
+  ros::ServiceClient plan_grasps_service_;
+  std::unique_ptr<moveit_warehouse::ConstraintsStorage> constraints_storage_;
+  std::unique_ptr<boost::thread> constraints_init_thread_;
+  bool initializing_constraints_;
 };
 }  // namespace planning_interface
 }  // namespace moveit
