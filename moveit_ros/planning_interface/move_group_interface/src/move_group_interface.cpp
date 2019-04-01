@@ -469,7 +469,7 @@ public:
 //     return empty;
 //   }
 //
-//   bool setPoseTargets(const std::vector<geometry_msgs::PoseStamped>& poses, const std::string& end_effector_link)
+//   bool setPoseTargets(const std::vector<geometry_msgs::msg::PoseStamped>& poses, const std::string& end_effector_link)
 //   {
 //     const std::string& eef = end_effector_link.empty() ? end_effector_link_ : end_effector_link;
 //     if (eef.empty())
@@ -481,7 +481,7 @@ public:
 //     {
 //       pose_targets_[eef] = poses;
 //       // make sure we don't store an actual stamp, since that will become stale can potentially cause tf errors
-//       std::vector<geometry_msgs::PoseStamped>& stored_poses = pose_targets_[eef];
+//       std::vector<geometry_msgs::msg::PoseStamped>& stored_poses = pose_targets_[eef];
 //       for (std::size_t i = 0; i < stored_poses.size(); ++i)
 //         stored_poses[i].header.stamp = ros::Time(0);
 //     }
@@ -494,33 +494,33 @@ public:
 //     return pose_targets_.find(eef) != pose_targets_.end();
 //   }
 //
-//   const geometry_msgs::PoseStamped& getPoseTarget(const std::string& end_effector_link) const
+//   const geometry_msgs::msg::PoseStamped& getPoseTarget(const std::string& end_effector_link) const
 //   {
 //     const std::string& eef = end_effector_link.empty() ? end_effector_link_ : end_effector_link;
 //
 //     // if multiple pose targets are set, return the first one
-//     std::map<std::string, std::vector<geometry_msgs::PoseStamped> >::const_iterator jt = pose_targets_.find(eef);
+//     std::map<std::string, std::vector<geometry_msgs::msg::PoseStamped> >::const_iterator jt = pose_targets_.find(eef);
 //     if (jt != pose_targets_.end())
 //       if (!jt->second.empty())
 //         return jt->second.at(0);
 //
 //     // or return an error
-//     static const geometry_msgs::PoseStamped unknown;
+//     static const geometry_msgs::msg::PoseStamped unknown;
 //     ROS_ERROR_NAMED("move_group_interface", "Pose for end-effector '%s' not known.", eef.c_str());
 //     return unknown;
 //   }
 //
-//   const std::vector<geometry_msgs::PoseStamped>& getPoseTargets(const std::string& end_effector_link) const
+//   const std::vector<geometry_msgs::msg::PoseStamped>& getPoseTargets(const std::string& end_effector_link) const
 //   {
 //     const std::string& eef = end_effector_link.empty() ? end_effector_link_ : end_effector_link;
 //
-//     std::map<std::string, std::vector<geometry_msgs::PoseStamped> >::const_iterator jt = pose_targets_.find(eef);
+//     std::map<std::string, std::vector<geometry_msgs::msg::PoseStamped> >::const_iterator jt = pose_targets_.find(eef);
 //     if (jt != pose_targets_.end())
 //       if (!jt->second.empty())
 //         return jt->second;
 //
 //     // or return an error
-//     static const std::vector<geometry_msgs::PoseStamped> empty;
+//     static const std::vector<geometry_msgs::msg::PoseStamped> empty;
 //     ROS_ERROR_NAMED("move_group_interface", "Poses for end-effector '%s' are not known.", eef.c_str());
 //     return empty;
 //   }
@@ -589,7 +589,7 @@ public:
 //   }
 //
 //   /** \brief Place an object at one of the specified possible locations */
-//   MoveItErrorCode place(const std::string& object, const std::vector<geometry_msgs::PoseStamped>& poses,
+//   MoveItErrorCode place(const std::string& object, const std::vector<geometry_msgs::msg::PoseStamped>& poses,
 //                         bool plan_only = false)
 //   {
 //     std::vector<moveit_msgs::action::PlaceLocation> locations;
@@ -1048,7 +1048,7 @@ public:
 //     {
 //       // find out how many goals are specified
 //       std::size_t goal_count = 0;
-//       for (std::map<std::string, std::vector<geometry_msgs::PoseStamped> >::const_iterator it = pose_targets_.begin();
+//       for (std::map<std::string, std::vector<geometry_msgs::msg::PoseStamped> >::const_iterator it = pose_targets_.begin();
 //            it != pose_targets_.end(); ++it)
 //         goal_count = std::max(goal_count, it->second.size());
 //
@@ -1058,7 +1058,7 @@ public:
 //       // to reach the goal that corresponds to the goals of the other end effectors
 //       request.goal_constraints.resize(goal_count);
 //
-//       for (std::map<std::string, std::vector<geometry_msgs::PoseStamped> >::const_iterator it = pose_targets_.begin();
+//       for (std::map<std::string, std::vector<geometry_msgs::msg::PoseStamped> >::const_iterator it = pose_targets_.begin();
 //            it != pose_targets_.end(); ++it)
 //       {
 //         for (std::size_t i = 0; i < it->second.size(); ++i)
@@ -1262,7 +1262,7 @@ private:
 
   // pose goal;
   // for each link we have a set of possible goal locations;
-  std::map<std::string, std::vector<geometry_msgs::PoseStamped> > pose_targets_;
+  std::map<std::string, std::vector<geometry_msgs::msg::PoseStamped> > pose_targets_;
 
   // common properties for goals
   ActiveTargetType active_target_;
@@ -1498,15 +1498,15 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 // }
 //
 // moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGroupInterface::place(
-//     const std::string& object, const std::vector<geometry_msgs::PoseStamped>& poses, bool plan_only)
+//     const std::string& object, const std::vector<geometry_msgs::msg::PoseStamped>& poses, bool plan_only)
 // {
 //   return impl_->place(object, poses, plan_only);
 // }
 //
 // moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGroupInterface::place(
-//     const std::string& object, const geometry_msgs::PoseStamped& pose, bool plan_only)
+//     const std::string& object, const geometry_msgs::msg::PoseStamped& pose, bool plan_only)
 // {
-//   return impl_->place(object, std::vector<geometry_msgs::PoseStamped>(1, pose), plan_only);
+//   return impl_->place(object, std::vector<geometry_msgs::msg::PoseStamped>(1, pose), plan_only);
 // }
 //
 // double moveit::planning_interface::MoveGroupInterface::computeCartesianPath(
@@ -1671,7 +1671,7 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 //   return impl_->setJointValueTarget(eef_pose, end_effector_link, "", false);
 // }
 //
-// bool moveit::planning_interface::MoveGroupInterface::setJointValueTarget(const geometry_msgs::PoseStamped& eef_pose,
+// bool moveit::planning_interface::MoveGroupInterface::setJointValueTarget(const geometry_msgs::msg::PoseStamped& eef_pose,
 //                                                                          const std::string& end_effector_link)
 // {
 //   return impl_->setJointValueTarget(eef_pose.pose, end_effector_link, eef_pose.header.frame_id, false);
@@ -1691,7 +1691,7 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 // }
 //
 // bool moveit::planning_interface::MoveGroupInterface::setApproximateJointValueTarget(
-//     const geometry_msgs::PoseStamped& eef_pose, const std::string& end_effector_link)
+//     const geometry_msgs::msg::PoseStamped& eef_pose, const std::string& end_effector_link)
 // {
 //   return impl_->setJointValueTarget(eef_pose.pose, end_effector_link, eef_pose.header.frame_id, true);
 // }
@@ -1748,7 +1748,7 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 // bool moveit::planning_interface::MoveGroupInterface::setPoseTarget(const Eigen::Isometry3d& pose,
 //                                                                    const std::string& end_effector_link)
 // {
-//   std::vector<geometry_msgs::PoseStamped> pose_msg(1);
+//   std::vector<geometry_msgs::msg::PoseStamped> pose_msg(1);
 //   pose_msg[0].pose = tf2::toMsg(pose);
 //   pose_msg[0].header.frame_id = getPoseReferenceFrame();
 //   pose_msg[0].header.stamp = ros::Time::now();
@@ -1758,24 +1758,24 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 // bool moveit::planning_interface::MoveGroupInterface::setPoseTarget(const geometry_msgs::Pose& target,
 //                                                                    const std::string& end_effector_link)
 // {
-//   std::vector<geometry_msgs::PoseStamped> pose_msg(1);
+//   std::vector<geometry_msgs::msg::PoseStamped> pose_msg(1);
 //   pose_msg[0].pose = target;
 //   pose_msg[0].header.frame_id = getPoseReferenceFrame();
 //   pose_msg[0].header.stamp = ros::Time::now();
 //   return setPoseTargets(pose_msg, end_effector_link);
 // }
 //
-// bool moveit::planning_interface::MoveGroupInterface::setPoseTarget(const geometry_msgs::PoseStamped& target,
+// bool moveit::planning_interface::MoveGroupInterface::setPoseTarget(const geometry_msgs::msg::PoseStamped& target,
 //                                                                    const std::string& end_effector_link)
 // {
-//   std::vector<geometry_msgs::PoseStamped> targets(1, target);
+//   std::vector<geometry_msgs::msg::PoseStamped> targets(1, target);
 //   return setPoseTargets(targets, end_effector_link);
 // }
 //
 // bool moveit::planning_interface::MoveGroupInterface::setPoseTargets(const EigenSTL::vector_Isometry3d& target,
 //                                                                     const std::string& end_effector_link)
 // {
-//   std::vector<geometry_msgs::PoseStamped> pose_out(target.size());
+//   std::vector<geometry_msgs::msg::PoseStamped> pose_out(target.size());
 //   ros::Time tm = ros::Time::now();
 //   const std::string& frame_id = getPoseReferenceFrame();
 //   for (std::size_t i = 0; i < target.size(); ++i)
@@ -1790,7 +1790,7 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 // bool moveit::planning_interface::MoveGroupInterface::setPoseTargets(const std::vector<geometry_msgs::Pose>& target,
 //                                                                     const std::string& end_effector_link)
 // {
-//   std::vector<geometry_msgs::PoseStamped> target_stamped(target.size());
+//   std::vector<geometry_msgs::msg::PoseStamped> target_stamped(target.size());
 //   ros::Time tm = ros::Time::now();
 //   const std::string& frame_id = getPoseReferenceFrame();
 //   for (std::size_t i = 0; i < target.size(); ++i)
@@ -1803,7 +1803,7 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 // }
 //
 // bool moveit::planning_interface::MoveGroupInterface::setPoseTargets(
-//     const std::vector<geometry_msgs::PoseStamped>& target, const std::string& end_effector_link)
+//     const std::vector<geometry_msgs::msg::PoseStamped>& target, const std::string& end_effector_link)
 // {
 //   if (target.empty())
 //   {
@@ -1817,13 +1817,13 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 //   }
 // }
 //
-// const geometry_msgs::PoseStamped&
+// const geometry_msgs::msg::PoseStamped&
 // moveit::planning_interface::MoveGroupInterface::getPoseTarget(const std::string& end_effector_link) const
 // {
 //   return impl_->getPoseTarget(end_effector_link);
 // }
 //
-// const std::vector<geometry_msgs::PoseStamped>&
+// const std::vector<geometry_msgs::msg::PoseStamped>&
 // moveit::planning_interface::MoveGroupInterface::getPoseTargets(const std::string& end_effector_link) const
 // {
 //   return impl_->getPoseTargets(end_effector_link);
@@ -1832,11 +1832,11 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 // namespace
 // {
 // inline void transformPose(const tf2_ros::Buffer& tf_buffer, const std::string& desired_frame,
-//                           geometry_msgs::PoseStamped& target)
+//                           geometry_msgs::msg::PoseStamped& target)
 // {
 //   if (desired_frame != target.header.frame_id)
 //   {
-//     geometry_msgs::PoseStamped target_in(target);
+//     geometry_msgs::msg::PoseStamped target_in(target);
 //     tf_buffer.transform(target_in, target, desired_frame);
 //     // we leave the stamp to ros::Time(0) on purpose
 //     target.header.stamp = ros::Time(0);
@@ -1847,7 +1847,7 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 // bool moveit::planning_interface::MoveGroupInterface::setPositionTarget(double x, double y, double z,
 //                                                                        const std::string& end_effector_link)
 // {
-//   geometry_msgs::PoseStamped target;
+//   geometry_msgs::msg::PoseStamped target;
 //   if (impl_->hasPoseTarget(end_effector_link))
 //   {
 //     target = getPoseTarget(end_effector_link);
@@ -1873,7 +1873,7 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 // bool moveit::planning_interface::MoveGroupInterface::setRPYTarget(double r, double p, double y,
 //                                                                   const std::string& end_effector_link)
 // {
-//   geometry_msgs::PoseStamped target;
+//   geometry_msgs::msg::PoseStamped target;
 //   if (impl_->hasPoseTarget(end_effector_link))
 //   {
 //     target = getPoseTarget(end_effector_link);
@@ -1897,7 +1897,7 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 // bool moveit::planning_interface::MoveGroupInterface::setOrientationTarget(double x, double y, double z, double w,
 //                                                                           const std::string& end_effector_link)
 // {
-//   geometry_msgs::PoseStamped target;
+//   geometry_msgs::msg::PoseStamped target;
 //   if (impl_->hasPoseTarget(end_effector_link))
 //   {
 //     target = getPoseTarget(end_effector_link);
@@ -1993,7 +1993,7 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 //   return r;
 // }
 //
-// geometry_msgs::PoseStamped
+// geometry_msgs::msg::PoseStamped
 // moveit::planning_interface::MoveGroupInterface::getRandomPose(const std::string& end_effector_link)
 // {
 //   const std::string& eef = end_effector_link.empty() ? getEndEffectorLink() : end_effector_link;
@@ -2012,14 +2012,14 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 //         pose = current_state->getGlobalLinkTransform(lm);
 //     }
 //   }
-//   geometry_msgs::PoseStamped pose_msg;
+//   geometry_msgs::msg::PoseStamped pose_msg;
 //   pose_msg.header.stamp = ros::Time::now();
 //   pose_msg.header.frame_id = impl_->getRobotModel()->getModelFrame();
 //   pose_msg.pose = tf2::toMsg(pose);
 //   return pose_msg;
 // }
 //
-// geometry_msgs::PoseStamped
+// geometry_msgs::msg::PoseStamped
 // moveit::planning_interface::MoveGroupInterface::getCurrentPose(const std::string& end_effector_link)
 // {
 //   const std::string& eef = end_effector_link.empty() ? getEndEffectorLink() : end_effector_link;
@@ -2037,7 +2037,7 @@ moveit::planning_interface::MoveItErrorCode moveit::planning_interface::MoveGrou
 //         pose = current_state->getGlobalLinkTransform(lm);
 //     }
 //   }
-//   geometry_msgs::PoseStamped pose_msg;
+//   geometry_msgs::msg::PoseStamped pose_msg;
 //   pose_msg.header.stamp = ros::Time::now();
 //   pose_msg.header.frame_id = impl_->getRobotModel()->getModelFrame();
 //   pose_msg.pose = tf2::toMsg(pose);
