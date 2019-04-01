@@ -78,6 +78,8 @@ const std::string MoveGroupInterface::ROBOT_DESCRIPTION =
 
 const std::string GRASP_PLANNING_SERVICE_NAME = "plan_grasps";  // name of the service that can be used to plan grasps
 
+rclcpp::Logger LOGGER = rclcpp::get_logger("moveit_ros_planning").get_child("move_group_interface");
+
 namespace
 {
 enum ActiveTargetType
@@ -145,8 +147,12 @@ public:
       timeout_for_servers = std::chrono::system_clock::now();  // wait for ever
     auto wait_for_servers_ec = std::chrono::duration_cast<std::chrono::nanoseconds>(timeout_for_servers).count();
     double allotted_time = wait_for_servers_ec;
-    move_action_client_.reset(
-        new actionlib::SimpleActionClient<moveit_msgs::action::MoveGroupAction>(node_handle_, move_group::MOVE_ACTION, false));
+    // move_action_client_.reset(
+    //     new actionlib::SimpleActionClient<moveit_msgs::action::MoveGroupAction>(node_handle_, move_group::MOVE_ACTION, false));
+    //TODO(anasarrak): Review these action changes
+    move_action_client_.reset();
+    move_action_client_ = rclcpp_action::create_client<moveit_msgs::action::MoveGroupAction>(node, "move_action_client");
+
     waitForAction(move_action_client_, move_group::MOVE_ACTION, timeout_for_servers, allotted_time);
 
     pick_action_client_.reset(
@@ -177,73 +183,78 @@ public:
                                                                                                << ".");
   }
 
-//   template <typename T>
-//   void waitForAction(const T& action, const std::string& name, const ros::WallTime& timeout, double allotted_time)
-//   {
-//     ROS_DEBUG_NAMED("move_group_interface", "Waiting for move_group action server (%s)...", name.c_str());
-//
-//     // wait for the server (and spin as needed)
-//     if (timeout == ros::WallTime())  // wait forever
-//     {
-//       while (node_handle_.ok() && !action->isServerConnected())
-//       {
-//         ros::WallDuration(0.001).sleep();
-//         // explicit ros::spinOnce on the callback queue used by NodeHandle that manages the action client
-//         ros::CallbackQueue* queue = dynamic_cast<ros::CallbackQueue*>(node_handle_.getCallbackQueue());
-//         if (queue)
-//         {
-//           queue->callAvailable();
-//         }
-//         else  // in case of nodelets and specific callback queue implementations
-//         {
-//           ROS_WARN_ONCE_NAMED("move_group_interface", "Non-default CallbackQueue: Waiting for external queue "
-//                                                       "handling.");
-//         }
-//       }
-//     }
-//     else  // wait with timeout
-//     {
-//       while (node_handle_.ok() && !action->isServerConnected() && timeout > ros::WallTime::now())
-//       {
-//         ros::WallDuration(0.001).sleep();
-//         // explicit ros::spinOnce on the callback queue used by NodeHandle that manages the action client
-//         ros::CallbackQueue* queue = dynamic_cast<ros::CallbackQueue*>(node_handle_.getCallbackQueue());
-//         if (queue)
-//         {
-//           queue->callAvailable();
-//         }
-//         else  // in case of nodelets and specific callback queue implementations
-//         {
-//           ROS_WARN_ONCE_NAMED("move_group_interface", "Non-default CallbackQueue: Waiting for external queue "
-//                                                       "handling.");
-//         }
-//       }
-//     }
-//
-//     if (!action->isServerConnected())
-//     {
-//       std::stringstream error;
-//       error << "Unable to connect to move_group action server '" << name << "' within allotted time (" << allotted_time
-//             << "s)";
-//       throw std::runtime_error(error.str());
-//     }
-//     else
-//     {
-//       ROS_DEBUG_NAMED("move_group_interface", "Connected to '%s'", name.c_str());
-//     }
-//   }
-//
-//   ~MoveGroupInterfaceImpl()
-//   {
-//     if (constraints_init_thread_)
-//       constraints_init_thread_->join();
-//   }
-//
-//   const std::shared_ptr<tf2_ros::Buffer>& getTF() const
-//   {
-//     return tf_buffer_;
-//   }
-//
+  template <typename T>
+  void waitForAction(const T& action, const std::string& name, const std::chrono::system_clock::time_point& timeout, double allotted_time)
+  {
+    RCLCPP_DEBUG(LOGGER, "Waiting for move_group action server (%s)...", name.c_str());
+    auto d = std::chrono::duration<double>(0.001);
+    auto period = std::chrono::milliseconds(int(d.count()*1000));
+    // wait for the server (and spin as needed)
+    if (timeout == std::chrono::system_clock::now())  // wait forever
+    {
+      while (rclcpp::ok() && !action->action_server_is_ready())
+      {
+        rclcpp::sleep_for(period);
+        // explicit ros::spinOnce on the callback queue used by NodeHandle that manages the action client
+        //TODO (anasarrak): Handle this for ros2, is it needed? remove the WARN
+        RCLCPP_WARN_ONCE(LOGGER, "CallbackQueue needed");
+        // ros::CallbackQueue* queue = dynamic_cast<ros::CallbackQueue*>(node_handle_.getCallbackQueue());
+        // if (queue)
+        // {
+        //   queue->callAvailable();
+        // }
+        else  // in case of nodelets and specific callback queue implementations
+        {
+          RCLCPP_WARN_ONCE(LOGGER, "Non-default CallbackQueue: Waiting for external queue "
+                                                      "handling.");
+        }
+      }
+    }
+    else  // wait with timeout
+    {
+      while (rclcpp::ok() && !action->action_server_is_ready() && timeout > std::chrono::system_clock::now())
+      {
+        rclcpp::sleep_for(period);
+        // explicit ros::spinOnce on the callback queue used by NodeHandle that manages the action client
+        // ros::CallbackQueue* queue = dynamic_cast<ros::CallbackQueue*>(node_handle_.getCallbackQueue());
+        //TODO (anasarrak): Handle this for ros2, is it needed? remove the WARN
+        RCLCPP_WARN_ONCE(LOGGER, "CallbackQueue needed");
+        // if (queue)
+        // {
+        //   queue->callAvailable();
+        // }
+        else  // in case of nodelets and specific callback queue implementations
+        {
+          RCLCPP_WARN_ONCE(LOGGER, "Non-default CallbackQueue: Waiting for external queue "
+                                                      "handling.");
+        }
+      }
+    }
+
+    if (!action->action_server_is_ready())
+    {
+      std::stringstream error;
+      error << "Unable to connect to move_group action server '" << name << "' within allotted time (" << allotted_time
+            << "s)";
+      throw std::runtime_error(error.str());
+    }
+    else
+    {
+      ROS_DEBUG(LOGGER, "Connected to '%s'", name.c_str());
+    }
+  }
+
+  ~MoveGroupInterfaceImpl()
+  {
+    if (constraints_init_thread_)
+      constraints_init_thread_->join();
+  }
+
+  const std::shared_ptr<tf2_ros::Buffer>& getTF() const
+  {
+    return tf_buffer_;
+  }
+
   const Options& getOptions() const
   {
     return opt_;
@@ -1221,14 +1232,14 @@ private:
 //   }
 //
   Options opt_;
-  ros::NodeHandle node_handle_;
+  std::shared_ptr<rclcpp::Node> node_handle_;
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   robot_model::RobotModelConstPtr robot_model_;
   planning_scene_monitor::CurrentStateMonitorPtr current_state_monitor_;
-  std::unique_ptr<actionlib::SimpleActionClient<moveit_msgs::action::MoveGroupAction> > move_action_client_;
-  std::unique_ptr<actionlib::SimpleActionClient<moveit_msgs::action::ExecuteTrajectoryAction> > execute_action_client_;
-  std::unique_ptr<actionlib::SimpleActionClient<moveit_msgs::action::PickupAction> > pick_action_client_;
-  std::unique_ptr<actionlib::SimpleActionClient<moveit_msgs::action::PlaceAction> > place_action_client_;
+  std::shared_ptr<rclcpp_action::Client<moveit_msgs::action::MoveGroup>> move_action_client_;
+  std::shared_ptr<rclcpp_action::Client<moveit_msgs::action::ExecuteTrajectory>> execute_action_client_;
+  std::shared_ptr<rclcpp_action::Client<moveit_msgs::action::Pickup>> pick_action_client_;
+  std::shared_ptr<rclcpp_action::Client<moveit_msgs::action::Place>> place_action_client_;
 
   // general planning params
   robot_state::RobotStatePtr considered_start_state_;
