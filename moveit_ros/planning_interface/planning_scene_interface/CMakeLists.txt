@@ -2,20 +2,27 @@ set(MOVEIT_LIB_NAME moveit_planning_scene_interface)
 
 add_library(${MOVEIT_LIB_NAME} src/planning_scene_interface.cpp)
 set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
-target_link_libraries(${MOVEIT_LIB_NAME} moveit_common_planning_interface_objects ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+ament_target_dependencies(${MOVEIT_LIB_NAME}
+  moveit_common_planning_interface_objects
+  ${rclcpp_LIBRARIES}
+  ${Boost_LIBRARIES}
+  moveit_core)
 
-add_library(${MOVEIT_LIB_NAME}_python src/wrap_python_planning_scene_interface.cpp)
-set_target_properties(${MOVEIT_LIB_NAME}_python PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
-target_link_libraries(${MOVEIT_LIB_NAME}_python ${MOVEIT_LIB_NAME} ${PYTHON_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} moveit_py_bindings_tools)
-set_target_properties(${MOVEIT_LIB_NAME}_python PROPERTIES OUTPUT_NAME _moveit_planning_scene_interface PREFIX "")
-set_target_properties(${MOVEIT_LIB_NAME}_python PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_PYTHON_DESTINATION}")
+#TODO(anasarrak): uncomment this and fix it for ROS2
+# add_library(${MOVEIT_LIB_NAME}_python src/wrap_python_planning_scene_interface.cpp)
+# set_target_properties(${MOVEIT_LIB_NAME}_python PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
+#
+# ament_target_dependencies(${MOVEIT_LIB_NAME}_python PROPERTIES OUTPUT_NAME
+#   _moveit_planning_scene_interface PREFIX ""
+#   moveit_core)
+
 
 install(TARGETS ${MOVEIT_LIB_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib)
 
-install(TARGETS ${MOVEIT_LIB_NAME}_python
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION})
+# install(TARGETS ${MOVEIT_LIB_NAME}_python
+#   ARCHIVE DESTINATION lib
+#   LIBRARY DESTINATION lib)
 
-install(DIRECTORY include/ DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
+install(DIRECTORY include/ DESTINATION include)

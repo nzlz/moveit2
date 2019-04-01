@@ -69,7 +69,7 @@ planning_scene_monitor::CurrentStateMonitorPtr getSharedStateMonitor(const robot
  */
 planning_scene_monitor::CurrentStateMonitorPtr getSharedStateMonitor(const robot_model::RobotModelConstPtr& robot_model,
                                                                      const std::shared_ptr<tf2_ros::Buffer>& tf_buffer,
-                                                                     const ros::NodeHandle& nh);
+                                                                     const std::shared_ptr<rclcpp::Node> nh);
 
 }  // namespace planning interface
 }  // namespace moveit

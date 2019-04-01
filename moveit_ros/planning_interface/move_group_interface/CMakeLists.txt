@@ -7,6 +7,7 @@ ament_target_dependencies(${MOVEIT_LIB_NAME}
     "moveit_common_planning_interface_objects"
     "moveit_planning_scene_interface"
     "rclcpp"
+    moveit_core
 )
 
 add_library(${MOVEIT_LIB_NAME}_python src/wrap_python_move_group.cpp)
