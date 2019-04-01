@@ -147,29 +147,29 @@ public:
 
     auto timeout_for_servers = std::chrono::system_clock::now() + wait_for_servers;
     if (wait_for_servers == std::chrono::duration<double>(0.0))
-      timeout_for_servers = std::chrono::system_clock::now();  // wait for ever
-    auto wait_for_servers_ec = std::chrono::duration_cast<std::chrono::nanoseconds>(timeout_for_servers).count();
-    double allotted_time = wait_for_servers_ec;
+      timeout_for_servers = std::chrono::system_clock::time_point;  // wait for ever
+    auto wait_for_servers_sec = std::chrono::duration_cast<std::chrono::nanoseconds>(timeout_for_servers.time_since_epoch()).count();
+    double allotted_time = wait_for_servers_sec;
     // move_action_client_.reset(
     //     new actionlib::SimpleActionClient<moveit_msgs::action::MoveGroupAction>(node_handle_, move_group::MOVE_ACTION, false));
     //TODO(anasarrak): Review these action changes
     move_action_client_.reset();
-    move_action_client_ = rclcpp_action::create_client<moveit_msgs::action::MoveGroupAction>(node, "move_action_client_");
+    move_action_client_ = rclcpp_action::create_client<moveit_msgs::action::MoveGroup>(node_handle_, "move_action_client_");
 
     waitForAction(move_action_client_, move_group::MOVE_ACTION, timeout_for_servers, allotted_time);
 
     pick_action_client_.reset()
-    move_action_client_ = rclcpp_action::create_client<moveit_msgs::action::PickupAction>(node, "pick_action_client_");
+    move_action_client_ = rclcpp_action::create_client<moveit_msgs::action::PickupAction>(node_handle_, "pick_action_client_");
 
     waitForAction(pick_action_client_, move_group::PICKUP_ACTION, timeout_for_servers, allotted_time);
 
     place_action_client_.reset()
-    place_action_client_ = rclcpp_action::create_client<moveit_msgs::action::PlaceAction>(node, "place_action_client_");
+    place_action_client_ = rclcpp_action::create_client<moveit_msgs::action::PlaceAction>(node_handle_, "place_action_client_");
 
     waitForAction(place_action_client_, move_group::PLACE_ACTION, timeout_for_servers, allotted_time);
 
     execute_action_client_.reset()
-    execute_action_client_ = rclcpp_action::create_client<moveit_msgs::action::ExecuteTrajectory>(node, "execute_action_client_");
+    execute_action_client_ = rclcpp_action::create_client<moveit_msgs::action::ExecuteTrajectory>(node_handle_, "execute_action_client_");
 
     waitForAction(execute_action_client_, move_group::EXECUTE_ACTION_NAME, timeout_for_servers, allotted_time);
 
@@ -195,7 +195,8 @@ public:
   }
 
   template <typename T>
-  void waitForAction(const T& action, const std::string& name, const std::chrono::system_clock::time_point& timeout, double allotted_time)
+  void waitForAction(const T& action, const std::string& name,
+    const std::chrono::system_clock::time_point& timeout, double allotted_time)
   {
     RCLCPP_DEBUG(LOGGER, "Waiting for move_group action server (%s)...", name.c_str());
     auto d = std::chrono::duration<double>(0.001);
