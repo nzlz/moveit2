@@ -151,20 +151,23 @@ public:
     //     new actionlib::SimpleActionClient<moveit_msgs::action::MoveGroupAction>(node_handle_, move_group::MOVE_ACTION, false));
     //TODO(anasarrak): Review these action changes
     move_action_client_.reset();
-    move_action_client_ = rclcpp_action::create_client<moveit_msgs::action::MoveGroupAction>(node, "move_action_client");
+    move_action_client_ = rclcpp_action::create_client<moveit_msgs::action::MoveGroupAction>(node, "move_action_client_");
 
     waitForAction(move_action_client_, move_group::MOVE_ACTION, timeout_for_servers, allotted_time);
 
-    pick_action_client_.reset(
-        new actionlib::SimpleActionClient<moveit_msgs::action::PickupAction>(node_handle_, move_group::PICKUP_ACTION, false));
+    pick_action_client_.reset()
+    move_action_client_ = rclcpp_action::create_client<moveit_msgs::action::PickupAction>(node, "pick_action_client_");
+
     waitForAction(pick_action_client_, move_group::PICKUP_ACTION, timeout_for_servers, allotted_time);
 
-    place_action_client_.reset(
-        new actionlib::SimpleActionClient<moveit_msgs::action::PlaceAction>(node_handle_, move_group::PLACE_ACTION, false));
+    place_action_client_.reset()
+    place_action_client_ = rclcpp_action::create_client<moveit_msgs::action::PlaceAction>(node, "place_action_client_");
+
     waitForAction(place_action_client_, move_group::PLACE_ACTION, timeout_for_servers, allotted_time);
 
-    execute_action_client_.reset(new actionlib::SimpleActionClient<moveit_msgs::action::ExecuteTrajectoryAction>(
-        node_handle_, move_group::EXECUTE_ACTION_NAME, false));
+    execute_action_client_.reset()
+    execute_action_client_ = rclcpp_action::create_client<moveit_msgs::action::ExecuteTrajectory>(node, "execute_action_client_");
+
     waitForAction(execute_action_client_, move_group::EXECUTE_ACTION_NAME, timeout_for_servers, allotted_time);
 
     query_service_ =
@@ -1273,8 +1276,9 @@ private:
   std::string support_surface_;
 
   // ROS communication
-  ros::Publisher trajectory_event_publisher_;
-  ros::Publisher attached_object_publisher_;
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr trajectory_event_publisher_;
+  rclcpp::Publisher<moveit_msgs::msg::AttachedCollisionObject>::SharedPtr attached_object_publisher_;
+
   ros::ServiceClient query_service_;
   ros::ServiceClient get_params_service_;
   ros::ServiceClient set_params_service_;
