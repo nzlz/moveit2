@@ -1279,12 +1279,12 @@ private:
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr trajectory_event_publisher_;
   rclcpp::Publisher<moveit_msgs::msg::AttachedCollisionObject>::SharedPtr attached_object_publisher_;
 
-  ros::ServiceClient query_service_;
-  ros::ServiceClient get_params_service_;
-  ros::ServiceClient set_params_service_;
-  ros::ServiceClient cartesian_path_service_;
-  ros::ServiceClient plan_grasps_service_;
-  std::unique_ptr<moveit_warehouse::ConstraintsStorage> constraints_storage_;
+  std::shared_ptr<rclcpp::Service<moveit_msgs::srv::QueryPlannerInterfaces>> query_service_;
+  std::shared_ptr<rclcpp::Service<moveit_msgs::srv::GetPlannerParams>> get_params_service_;
+  std::shared_ptr<rclcpp::Service<moveit_msgs::srv::SetPlannerParams>> set_params_service_;
+  std::shared_ptr<moveit_msgs::srv::GetCartesianPath>> cartesian_path_service_;
+  std::shared_ptr<moveit_msgs::srv::GraspPlanning>> plan_grasps_service_;
+  // std::unique_ptr<moveit_warehouse::ConstraintsStorage> constraints_storage_;
   std::unique_ptr<boost::thread> constraints_init_thread_;
   bool initializing_constraints_;
 };
