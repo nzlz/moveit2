@@ -170,8 +170,14 @@ public:
 
     waitForAction(execute_action_client_, move_group::EXECUTE_ACTION_NAME, timeout_for_servers, allotted_time);
 
+    std::function<bool( std::shared_ptr<rmw_request_id_t>,
+                         const std::shared_ptr<moveit_msgs::srv::QueryPlannerInterfaces::Request>,
+                         std::shared_ptr<moveit_msgs::srv::QueryPlannerInterfaces::Response>)> cb_get_interface_description = std::bind(
+           &MoveGroupInterfaceImpl::getInterfaceDescription, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
+
     query_service_ =
-        node_handle_->create_service<moveit_msgs::srv::QueryPlannerInterfaces>(move_group::QUERY_PLANNERS_SERVICE_NAME);
+        node_handle_->create_service<moveit_msgs::srv::QueryPlannerInterfaces>(
+                    move_group::QUERY_PLANNERS_SERVICE_NAME,cb_get_interface_description);
     get_params_service_ =
         node_handle_->create_service<moveit_msgs::srv::GetPlannerParams>(move_group::GET_PLANNER_PARAMS_SERVICE_NAME);
     set_params_service_ =
@@ -277,18 +283,20 @@ public:
 //     return *move_action_client_;
 //   }
 //
-//   bool getInterfaceDescription(moveit_msgs::msg::PlannerInterfaceDescription& desc)
-//   {
-//     moveit_msgs::srv::QueryPlannerInterfaces::Request req;
-//     moveit_msgs::srv::QueryPlannerInterfaces::Response res;
-//     if (query_service_.call(req, res))
-//       if (!res.planner_interfaces.empty())
-//       {
-//         desc = res.planner_interfaces.front();
-//         return true;
-//       }
-//     return false;
-//   }
+  bool getInterfaceDescription(std::shared_ptr<rmw_request_id_t> request_header,
+                       const std::shared_ptr<moveit_msgs::srv::QueryPlannerInterfaces::Request> req,
+                       std::shared_ptr<moveit_msgs::srv::QueryPlannerInterfaces::Response> res)
+  {
+    // moveit_msgs::srv::QueryPlannerInterfaces::Request req;
+    // moveit_msgs::srv::QueryPlannerInterfaces::Response res;
+    //if (query_service_.call(req, res))
+      if (!res->planner_interfaces.empty())
+      {
+        desc = res->planner_interfaces.front();
+        return true;
+      }
+    return false;
+  }
 //
 //   std::map<std::string, std::string> getPlannerParams(const std::string& planner_id, const std::string& group = "")
 //   {
@@ -1283,6 +1291,7 @@ private:
   rclcpp::Service<moveit_msgs::srv::SetPlannerParams>::SharedPtr set_params_service_;
   rclcpp::Service<moveit_msgs::srv::GetCartesianPath>::SharedPtr cartesian_path_service_;
   rclcpp::Service<moveit_msgs::srv::GraspPlanning>::SharedPtr plan_grasps_service_;
+  //TODO (anasarrak): Re-add once the Minimal working example is done
   // std::unique_ptr<moveit_warehouse::ConstraintsStorage> constraints_storage_;
   std::unique_ptr<boost::thread> constraints_init_thread_;
   bool initializing_constraints_;
@@ -1375,11 +1384,11 @@ const ros::NodeHandle& moveit::planning_interface::MoveGroupInterface::getNodeHa
   return impl_->getOptions().node_;
 }
 //
-// bool moveit::planning_interface::MoveGroupInterface::getInterfaceDescription(
-//     moveit_msgs::msg::PlannerInterfaceDescription& desc)
-// {
-//   return impl_->getInterfaceDescription(desc);
-// }
+bool moveit::planning_interface::MoveGroupInterface::getInterfaceDescription(
+    moveit_msgs::msg::PlannerInterfaceDescription& desc)
+{
+  return impl_->getInterfaceDescription(desc);
+}
 //
 // std::map<std::string, std::string> moveit::planning_interface::MoveGroupInterface::getPlannerParams(
 //     const std::string& planner_id, const std::string& group)
