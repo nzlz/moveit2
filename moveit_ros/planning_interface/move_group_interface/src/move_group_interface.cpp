@@ -171,14 +171,13 @@ public:
     waitForAction(execute_action_client_, move_group::EXECUTE_ACTION_NAME, timeout_for_servers, allotted_time);
 
     query_service_ =
-        node_handle_.serviceClient<moveit_msgs::srv::QueryPlannerInterfaces>(move_group::QUERY_PLANNERS_SERVICE_NAME);
+        node_handle_->create_service<moveit_msgs::srv::QueryPlannerInterfaces>(move_group::QUERY_PLANNERS_SERVICE_NAME);
     get_params_service_ =
-        node_handle_.serviceClient<moveit_msgs::srv::GetPlannerParams>(move_group::GET_PLANNER_PARAMS_SERVICE_NAME);
+        node_handle_->create_service<moveit_msgs::srv::GetPlannerParams>(move_group::GET_PLANNER_PARAMS_SERVICE_NAME);
     set_params_service_ =
-        node_handle_.serviceClient<moveit_msgs::srv::SetPlannerParams>(move_group::SET_PLANNER_PARAMS_SERVICE_NAME);
-
+        node_handle_->create_service<moveit_msgs::srv::SetPlannerParams>(move_group::SET_PLANNER_PARAMS_SERVICE_NAME);
     cartesian_path_service_ =
-        node_handle_.serviceClient<moveit_msgs::srv::GetCartesianPath>(move_group::CARTESIAN_PATH_SERVICE_NAME);
+        node_handle_->create_service<moveit_msgs::srv::GetCartesianPath>(move_group::CARTESIAN_PATH_SERVICE_NAME);
 
     plan_grasps_service_ = node_handle_.serviceClient<moveit_msgs::srv::GraspPlanning>(GRASP_PLANNING_SERVICE_NAME);
 
@@ -1279,11 +1278,11 @@ private:
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr trajectory_event_publisher_;
   rclcpp::Publisher<moveit_msgs::msg::AttachedCollisionObject>::SharedPtr attached_object_publisher_;
 
-  std::shared_ptr<rclcpp::Service<moveit_msgs::srv::QueryPlannerInterfaces>> query_service_;
-  std::shared_ptr<rclcpp::Service<moveit_msgs::srv::GetPlannerParams>> get_params_service_;
-  std::shared_ptr<rclcpp::Service<moveit_msgs::srv::SetPlannerParams>> set_params_service_;
-  std::shared_ptr<moveit_msgs::srv::GetCartesianPath>> cartesian_path_service_;
-  std::shared_ptr<moveit_msgs::srv::GraspPlanning>> plan_grasps_service_;
+  rclcpp::Service<moveit_msgs::srv::QueryPlannerInterfaces>::SharedPtr query_service_;
+  rclcpp::Service<moveit_msgs::srv::GetPlannerParams>::SharedPtr get_params_service_;
+  rclcpp::Service<moveit_msgs::srv::SetPlannerParams>::SharedPtr set_params_service_;
+  rclcpp::Service<moveit_msgs::srv::GetCartesianPath>::SharedPtr cartesian_path_service_;
+  rclcpp::Service<moveit_msgs::srv::GraspPlanning>::SharedPtr plan_grasps_service_;
   // std::unique_ptr<moveit_warehouse::ConstraintsStorage> constraints_storage_;
   std::unique_ptr<boost::thread> constraints_init_thread_;
   bool initializing_constraints_;
