@@ -96,21 +96,21 @@ class MoveGroupInterface::MoveGroupInterfaceImpl
 public:
   MoveGroupInterfaceImpl(const Options& opt, const std::shared_ptr<tf2_ros::Buffer>& tf_buffer,
                          const std::chrono::duration<double>& wait_for_servers)
-    : opt_(opt), node_handle_(opt.node_handle_), tf_buffer_(tf_buffer)
+    : opt_(opt), node_handle_(opt.node_), tf_buffer_(tf_buffer)
   {
     robot_model_ = opt.robot_model_ ? opt.robot_model_ : getSharedRobotModel(opt.robot_description_);
     if (!getRobotModel())
     {
       std::string error = "Unable to construct robot model. Please make sure all needed information is on the "
                           "parameter server.";
-      ROS_FATAL_STREAM_NAMED("move_group_interface", error);
+      RCLCPP_FATAL(LOGGER, error.c_str());
       throw std::runtime_error(error);
     }
 
     if (!getRobotModel()->hasJointModelGroup(opt.group_name_))
     {
       std::string error = "Group '" + opt.group_name_ + "' was not found.";
-      ROS_FATAL_STREAM_NAMED("move_group_interface", error);
+      RCLCPP_FATAL(LOGGER, error.c_str());
       throw std::runtime_error(error);
     }
 
