@@ -135,10 +135,13 @@ public:
       end_effector_link_ = joint_model_group_->getLinkModelNames().back();
     pose_reference_frame_ = getRobotModel()->getModelFrame();
 
-    trajectory_event_publisher_ = node_handle_.advertise<std_msgs::String>(
-        trajectory_execution_manager::TrajectoryExecutionManager::EXECUTION_EVENT_TOPIC, 1, false);
-    attached_object_publisher_ = node_handle_.advertise<moveit_msgs::msg::AttachedCollisionObject>(
-        planning_scene_monitor::PlanningSceneMonitor::DEFAULT_ATTACHED_COLLISION_OBJECT_TOPIC, 1, false);
+    //TODO (anasarrak): trajectory_execution_manager might be needed to be ported first, I'll harcode this for the
+    // Minimal working example, reverting the change once trajectory_execution_manager is ported to ros2
+    trajectory_event_publisher_ = node_handle_->create_publisher<std_msgs::msg::String>(
+      /*trajectory_execution_manager::TrajectoryExecutionManager::EXECUTION_EVENT_TOPIC*/"trajectory_execution_event",1);
+
+    attached_object_publisher_ = node_handle_->create_publisher<moveit_msgs::msg::AttachedCollisionObject>(
+      planning_scene_monitor::PlanningSceneMonitor::DEFAULT_ATTACHED_COLLISION_OBJECT_TOPIC,1);
 
     current_state_monitor_ = getSharedStateMonitor(robot_model_, tf_buffer_, node_handle_);
 
