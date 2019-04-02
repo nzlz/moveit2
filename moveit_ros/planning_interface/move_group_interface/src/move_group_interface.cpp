@@ -175,22 +175,20 @@ public:
 
     waitForAction(execute_action_client_, move_group::EXECUTE_ACTION_NAME, timeout_for_servers, allotted_time);
 
-    std::function<bool( std::shared_ptr<rmw_request_id_t>,
-                         const std::shared_ptr<moveit_msgs::srv::QueryPlannerInterfaces::Request>,
-                         std::shared_ptr<moveit_msgs::srv::QueryPlannerInterfaces::Response>)> cb_get_interface_description = std::bind(
-           &MoveGroupInterfaceImpl::getInterfaceDescription, this, std::placeholders::_1,  std::placeholders::_2,  std::placeholders::_3);
-
     query_service_ =
-        node_handle_->create_service<moveit_msgs::srv::QueryPlannerInterfaces>(
-                    move_group::QUERY_PLANNERS_SERVICE_NAME,cb_get_interface_description);
-    get_params_service_ =
-        node_handle_->create_service<moveit_msgs::srv::GetPlannerParams>(move_group::GET_PLANNER_PARAMS_SERVICE_NAME);
-    set_params_service_ =
-        node_handle_->create_service<moveit_msgs::srv::SetPlannerParams>(move_group::SET_PLANNER_PARAMS_SERVICE_NAME);
-    cartesian_path_service_ =
-        node_handle_->create_service<moveit_msgs::srv::GetCartesianPath>(move_group::CARTESIAN_PATH_SERVICE_NAME);
-
-    plan_grasps_service_ = node_handle_.serviceClient<moveit_msgs::srv::GraspPlanning>(GRASP_PLANNING_SERVICE_NAME);
+        node_handle_->create_client<moveit_msgs::srv::QueryPlannerInterfaces>(
+                    move_group::QUERY_PLANNERS_SERVICE_NAME);
+    // TODO (anasarrak): Fix query_service_ server and do the same for the follwing client service
+    // get_params_service_ =
+    //     node_handle_->create_service<moveit_msgs::srv::GetPlannerParams>(move_group::GET_PLANNER_PARAMS_SERVICE_NAME);
+    //
+    // set_params_service_ =
+    //     node_handle_->create_service<moveit_msgs::srv::SetPlannerParams>(move_group::SET_PLANNER_PARAMS_SERVICE_NAME);
+    //
+    // cartesian_path_service_ =
+    //     node_handle_->create_service<moveit_msgs::srv::GetCartesianPath>(move_group::CARTESIAN_PATH_SERVICE_NAME);
+    //
+    // plan_grasps_service_ = node_handle_.serviceClient<moveit_msgs::srv::GraspPlanning>(GRASP_PLANNING_SERVICE_NAME);
 
     ROS_INFO_STREAM_NAMED("move_group_interface", "Ready to take commands for planning group " << opt.group_name_
                                                                                                << ".");
@@ -290,18 +288,23 @@ public:
 //     return *move_action_client_;
 //   }
 //
-  bool getInterfaceDescription(std::shared_ptr<rmw_request_id_t> request_header,
-                       const std::shared_ptr<moveit_msgs::srv::QueryPlannerInterfaces::Request> req,
-                       std::shared_ptr<moveit_msgs::srv::QueryPlannerInterfaces::Response> res)
+  bool getInterfaceDescription(moveit_msgs::msg::PlannerInterfaceDescription& desc)
   {
-    // moveit_msgs::srv::QueryPlannerInterfaces::Request req;
-    // moveit_msgs::srv::QueryPlannerInterfaces::Response res;
-    //if (query_service_.call(req, res))
-      if (!res->planner_interfaces.empty())
-      {
-        desc = res->planner_interfaces.front();
-        return true;
-      }
+    auto req = std::make_shared<moveit_msgs::srv::QueryPlannerInterfaces::Request>();
+    auto res = query_service_->async_send_request(request);
+
+    //TODO (anasarrak): Enable the following if and look at the behaviour
+    // if (rclcpp::spin_until_future_complete(node, result_future) !=
+    // rclcpp::executor::FutureReturnCode::SUCCESS)
+    // {
+    //   RCLCPP_ERROR(node_handle_->get_logger(), "service call failed");
+    //   return false;
+    // }
+    auto result = res.get();
+    if(!result->planner_interfaces.empty()){
+      desc = result->planner_interfaces.front();
+      return true;
+    }
     return false;
   }
 //
@@ -1293,11 +1296,11 @@ private:
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr trajectory_event_publisher_;
   rclcpp::Publisher<moveit_msgs::msg::AttachedCollisionObject>::SharedPtr attached_object_publisher_;
 
-  rclcpp::Service<moveit_msgs::srv::QueryPlannerInterfaces>::SharedPtr query_service_;
-  rclcpp::Service<moveit_msgs::srv::GetPlannerParams>::SharedPtr get_params_service_;
-  rclcpp::Service<moveit_msgs::srv::SetPlannerParams>::SharedPtr set_params_service_;
-  rclcpp::Service<moveit_msgs::srv::GetCartesianPath>::SharedPtr cartesian_path_service_;
-  rclcpp::Service<moveit_msgs::srv::GraspPlanning>::SharedPtr plan_grasps_service_;
+  rclcpp::Client<moveit_msgs::srv::QueryPlannerInterfaces>::SharedPtr query_service_;
+  rclcpp::Client<moveit_msgs::srv::GetPlannerParams>::SharedPtr get_params_service_;
+  rclcpp::Client<moveit_msgs::srv::SetPlannerParams>::SharedPtr set_params_service_;
+  rclcpp::Client<moveit_msgs::srv::GetCartesianPath>::SharedPtr cartesian_path_service_;
+  rclcpp::Client<moveit_msgs::srv::GraspPlanning>::SharedPtr plan_grasps_service_;
   //TODO (anasarrak): Re-add once the Minimal working example is done
   // std::unique_ptr<moveit_warehouse::ConstraintsStorage> constraints_storage_;
   std::unique_ptr<boost::thread> constraints_init_thread_;
