@@ -146,10 +146,11 @@ public:
     current_state_monitor_ = getSharedStateMonitor(robot_model_, tf_buffer_, node_handle_);
 
     auto timeout_for_servers = std::chrono::system_clock::now() + wait_for_servers;
-    if (wait_for_servers == std::chrono::duration<double>(0.0))
-      timeout_for_servers = std::chrono::system_clock::time_point;  // wait for ever
-    auto wait_for_servers_sec = std::chrono::duration_cast<std::chrono::nanoseconds>(timeout_for_servers.time_since_epoch()).count();
-    double allotted_time = wait_for_servers_sec;
+    if (wait_for_servers == std::chrono::duration<double>(0.0)){
+      timeout_for_servers = std::chrono::time_point<std::chrono::system_clock>();  // wait for ever
+    }
+    auto wait_for_servers_sec = std::chrono::duration_cast<std::chrono::seconds>(timeout_for_servers.time_since_epoch()).count();
+    double allotted_time = (double)wait_for_servers_sec + 1e-9*(double) wait_for_servers_sec;
     // move_action_client_.reset(
     //     new actionlib::SimpleActionClient<moveit_msgs::action::MoveGroupAction>(node_handle_, move_group::MOVE_ACTION, false));
     //TODO(anasarrak): Review these action changes
@@ -196,7 +197,7 @@ public:
 
   template <typename T>
   void waitForAction(const T& action, const std::string& name,
-    const std::chrono::system_clock::time_point& timeout, double allotted_time)
+    const std::chrono::time_point<std::chrono::system_clock>& timeout, double allotted_time)
   {
     RCLCPP_DEBUG(LOGGER, "Waiting for move_group action server (%s)...", name.c_str());
     auto d = std::chrono::duration<double>(0.001);
