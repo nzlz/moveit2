@@ -159,17 +159,18 @@ public:
 
     waitForAction(move_action_client_, move_group::MOVE_ACTION, timeout_for_servers, allotted_time);
 
-    pick_action_client_.reset()
-    move_action_client_ = rclcpp_action::create_client<moveit_msgs::action::PickupAction>(node_handle_, "pick_action_client_");
+    pick_action_client_.reset();
+    pick_action_client_ = rclcpp_action::create_client<moveit_msgs::action::Pickup>(node_handle_, "pick_action_client_");
 
-    waitForAction(pick_action_client_, move_group::PICKUP_ACTION, timeout_for_servers, allotted_time);
+    //TODO(anasarrak): Hardcoded, revert back when move_group_pick_place_capability is ported
+    waitForAction(pick_action_client_, /*move_group::PICKUP_ACTION*/"pickup", timeout_for_servers, allotted_time);
 
-    place_action_client_.reset()
-    place_action_client_ = rclcpp_action::create_client<moveit_msgs::action::PlaceAction>(node_handle_, "place_action_client_");
+    place_action_client_.reset();
+    place_action_client_ = rclcpp_action::create_client<moveit_msgs::action::Place>(node_handle_, "place_action_client_");
+    //TODO(anasarrak): Hardcoded, revert back when move_group_pick_place_capability is ported
+    waitForAction(place_action_client_, /*move_group::PLACE_ACTION*/"place", timeout_for_servers, allotted_time);
 
-    waitForAction(place_action_client_, move_group::PLACE_ACTION, timeout_for_servers, allotted_time);
-
-    execute_action_client_.reset()
+    execute_action_client_.reset();
     execute_action_client_ = rclcpp_action::create_client<moveit_msgs::action::ExecuteTrajectory>(node_handle_, "execute_action_client_");
 
     waitForAction(execute_action_client_, move_group::EXECUTE_ACTION_NAME, timeout_for_servers, allotted_time);
@@ -196,8 +197,9 @@ public:
   }
 
   template <typename T>
-  void waitForAction(const T& action, const std::string& name,
-    const std::chrono::time_point<std::chrono::system_clock>& timeout, double allotted_time)
+  void waitForAction(std::shared_ptr<rclcpp_action::Client<T> >&, const std::string& name,
+     std::chrono::time_point<std::chrono::system_clock, std::chrono::duration<double, std::ratio<1, 1000000000>>>& timeout,
+      double allotted_time)
   {
     RCLCPP_DEBUG(LOGGER, "Waiting for move_group action server (%s)...", name.c_str());
     auto d = std::chrono::duration<double>(0.001);
