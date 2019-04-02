@@ -35,23 +35,23 @@ set_target_properties(moveit_move_group_capabilities_base PROPERTIES VERSION "${
 
 # add_executable(list_move_group_capabilities src/list_capabilities.cpp)
 
-# add_library(moveit_move_group_default_capabilities
+add_library(moveit_move_group_default_capabilities
   # src/default_capabilities/move_action_capability.cpp
   # src/default_capabilities/plan_service_capability.cpp
   # src/default_capabilities/execute_trajectory_action_capability.cpp
-  # src/default_capabilities/query_planners_service_capability.cpp
+  src/default_capabilities/query_planners_service_capability.cpp
   # src/default_capabilities/kinematics_service_capability.cpp
   # src/default_capabilities/state_validation_service_capability.cpp
   # src/default_capabilities/cartesian_path_service_capability.cpp
   # src/default_capabilities/get_planning_scene_service_capability.cpp
   # src/default_capabilities/apply_planning_scene_service_capability.cpp
   # src/default_capabilities/clear_octomap_service_capability.cpp
-  # )
+  )
 # set_target_properties(moveit_move_group_default_capabilities PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 
 target_link_libraries(moveit_move_group_capabilities_base ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
 # target_link_libraries(move_group moveit_move_group_capabilities_base ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
-# target_link_libraries(moveit_move_group_default_capabilities moveit_move_group_capabilities_base ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(moveit_move_group_default_capabilities moveit_move_group_capabilities_base ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
 # target_link_libraries(list_move_group_capabilities ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
 
 # install(TARGETS move_group list_move_group_capabilities moveit_move_group_capabilities_base moveit_move_group_default_capabilities
@@ -59,7 +59,7 @@ target_link_libraries(moveit_move_group_capabilities_base ${rclcpp_LIBRARIES} ${
 #   LIBRARY DESTINATION lib
 #   RUNTIME DESTINATION bin)
 #TODO (anasarrak): Rever back for the install that is above
-install(TARGETS moveit_move_group_capabilities_base
+install(TARGETS moveit_move_group_capabilities_base moveit_move_group_default_capabilities
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
