@@ -50,7 +50,6 @@
 #include <moveit_msgs/msg/motion_plan_request.hpp>
 #include <moveit_msgs/action/move_group.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
-// #include <actionlib/client/simple_action_client.h>
 #include <memory>
 #include <tf2_ros/buffer.h>
 #include "rclcpp/rclcpp.hpp"
@@ -106,7 +105,7 @@ public:
   struct Options
   {
     Options(const std::string& group_name, const std::string& desc = ROBOT_DESCRIPTION,
-            const std::shared_ptr<rclcpp::Node> node /*= ros::NodeHandle()*/)
+            const std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("default_move_group") /*= ros::NodeHandle()*/)
       : group_name_(group_name), robot_description_(desc), node_(node)
     {
     }
