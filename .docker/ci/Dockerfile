@@ -82,7 +82,7 @@ ENV IN_DOCKER 1
 ENV DOCKER 1 # old version, keep for now
 
 # setup entrypoint
-COPY ./docker-entrypoint.sh /
+COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 CMD ["bash"]
