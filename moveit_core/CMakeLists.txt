@@ -50,7 +50,6 @@ find_package(std_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(common_interfaces REQUIRED)
-# find_package(xmlrpcpp REQUIRED)
 find_package(rcutils REQUIRED)
 find_package(pluginlib REQUIRED)
 
@@ -152,7 +151,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
 )
 
 # to run: catkin_make -DENABLE_COVERAGE_TESTING=ON package_name_coverage
-if(CATKIN_ENABLE_TESTING AND ENABLE_COVERAGE_TESTING)
+if(BUILD_TESTING AND ENABLE_COVERAGE_TESTING)
   find_package(code_coverage REQUIRED)   # catkin package ros-*-code-coverage
   include(CodeCoverage)
   APPEND_COVERAGE_COMPILER_FLAGS()

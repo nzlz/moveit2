@@ -1,4 +1,4 @@
-<img src="https://github.com/AcutronicRobotics/moveit2/raw/master/.logo/moveit2_logo-black.png" alt="MoveIt 2 Logo" width="200"/>
+<img src="https://github.com/AcutronicRobotics/moveit2/raw/master/.logo/official/moveit2_logo-black.png" alt="MoveIt 2 Logo" width="200"/>
 
 The MoveIt! Motion Planning Framework **for ROS 2.0**
 
@@ -11,19 +11,27 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
 - [Get Involved](http://moveit.ros.org/documentation/contributing/)
 
 ## Milestones
+
+0. [Official announcement, commitment from Acutronic Robotics to allocate PMs and fund PickNik](https://acutronicrobotics.com/news/ros-2-moveit-robotic-motion-planning/)
+1. [Why MoveIt 2 and approach](https://acutronicrobotics.com/news/moveit-2-planning-framework-why/)
+
+### Progress
+
 - [x] Install instructions
   - [x] [Ubuntu 18.04](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/ubuntu)
   - [x] [OS X 10.14](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/osx)
-- [x] Upgrade continuous integration for ROS 2.0
 <details><summary>Update/setup infrastructure for development</summary>
 
+- [x] Upgrade continuous integration for ROS 2.0
+  - [x] Simple CI with Travis (Linux and OS X)
+  - [x] moveit_ci https://github.com/AcutronicRobotics/moveit_ci/tree/ros2
+- [x] Convert all headers and link it to HRIM (contributed by @ibaiape)
 - [x] Update/setup infrastructure for development
   - [x] Delete metapackages
   - [x] Upgrade continuous integration for ROS 2.0
   - [x] Refactor/cleanup folder hierarchy
 </details>
 
-- [x] Convert all headers and link it to HRIM (contributed by @ibaiape)
 <details><summary>Dependencies on other packages</summary>
 
 - [x] Dependencies on other packages
@@ -72,11 +80,36 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
   - [x] utils
 </details>
 
+<details><summary>Other moveit packages (e.g. moveit_ros, ...)</summary>
+
 - [ ] moveit_ros
-    - [x] planning_interface
+    - [x] moveit_ros_planning_interface (*dummy interface for now*)
+        - [ ] py_bindings_tools
+        - [ ] common_planning_interface_objects
+        - [ ] planning_scene_interface
+        - [ ] move_group_interface
+        - [ ] robot_interface
+        - [ ] test
+    - [ ] move_group
+    - [ ] planning
+        - [x] collision_plugin_loader https://github.com/ros-planning/moveit2/pull/69
+        - [x] rdf_loader https://github.com/ros-planning/moveit2/pull/71
+        - [x] kinematics_plugin_loader https://github.com/ros-planning/moveit2/pull/74
+    - [x] moveit_ros_perception
+        - [x] occupancy_map_monitor
+        - [ ] lazy_free_space_updater
+        - [ ] point_containment_filter
+        - [ ] pointcloud_octomap_updater
+        - [ ] mesh_filter
+        - [ ] depth_image_octomap_updater
+        - [ ] semantic_world
+    - [ ] moveit_ros_manipulation
+      - [ ] move_group_pick_place_capability
+
+</details>
 
 <details><summary>Necessary for a Minimal Working Example</summary>
-  
+
 - [ ] Necessary for a Minimal Working Example (This list can vary, they are the initial includes for the *planning_interface/move_group_interface* that is what we need for a **plan** and **execute**)
   - [x] moveit_ros_perception
     - [x] occupancy_map_monitor
@@ -101,12 +134,18 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
 
 </details>
 
+<details><summary>New features in ROS 2.0</summary>
+
 - [ ] New features in ROS 2.0
   - [ ] Migrate plugin architecture to ROS2 nodelets
+</details>
+
+<details><summary>Documentation</summary>
 - [ ] Documentation
   - [ ] Tutorials for MoveIt2
   - [ ] Create tutorial on using ros1/ros2 bridge to support ros1 hardware drivers
   - [ ] Move install instructions to moveit.ros.org
+</details>
 
 <details><summary>Major refactoring and divergence from moveit2 (<b>not started</b>)</summary>
 
@@ -139,7 +178,7 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
 [![Build Status](https://travis-ci.org/AcutronicRobotics/moveit2.svg?branch=master)](https://travis-ci.org/AcutronicRobotics/moveit2)
 
 ## Docker Containers
-TODO [Create ROS2 Docker containers for MoveIt!](https://github.com/ros-planning/moveit2/issues/15)
+https://cloud.docker.com/u/acutronicrobotics/repository/docker/acutronicrobotics/moveit2
 
 ## ROS Buildfarm
 Debian releases of MoveIt2 will not be available during the alpha development stage. Check back May 2019.
