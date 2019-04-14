@@ -113,8 +113,8 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
 
 - [ ] Necessary for a Minimal Working Example (This list can vary, they are the initial includes for the *planning_interface/move_group_interface* that is what we need for a **plan** and **execute**)
   - [x] moveit_ros_perception
-    - [x] occupancy_map_monitor
-  - [ ] moveit_ros_move_group
+    - [x] occupancy_map_monitor 
+  - [ ] move_group
     - [ ] capability_names
       - [x] query_planners_service_capability
       - [x] move_action_capability
