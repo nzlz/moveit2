@@ -56,7 +56,8 @@ touch src/ros2/rviz/COLCON_IGNORE
 # Issues with Qt and dependencies
 touch src/ros-visualization/rqt/COLCON_IGNORE
 touch src/ros-visualization/qt_gui_core/COLCON_IGNORE
-colcon build --symlink-install
+# colcon build --symlink-install
+colcon build --merge-install --cmake-args -DBUILD_TESTING:BOOL=OFF # disable tests to build faster
 
 # # Remove tf2_eigen
 # find ros2-osx/ -name tf2_eigen | xargs rm -rf
