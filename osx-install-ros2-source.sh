@@ -41,6 +41,12 @@ git checkout master
 cd /tmp/ros2_ws/src/ros2/rcl_interfaces
 git checkout master
 
+############
+# Fetch packages not present in the ws by default
+############
+cd /tmp/ros2_ws/src
+git clone https://github.com/ros2/rcpputils
+
 cd /tmp/ros2_ws/
 # IGNORE rviz cause apparently XCode is required (not only the tools)
 touch src/ros2/rviz/COLCON_IGNORE
