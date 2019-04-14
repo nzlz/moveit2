@@ -47,7 +47,7 @@ script:
   # - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker build -t acutronicrobotics/moveit2 .; fi
   # - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker run -v /tmp/moveit2:/root/ws_moveit/src/moveit2 acutronicrobotics/moveit2; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then .moveit_ci/travis.sh; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then bash /tmp/moveit2/osx-install-ros2-binary.sh; fi
-  # - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then bash /tmp/moveit2/osx-install-ros2-source.sh; fi
+  # - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then bash /tmp/moveit2/osx-install-ros2-binary.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then bash /tmp/moveit2/osx-install-ros2-source.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then bash /tmp/moveit2/osx-compile-moveit2.sh; fi
   # - .moveit_ci/travis.sh
