@@ -62,7 +62,7 @@ RUN mkdir -p $ROS_WS/src \
     && vcs import src < moveit2.repos \
     && apt-get install -y git \
     && cd $ROS_WS/src \
-    && git clone https://github.com/AcutronicRobotics/moveit2
+    && git clone https://github.com/AcutronicRobotics/moveit2 -b robot-model-tests4
     # wstool init --shallow . https://raw.githubusercontent.com/ros-planning/moveit2/master/moveit.rosinstall
 
 # # Download all MoveIt 2 dependencies
