@@ -15,9 +15,33 @@ mkdir -p ros2_ws/src
 cd ros2_ws
 wget https://raw.githubusercontent.com/ros2/ros2/release-latest/ros2.repos
 vcs import src < ros2.repos
-# Fix issue with Fast-RTPS
+
+############
+# Fetch the right branches in some conflicting repos
+############
+# Fix issue with Fast-RTPS by fetching master
 cd src/eProsima/Fast-RTPS/
-git checkout 3a1bf2ab6670cf5295eae3af5641522c84716c35
+git checkout master
+# rclcpp
+cd src/ros2/rclcpp
+git checkout master
+# rcl
+cd src/ros2/rcl
+git checkout master
+# rmw
+cd src/ros2/rmw
+git checkout master
+# rmw_fasrtps
+cd src/ros2/rmw_fasrtps
+git checkout master
+# rmw_implementation
+cd src/ros2/rmw_implementation
+git checkout master
+# rcl_interfaces
+cd src/ros2/rcl_interfaces
+git checkout master
+
+
 cd /tmp/ros2_ws/
 # IGNORE rviz cause apparently XCode is required (not only the tools)
 touch src/ros2/rviz/COLCON_IGNORE
