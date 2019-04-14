@@ -59,31 +59,35 @@ RUN apt-get -qq update && \
 # Download moveit source, so that we can get necessary dependencies
 RUN mkdir -p $ROS_WS/src \
     && wget https://raw.githubusercontent.com/AcutronicRobotics/moveit2/master/moveit2.repos \
-    && vcs import src < moveit2.repos
+    && vcs import src < moveit2.repos \
+    && apt-get install -y git \
+    && cd $ROS_WS/src \
+    && git clone https://github.com/AcutronicRobotics/moveit2
     # wstool init --shallow . https://raw.githubusercontent.com/ros-planning/moveit2/master/moveit.rosinstall
 
-# Download all MoveIt 2 dependencies
-RUN \
-    apt-get -qq update && \
-    rosdep init && \
-    rosdep update -q && \
-    rosdep install -q -y --from-paths . --ignore-src --rosdistro ${ROS_DISTRO} --as-root=apt:false || true && \
-    # Clear apt-cache to reduce image size
-    rm -rf /var/lib/apt/lists/*
-
-# Remove the source code from this container
-# TODO: in the future we may want to keep this here for further optimization of later containers
-RUN cd $ROS_WS && \
-    rm -rf src/
+# # Download all MoveIt 2 dependencies
+# RUN \
+#     apt-get -qq update && \
+#     rosdep init && \
+#     rosdep update -q && \
+#     rosdep install -q -y --from-paths . --ignore-src --rosdistro ${ROS_DISTRO} --as-root=apt:false || true && \
+#     # Clear apt-cache to reduce image size
+#     rm -rf /var/lib/apt/lists/*
+#
+# # Remove the source code from this container
+# # TODO: in the future we may want to keep this here for further optimization of later containers
+# RUN cd $ROS_WS && \
+#     rm -rf src/
 
 
 # Continous Integration Setting
 ENV IN_DOCKER 1
 ENV DOCKER 1 # old version, keep for now
 
+COPY docker-entrypoint.sh /docker-entrypoint.sh
 # setup entrypoint https://github.com/docker/hub-feedback/issues/811
-RUN echo '#!/bin/bash\nset -e\nsource "/opt/ros/$ROS_DISTRO/setup.bash"\nexec "$@"' > /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
+# RUN echo '#!/bin/bash\nset -e\nsource "/opt/ros/$ROS_DISTRO/setup.bash"\nexec "$@"' > /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
 
-#ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 CMD ["bash"]
