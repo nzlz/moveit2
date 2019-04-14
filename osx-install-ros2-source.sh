@@ -22,6 +22,9 @@ vcs import src < ros2.repos
 # Fix issue with Fast-RTPS by fetching master
 cd /tmp/ros2_ws/src/eProsima/Fast-RTPS/
 git checkout master
+# Fast-CDR
+cd /tmp/ros2_ws/src/eProsima/Fast-CDR/
+git checkout master
 # rclcpp
 cd /tmp/ros2_ws/src/ros2/rclcpp
 git checkout master
