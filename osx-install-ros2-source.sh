@@ -32,7 +32,7 @@ git checkout master
 cd /tmp/ros2_ws/src/ros2/rmw
 git checkout master
 # rmw_fasrtps
-cd /tmp/ros2_ws/src/ros2/rmw_fasrtps
+cd /tmp/ros2_ws/src/ros2/rmw_fastrtps
 git checkout master
 # rmw_implementation
 cd /tmp/ros2_ws/src/ros2/rmw_implementation
