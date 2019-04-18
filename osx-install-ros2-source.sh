@@ -49,6 +49,8 @@ git checkout master
 ############
 cd /tmp/ros2_ws/src
 git clone https://github.com/ros2/rcpputils
+cd /tmp/ros2_ws/src
+git https://github.com/ros2/tinydir_vendor
 
 cd /tmp/ros2_ws/
 # IGNORE rviz cause apparently XCode is required (not only the tools)
