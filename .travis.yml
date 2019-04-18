@@ -15,12 +15,12 @@ notifications:
 
 matrix:
   include:
-    - os: linux
-      dist: bionic
-       services:
-         - docker
-       sudo:
-         - required
+    #- os: linux
+    #  dist: bionic
+    #   services:
+    #     - docker
+    #   sudo:
+    #     - required
     - os: osx
       osx_image: xcode10.1
 
