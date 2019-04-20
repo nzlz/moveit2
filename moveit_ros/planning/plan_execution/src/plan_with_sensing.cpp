@@ -114,7 +114,7 @@ plan_execution::PlanWithSensing::PlanWithSensing(
     {
       std::vector<std::string> sensors;
       sensor_manager_->getSensorsList(sensors);
-      RCLCPP_INFO(node_->get_logger(),"PlanWithSensing is aware of the following sensors: %s" , boost::algorithm::join(sensors, ", "));
+      RCLCPP_INFO(node_->get_logger(),"PlanWithSensing is aware of the following sensors: %s" , boost::algorithm::join(sensors, ", ").c_str());
     }
   }
 
@@ -268,7 +268,7 @@ bool plan_execution::PlanWithSensing::lookAt(const std::set<collision_detection:
     {
       point.header.stamp = rclcpp::Clock().now();
       point.header.frame_id = frame_id;
-      RCLCPP_DEBUG(node_->get_logger(),"Pointing sensor %s to: \n", names[i] , point.header.frame_id);
+      RCLCPP_DEBUG(node_->get_logger(),"Pointing sensor %s to: \n", names[i].c_str(), point.header.frame_id.c_str());
       moveit_msgs::msg::RobotTrajectory sensor_trajectory;
       if (sensor_manager_->pointSensorTo(names[i], point, sensor_trajectory))
       {
