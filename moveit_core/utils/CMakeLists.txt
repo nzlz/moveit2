@@ -17,17 +17,24 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(moveit_resources REQUIRED)
   set(MOVEIT_TEST_LIB_NAME moveit_test_utils)
+
   add_library(${MOVEIT_TEST_LIB_NAME}
     src/robot_model_test_utils.cpp)
-  include_directories(${moveit_resources_INCLUDE_DIRS})
-  ament_target_dependencies(${MOVEIT_TEST_LIB_NAME}
+
+	include_directories(${moveit_resources_INCLUDE_DIRS})
+
+	ament_target_dependencies(${MOVEIT_TEST_LIB_NAME}
     rclcpp
     rmw_implementation
     Boost
     urdf
     urdfdom
     urdfdom_headers)
-  set_target_properties(${MOVEIT_TEST_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
+
+	set_target_properties(${MOVEIT_TEST_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
+
+	ament_export_libraries(${MOVEIT_TEST_LIB_NAME} ${MOVEIT_LIB_NAME})
+	ament_export_include_directories(include)
 
   install(TARGETS
             ${MOVEIT_TEST_LIB_NAME}
