@@ -23,37 +23,47 @@ ament_target_dependencies(${MOVEIT_LIB_NAME}
   tf2_eigen
   Boost)
 
-# # unit tests
-# if(BUILD_TESTING)
-#   ament_add_gtest(test_world test/test_world.cpp)
-#   ament_target_dependencies(test_world
-#     ${MOVEIT_LIB_NAME}
-#     rclcpp
-#     rmw_implementation
-#     urdfdom
-#     urdfdom_headers
-#     Boost)
-#
-#   ament_add_gtest(test_world_diff test/test_world_diff.cpp)
-#   ament_target_dependencies(test_world_diff
-#     ${MOVEIT_LIB_NAME}
-#     rclcpp
-#     rmw_implementation
-#     urdfdom
-#     urdfdom_headers
-#     Boost)
-#
-#   ament_add_gtest(test_all_valid test/test_all_valid.cpp)
-#   ament_target_dependencies(test_all_valid
-#     ${MOVEIT_LIB_NAME}
-#     rclcpp
-#     rmw_implementation
-#     urdf
-#     urdfdom
-#     urdfdom_headers
-#     visualization_msgs
-#     Boost)
-# endif()
+# unit tests
+if(BUILD_TESTING)
+	find_package(resource_retriever REQUIRED)
+	if(WIN32)
+		# set(append_library_dirs "$<TARGET_FILE_DIR:${PROJECT_NAME}>;$<TARGET_FILE_DIR:${PROJECT_NAME}_TestPlugins1>")
+	else()
+		set(append_library_dirs "${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_BINARY_DIR}/../robot_model;${CMAKE_CURRENT_BINARY_DIR}/../utils")
+	endif()
+
+  ament_add_gtest(test_world test/test_world.cpp
+		APPEND_LIBRARY_DIRS "${append_library_dirs}")
+  target_link_libraries(test_world
+    ${MOVEIT_LIB_NAME}
+    ${urdfdom}
+    ${urdfdom_headers}
+    ${Boost_LIBRARIES}
+		${geometric_shapes_LIBRARIES}
+	)
+
+	ament_add_gtest(test_world_diff test/test_world_diff.cpp
+		APPEND_LIBRARY_DIRS "${append_library_dirs}")
+  target_link_libraries(test_world_diff
+    ${MOVEIT_LIB_NAME}
+    ${urdfdom}
+    ${urdfdom_headers}
+    ${Boost_LIBRARIES}
+		${geometric_shapes_LIBRARIES}
+	)
+
+	ament_add_gtest(test_all_valid test/test_all_valid.cpp
+		APPEND_LIBRARY_DIRS "${append_library_dirs}")
+  target_link_libraries(test_all_valid
+    ${MOVEIT_LIB_NAME}
+		moveit_robot_model
+    ${urdfdom}
+    ${urdfdom_headers}
+    ${Boost_LIBRARIES}
+		${geometric_shapes_LIBRARIES}
+		resource_retriever::resource_retriever
+	)
+endif()
 
 install(TARGETS ${MOVEIT_LIB_NAME}
         LIBRARY DESTINATION lib
