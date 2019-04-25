@@ -23,23 +23,23 @@ if(BUILD_TESTING)
 
 	include_directories(${moveit_resources_INCLUDE_DIRS})
 
-	ament_target_dependencies(${MOVEIT_TEST_LIB_NAME}
-    rclcpp
-    rmw_implementation
-    Boost
-    urdf
-    urdfdom
-    urdfdom_headers)
+  target_link_libraries(${MOVEIT_TEST_LIB_NAME}
+    ${Boost_LIBRARIES}
+    ${urdf_LIBRARIES}
+    ${srdfdom_LIBRARIES}
+    ${urdfdom_LIBRARIES}
+    ${urdfdom_headers_LIBRARIES}
+  )
 
-	set_target_properties(${MOVEIT_TEST_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
+  set_target_properties(${MOVEIT_TEST_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 
-	ament_export_libraries(${MOVEIT_TEST_LIB_NAME} ${MOVEIT_LIB_NAME})
-	ament_export_include_directories(include)
+  ament_export_libraries(${MOVEIT_TEST_LIB_NAME} ${MOVEIT_LIB_NAME})
+  ament_export_include_directories(include)
 
   install(TARGETS
-            ${MOVEIT_TEST_LIB_NAME}
-          LIBRARY DESTINATION "lib"
-          ARCHIVE DESTINATION "lib")
+    ${MOVEIT_TEST_LIB_NAME}
+    LIBRARY DESTINATION "lib"
+    ARCHIVE DESTINATION "lib")
 endif()
 
 install(DIRECTORY include/ DESTINATION "include")
