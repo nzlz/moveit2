@@ -39,6 +39,7 @@
 #include <moveit/utils/robot_model_test_utils.h>
 #include <eigen_stl_containers/eigen_stl_containers.h>
 #include <chrono>
+#include <gtest/gtest.h>
 
 // Helper class to measure time within a scoped block and output the result
 class ScopedTimer
@@ -95,7 +96,7 @@ public:
 
 TEST_F(Timing, stateUpdate)
 {
-  robot_model::RobotModelPtr model = moveit::core::loadTestingRobotModel("pr2_description");
+  robot_model::RobotModelPtr model = moveit::core::loadTestingRobotModel("pr2");
   ASSERT_TRUE(bool(model));
   robot_state::RobotState state(model);
   ScopedTimer t("RobotState updates: ");

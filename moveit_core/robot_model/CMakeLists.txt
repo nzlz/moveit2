@@ -24,6 +24,13 @@ ament_target_dependencies(${MOVEIT_LIB_NAME}
   moveit_kinematics_base
 	random_numbers)
 
+target_link_libraries(${MOVEIT_LIB_NAME}
+		${moveit_profiler_LIBRARIES}
+		${moveit_exceptions_LIBRARIES}
+		moveit_profiler
+		moveit_exceptions
+)
+
 ament_export_libraries(${MOVEIT_LIB_NAME})
 ament_export_include_directories(include)
 
@@ -66,6 +73,7 @@ if(BUILD_TESTING)
 				moveit_utils
 				moveit_profiler
 				moveit_exceptions
+				${moveit_profiler_LIBRARIES}
 				${srdfdom_LIBRARIES}
 				${urdfdom_LIBRARIES}
 				${urdf_LIBRARIES}

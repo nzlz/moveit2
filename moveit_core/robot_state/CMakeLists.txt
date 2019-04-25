@@ -21,47 +21,112 @@ install(TARGETS ${MOVEIT_LIB_NAME}
 install(DIRECTORY include/ DESTINATION include)
 
 # # Unit tests
-# if(BUILD_TESTING)
-#   find_package(ament_cmake_gtest REQUIRED)
-#   find_package(moveit_resources REQUIRED)
-#
-#   include_directories(${moveit_resources_INCLUDE_DIRS})
-#
-#   ament_add_gtest(test_robot_state test/robot_state_test.cpp)
-#   ament_target_dependencies(test_robot_state
-#     tf2_geometry_msgs
-#     ${MOVEIT_LIB_NAME}
-#     urdf
-#     visualization_msgs
-#   )
-#
-#   # As an executable, this benchmark is not run as a test by default
-#   add_executable(robot_state_benchmark test/robot_state_benchmark.cpp)
-#   ament_target_dependencies(robot_state_benchmark
-#     moveit_test_utils
-#     tf2_geometry_msgs
-#     ${MOVEIT_LIB_NAME}
-#     urdf
-#     visualization_msgs
-#   )
-#
-#   ament_add_gtest(test_robot_state_complex test/test_kinematic_complex.cpp)
-#   ament_target_dependencies(test_robot_state_complex
-#     moveit_test_utils
-#     ${MOVEIT_LIB_NAME}
-#     ${Boost_LIBRARIES}
-#     ${rclcpp_LIBRARIES}
-#     urdf
-#     visualization_msgs
-#     geometric_shapes
-#   )
-#
-#   ament_add_gtest(test_aabb test/test_aabb.cpp)
-#   ament_target_dependencies(test_aabb
-#     moveit_test_utils
-#     ${MOVEIT_LIB_NAME}
-#     urdf
-#     visualization_msgs
-#     tf2_geometry_msgs
-#   )
-# endif()
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+	find_package(moveit_resources REQUIRED)
+	find_package(tf2_geometry_msgs REQUIRED)
+	find_package(resource_retriever REQUIRED)
+
+  include_directories(${moveit_resources_INCLUDE_DIRS})
+
+	if(WIN32)
+	  # set(append_library_dirs "$<TARGET_FILE_DIR:${PROJECT_NAME}>;$<TARGET_FILE_DIR:${PROJECT_NAME}_TestPlugins1>")
+	else()
+	  set(append_library_dirs "${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_BINARY_DIR}/../utils")
+	endif()
+
+  ament_add_gtest(test_robot_state test/robot_state_test.cpp
+					APPEND_LIBRARY_DIRS "${append_library_dirs}")
+
+	target_include_directories(test_robot_state PUBLIC
+		${tf2_geometry_msgs_INCLUDE_DIRS}
+		${urdf_INCLUDE_DIRS}
+		${visualization_msgs_INCLUDE_DIRS}
+		${geometric_shapes_INCLUDE_DIRS}
+		${srdfdom_INCLUDE_DIRS}
+	)
+
+	target_link_libraries(test_robot_state
+				moveit_test_utils
+				moveit_utils
+				moveit_exceptions
+				${tf2_geometry_msgs_LIBRARIES}
+				${srdfdom_LIBRARIES}
+				${MOVEIT_LIB_NAME}
+				${moveit_profiler_LIBRARIES}
+				${urdf_LIBRARIES}
+				${visualization_msgs_LIBRARIES}
+				${geometric_shapes_LIBRARIES}
+				resource_retriever::resource_retriever
+	)
+
+  # As an executable, this benchmark is not run as a test by default
+  ament_add_gtest(test_robot_state_benchmark test/robot_state_benchmark.cpp)
+	target_include_directories(test_robot_state_benchmark PUBLIC
+		${tf2_geometry_msgs_INCLUDE_DIRS}
+		${urdf_INCLUDE_DIRS}
+		${visualization_msgs_INCLUDE_DIRS}
+		${geometric_shapes_INCLUDE_DIRS}
+		${srdfdom_INCLUDE_DIRS}
+	)
+
+	target_link_libraries(test_robot_state_benchmark
+				moveit_test_utils
+				moveit_utils
+				moveit_exceptions
+				${tf2_geometry_msgs_LIBRARIES}
+				${srdfdom_LIBRARIES}
+				${MOVEIT_LIB_NAME}
+				${moveit_profiler_LIBRARIES}
+				${urdf_LIBRARIES}
+				${visualization_msgs_LIBRARIES}
+				${geometric_shapes_LIBRARIES}
+				resource_retriever::resource_retriever
+	)
+
+  ament_add_gtest(test_robot_state_complex test/test_kinematic_complex.cpp)
+	target_include_directories(test_robot_state_complex PUBLIC
+		${tf2_geometry_msgs_INCLUDE_DIRS}
+		${urdf_INCLUDE_DIRS}
+		${visualization_msgs_INCLUDE_DIRS}
+		${geometric_shapes_INCLUDE_DIRS}
+		${srdfdom_INCLUDE_DIRS}
+	)
+
+	target_link_libraries(test_robot_state_complex
+				moveit_test_utils
+				moveit_utils
+				moveit_exceptions
+				${tf2_geometry_msgs_LIBRARIES}
+				${srdfdom_LIBRARIES}
+				${MOVEIT_LIB_NAME}
+				${moveit_profiler_LIBRARIES}
+				${urdf_LIBRARIES}
+				${visualization_msgs_LIBRARIES}
+				${geometric_shapes_LIBRARIES}
+				resource_retriever::resource_retriever
+	)
+
+  ament_add_gtest(test_aabb test/test_aabb.cpp)
+	target_include_directories(test_aabb PUBLIC
+		${tf2_geometry_msgs_INCLUDE_DIRS}
+		${urdf_INCLUDE_DIRS}
+		${visualization_msgs_INCLUDE_DIRS}
+		${geometric_shapes_INCLUDE_DIRS}
+		${srdfdom_INCLUDE_DIRS}
+	)
+
+	target_link_libraries(test_aabb
+				moveit_test_utils
+				moveit_utils
+				moveit_exceptions
+				${tf2_geometry_msgs_LIBRARIES}
+				${srdfdom_LIBRARIES}
+				${MOVEIT_LIB_NAME}
+				${moveit_profiler_LIBRARIES}
+				${urdf_LIBRARIES}
+				${visualization_msgs_LIBRARIES}
+				${geometric_shapes_LIBRARIES}
+				resource_retriever::resource_retriever
+	)
+endif()
