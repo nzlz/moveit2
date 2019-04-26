@@ -1,6 +1,6 @@
 set(MOVEIT_LIB_NAME moveit_move_group_interface)
 
-add_library(${MOVEIT_LIB_NAME} src/move_group_interface.cpp)
+add_library(${MOVEIT_LIB_NAME} SHARED src/move_group_interface.cpp)
 set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 
 ament_target_dependencies(${MOVEIT_LIB_NAME}
@@ -9,7 +9,7 @@ ament_target_dependencies(${MOVEIT_LIB_NAME}
     "rclcpp"
 )
 
-add_library(${MOVEIT_LIB_NAME}_python src/wrap_python_move_group.cpp)
+add_library(${MOVEIT_LIB_NAME}_python SHARED src/wrap_python_move_group.cpp)
 target_link_libraries(${MOVEIT_LIB_NAME}_python ${MOVEIT_LIB_NAME} ${PYTHON_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} moveit_py_bindings_tools)
 # add_dependencies(${MOVEIT_LIB_NAME}_python ${catkin_EXPORTED_TARGETS})
 set_target_properties(${MOVEIT_LIB_NAME}_python PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")

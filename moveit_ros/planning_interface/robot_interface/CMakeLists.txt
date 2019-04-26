@@ -1,6 +1,6 @@
 set(MOVEIT_LIB_NAME moveit_robot_interface)
 
-add_library(${MOVEIT_LIB_NAME}_python src/wrap_python_robot_interface.cpp)
+add_library(${MOVEIT_LIB_NAME}_python SHARED src/wrap_python_robot_interface.cpp)
 target_link_libraries(${MOVEIT_LIB_NAME}_python ${PYTHON_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES}
   moveit_common_planning_interface_objects moveit_py_bindings_tools)
 set_target_properties(${MOVEIT_LIB_NAME}_python PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")

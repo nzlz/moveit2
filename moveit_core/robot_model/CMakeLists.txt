@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 set(MOVEIT_LIB_NAME moveit_robot_model)
 
-add_library(${MOVEIT_LIB_NAME}
+add_library(${MOVEIT_LIB_NAME} SHARED
   src/aabb.cpp
   src/fixed_joint_model.cpp
   src/floating_joint_model.cpp
@@ -39,7 +39,7 @@ install(TARGETS ${MOVEIT_LIB_NAME}
         ARCHIVE DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)
 
-if(BUILD_TESTING)
+#if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(moveit_resources REQUIRED)
   include_directories(${moveit_resources_INCLUDE_DIRS})
@@ -80,4 +80,4 @@ if(BUILD_TESTING)
 				${geometric_shapes_LIBRARIES}
 				resource_retriever::resource_retriever
 	)
-endif()
+#endif()

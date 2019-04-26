@@ -1,6 +1,6 @@
 set(MOVEIT_LIB_NAME moveit_planning_scene_monitor)
 
-add_library(${MOVEIT_LIB_NAME}
+add_library(${MOVEIT_LIB_NAME} SHARED
   src/planning_scene_monitor.cpp
   src/current_state_monitor.cpp
   src/trajectory_monitor.cpp

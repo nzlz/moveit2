@@ -1,6 +1,6 @@
 set(MOVEIT_LIB_NAME moveit_pick_place_planner)
 
-add_library(${MOVEIT_LIB_NAME}
+add_library(${MOVEIT_LIB_NAME} SHARED
   src/pick_place_params.cpp
   src/manipulation_pipeline.cpp
   src/reachable_valid_pose_filter.cpp

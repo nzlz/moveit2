@@ -32,7 +32,7 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 
-add_library(${MOVEIT_LIB_NAME} src/BenchmarkOptions.cpp
+add_library(${MOVEIT_LIB_NAME} SHARED src/BenchmarkOptions.cpp
                                src/BenchmarkExecutor.cpp)
 set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 target_link_libraries(${MOVEIT_LIB_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})

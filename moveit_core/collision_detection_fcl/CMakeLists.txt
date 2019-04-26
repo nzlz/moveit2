@@ -1,6 +1,6 @@
 set(MOVEIT_LIB_NAME moveit_collision_detection_fcl)
 
-add_library(${MOVEIT_LIB_NAME}
+add_library(${MOVEIT_LIB_NAME} SHARED
   src/collision_common.cpp
   src/collision_robot_fcl.cpp
   src/collision_world_fcl.cpp
@@ -21,7 +21,7 @@ target_link_libraries(${MOVEIT_LIB_NAME}
 	moveit_collision_detection
 )
 
-add_library(collision_detector_fcl_plugin src/collision_detector_fcl_plugin_loader.cpp)
+add_library(collision_detector_fcl_plugin SHARED src/collision_detector_fcl_plugin_loader.cpp)
 set_target_properties(collision_detector_fcl_plugin PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 ament_target_dependencies(collision_detector_fcl_plugin
   rclcpp

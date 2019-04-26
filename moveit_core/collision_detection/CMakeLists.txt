@@ -1,6 +1,6 @@
 set(MOVEIT_LIB_NAME moveit_collision_detection)
 
-add_library(${MOVEIT_LIB_NAME}
+add_library(${MOVEIT_LIB_NAME} SHARED
   src/allvalid/collision_robot_allvalid.cpp
   src/allvalid/collision_world_allvalid.cpp
   src/collision_matrix.cpp

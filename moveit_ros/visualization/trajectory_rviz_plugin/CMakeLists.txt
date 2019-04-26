@@ -20,7 +20,7 @@ target_link_libraries(${MOVEIT_LIB_NAME}_core
 )
 
 # Plugin Initializer
-add_library(${MOVEIT_LIB_NAME} src/plugin_init.cpp)
+add_library(${MOVEIT_LIB_NAME} SHARED src/plugin_init.cpp)
 set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 target_link_libraries(${MOVEIT_LIB_NAME} ${MOVEIT_LIB_NAME}_core ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 

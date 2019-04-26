@@ -1,6 +1,6 @@
 set(MOVEIT_LIB_NAME moveit_robot_state)
 
-add_library(${MOVEIT_LIB_NAME}
+add_library(${MOVEIT_LIB_NAME} SHARED
   src/attached_body.cpp
   src/conversions.cpp
   src/robot_state.cpp

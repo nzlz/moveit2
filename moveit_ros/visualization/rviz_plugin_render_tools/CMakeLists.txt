@@ -12,7 +12,7 @@ set(HEADERS
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(${MOVEIT_LIB_NAME}
+add_library(${MOVEIT_LIB_NAME} SHARED
   src/render_shapes.cpp
   src/robot_state_visualization.cpp
   src/planning_scene_render.cpp

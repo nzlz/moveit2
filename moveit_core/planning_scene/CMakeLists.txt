@@ -1,8 +1,13 @@
 set(MOVEIT_LIB_NAME moveit_planning_scene)
 
-add_library(${MOVEIT_LIB_NAME} src/planning_scene.cpp)
+add_library(${MOVEIT_LIB_NAME} SHARED src/planning_scene.cpp)
 #TODO: Fix the versioning
 # set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
+
+target_include_directories(${MOVEIT_LIB_NAME} PUBLIC
+  ${octomap_msgs_INCLUDE_DIRS}
+  ${octomap_INCLUDE_DIRS}
+)
 
 target_link_libraries(${MOVEIT_LIB_NAME}
   moveit_robot_model

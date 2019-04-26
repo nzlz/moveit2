@@ -1,6 +1,6 @@
 set(MOVEIT_LIB_NAME moveit_utils)
 
-add_library(${MOVEIT_LIB_NAME}
+add_library(${MOVEIT_LIB_NAME} SHARED
   src/lexical_casts.cpp
   # src/xmlrpc_casts.cpp # TODO: solve the conflicts with xmlrpc dependencies
 )

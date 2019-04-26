@@ -1,6 +1,6 @@
 set(MOVEIT_LIB_NAME moveit_kdl_kinematics_plugin)
 
-add_library(${MOVEIT_LIB_NAME}
+add_library(${MOVEIT_LIB_NAME} SHARED
   src/kdl_kinematics_plugin.cpp
   src/chainiksolver_vel_mimic_svd.cpp)
 set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
