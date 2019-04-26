@@ -57,7 +57,7 @@
 #include "rclcpp/time.hpp"
 #include "rclcpp/utilities.hpp"
 
-rclcpp::Logger LOGGER_COLLISION_DISTANCE_FIELD = rclcpp::get_logger("moveit").get_child("collision_distance_field");
+static rclcpp::Logger LOGGER_COLLISION_DISTANCE_FIELD = rclcpp::get_logger("moveit").get_child("collision_distance_field");
 
 namespace collision_detection
 {
