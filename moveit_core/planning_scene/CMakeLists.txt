@@ -25,7 +25,7 @@ target_link_libraries(${MOVEIT_LIB_NAME}
   ${urdfdom_headers_LIBRARIES}
   ${Boost_LIBRARIES}
   ${octomap_msgs_LIBRARIES}
-  ${octomap_LIBRARIES}
+	${OCTOMAP_LIBRARIES}
 )
 
 install(TARGETS ${MOVEIT_LIB_NAME}
