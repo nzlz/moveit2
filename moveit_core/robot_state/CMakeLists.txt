@@ -6,7 +6,14 @@ add_library(${MOVEIT_LIB_NAME} SHARED
   src/robot_state.cpp
 )
 set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
-target_link_libraries(${MOVEIT_LIB_NAME} moveit_robot_model moveit_kinematics_base moveit_transforms ${rclcpp_LIBRARIES} ${rmw_implementation_LIBRARIES} ${urdfdom_LIBRARIES} ${urdfdom_headers_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(${MOVEIT_LIB_NAME}
+  moveit_robot_model
+  moveit_kinematics_base
+  moveit_transforms
+  ${urdfdom_LIBRARIES}
+  ${geometric_shapes_LIBRARIES}
+  ${urdfdom_headers_LIBRARIES}
+  ${Boost_LIBRARIES})
 ament_target_dependencies(${MOVEIT_LIB_NAME}
   moveit_robot_model
   moveit_kinematics_base
