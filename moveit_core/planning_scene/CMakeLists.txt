@@ -18,18 +18,38 @@ target_link_libraries(${MOVEIT_LIB_NAME}
   moveit_kinematic_constraints
   moveit_robot_trajectory
   moveit_trajectory_processing
-  ${LIBOCTOMAP_LIBRARIES} ${rclcpp_LIBRARIES} ${rmw_implementation_LIBRARIES} ${urdfdom_LIBRARIES} ${urdfdom_headers_LIBRARIES} ${Boost_LIBRARIES})
+  ${LIBOCTOMAP_LIBRARIES}
+  ${rclcpp_LIBRARIES}
+  ${rmw_implementation_LIBRARIES}
+  ${urdfdom_LIBRARIES}
+  ${urdfdom_headers_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${octomap_msgs_LIBRARIES}
+  ${octomap_LIBRARIES}
+)
 
 install(TARGETS ${MOVEIT_LIB_NAME}
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)
 
-#TODO: Fix this so it can be built with colcon
-# if(BUILD_TESTING)
-#   find_package(moveit_resources REQUIRED)
-#   include_directories(${moveit_resources_INCLUDE_DIRS})
-#
-#   ament_add_gtest(test_planning_scene test/test_planning_scene.cpp)
-#   target_link_libraries(test_planning_scene ${MOVEIT_LIB_NAME})
-# endif()
+if(BUILD_TESTING)
+  find_package(moveit_resources REQUIRED)
+  include_directories(${moveit_resources_INCLUDE_DIRS})
+
+	if(WIN32)
+	  # set(append_library_dirs "$<TARGET_FILE_DIR:${PROJECT_NAME}>;$<TARGET_FILE_DIR:${PROJECT_NAME}_TestPlugins1>")
+	else()
+	  set(append_library_dirs "${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/../utils")
+	endif()
+
+  ament_add_gtest(test_planning_scene test/test_planning_scene.cpp
+		APPEND_LIBRARY_DIRS "${append_library_dirs}")
+  target_link_libraries(test_planning_scene
+		${MOVEIT_LIB_NAME}
+		${srdfdom_LIBRARIES}
+		${urdf_LIBRARIES}
+		${geometric_shapes_LIBRARIES}
+		${OCTOMAP_LIBRARIES}
+	)
+endif()
