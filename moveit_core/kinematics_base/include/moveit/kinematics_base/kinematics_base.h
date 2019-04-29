@@ -613,9 +613,8 @@ protected:
    * as the predominant configuration but also allows groupwise specifications.
    */
   template <typename T>
-  inline bool lookupParam(const std::string& param, T& val, const T& default_val) const
+  inline bool lookupParam(std::shared_ptr<rclcpp::Node>& node, const std::string& param, T& val, const T& default_val) const
   {
-    auto node = rclcpp::Node::make_shared("lookup_param");
     rclcpp::SyncParametersClient parameters_lookup(node);
     std::vector<rclcpp::Parameter> groupname_param = parameters_lookup.get_parameters({ group_name_ + "/" + param });
 
