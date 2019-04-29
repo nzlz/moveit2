@@ -39,7 +39,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include <typeinfo>
 
-rclcpp::Logger LOGGER = rclcpp::get_logger("planning").get_child("robot_model_loader");
+rclcpp::Logger LOGGER_ROBOT_MODEL_LOADER = rclcpp::get_logger("planning").get_child("robot_model_loader");
 
 namespace robot_model_loader
 {
@@ -73,14 +73,14 @@ bool canSpecifyPosition(const robot_model::JointModel* jmodel, const unsigned in
 {
   bool ok = false;
   if (jmodel->getType() == robot_model::JointModel::PLANAR && index == 2){
-    RCLCPP_ERROR(LOGGER,"Cannot specify position limits for orientation of planar joint '%s'", jmodel->getName().c_str());
+    RCLCPP_ERROR(LOGGER_ROBOT_MODEL_LOADER,"Cannot specify position limits for orientation of planar joint '%s'", jmodel->getName().c_str());
   }
   else if (jmodel->getType() == robot_model::JointModel::FLOATING && index > 2){
-    RCLCPP_ERROR(LOGGER,"Cannot specify position limits for orientation of floating joint '%s'", jmodel->getName().c_str());
+    RCLCPP_ERROR(LOGGER_ROBOT_MODEL_LOADER,"Cannot specify position limits for orientation of floating joint '%s'", jmodel->getName().c_str());
   }
   else if (jmodel->getType() == robot_model::JointModel::REVOLUTE &&
            static_cast<const robot_model::RevoluteJointModel*>(jmodel)->isContinuous()){
-    RCLCPP_ERROR(LOGGER,"Cannot specify position limits for continuous joint '%s'", jmodel->getName().c_str());
+    RCLCPP_ERROR(LOGGER_ROBOT_MODEL_LOADER,"Cannot specify position limits for continuous joint '%s'", jmodel->getName().c_str());
   }
   else{
     ok = true;
@@ -175,7 +175,7 @@ void RobotModelLoader::configure(const Options& opt)
   if (model_ && opt.load_kinematics_solvers_)
     loadKinematicsSolvers();
 
-    RCLCPP_DEBUG(node->get_logger(), "Loaded kinematic model in %d seconds", (clock.now() - start).seconds());
+    RCLCPP_DEBUG(node_->get_logger(), "Loaded kinematic model in %d seconds", (clock.now() - start).seconds());
 }
 
 void RobotModelLoader::loadKinematicsSolvers(const kinematics_plugin_loader::KinematicsPluginLoaderPtr& kloader)
@@ -195,9 +195,9 @@ void RobotModelLoader::loadKinematicsSolvers(const kinematics_plugin_loader::Kin
     const std::vector<std::string>& groups = kinematics_loader_->getKnownGroups();
     std::stringstream ss;
     std::copy(groups.begin(), groups.end(), std::ostream_iterator<std::string>(ss, " "));
-    RCLCPP_DEBUG(LOGGER,"Loaded information about the following groups: '%S' ", ss.str().c_str());
+    RCLCPP_DEBUG(LOGGER_ROBOT_MODEL_LOADER,"Loaded information about the following groups: '%S' ", ss.str().c_str());
     if (groups.empty() && !model_->getJointModelGroups().empty())
-      RCLCPP_WARN(LOGGER,"No kinematics plugins defined. Fill and load kinematics.yaml!");
+      RCLCPP_WARN(LOGGER_ROBOT_MODEL_LOADER,"No kinematics plugins defined. Fill and load kinematics.yaml!");
 
     std::map<std::string, robot_model::SolverAllocatorFn> imap;
     for (std::size_t i = 0; i < groups.size(); ++i)
@@ -218,13 +218,13 @@ void RobotModelLoader::loadKinematicsSolvers(const kinematics_plugin_loader::Kin
         }
         else
         {
-          RCLCPP_ERROR(LOGGER,"Kinematics solver %s does not support joint group %s.  Error: %s", typeid(*solver).name(),
+          RCLCPP_ERROR(LOGGER_ROBOT_MODEL_LOADER,"Kinematics solver %s does not support joint group %s.  Error: %s", typeid(*solver).name(),
                     groups[i].c_str(), error_msg.c_str());
         }
       }
       else
       {
-        RCLCPP_ERROR(LOGGER,"Kinematics solver could not be instantiated for joint group %s.", groups[i].c_str());
+        RCLCPP_ERROR(LOGGER_ROBOT_MODEL_LOADER,"Kinematics solver could not be instantiated for joint group %s.", groups[i].c_str());
       }
     }
     model_->setKinematicsAllocators(imap);
