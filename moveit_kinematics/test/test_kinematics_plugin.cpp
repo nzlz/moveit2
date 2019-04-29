@@ -38,10 +38,10 @@
 #include <gtest/gtest.h>
 #include <memory>
 #include <boost/bind.hpp>
-#include <pluginlib/class_loader.h>
-#include <ros/ros.h>
+#include <pluginlib/class_loader.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <tf2_eigen/tf2_eigen.h>
-#include <xmlrpcpp/XmlRpcValue.h>
+// #include <xmlrpcpp/XmlRpcValue.h>
 
 // MoveIt!
 #include <moveit/kinematics_base/kinematics_base.h>
@@ -50,7 +50,7 @@
 #include <moveit/robot_state/robot_state.h>
 
 #include <moveit/robot_state/conversions.h>
-#include <moveit_msgs/DisplayTrajectory.h>
+#include <moveit_msgs/msg/display_trajectory.hpp>
 #include <moveit/robot_trajectory/robot_trajectory.h>
 
 const std::string ROBOT_DESCRIPTION_PARAM = "robot_description";
@@ -61,14 +61,14 @@ const double DEFAULT_TOLERANCE = 1e-5;
 template <typename T>
 inline bool getParam(const std::string& param, T& val)
 {
-  // first look within private namespace
-  ros::NodeHandle pnh("~");
-  if (pnh.getParam(param, val))
-    return true;
-
-  // then in local namespace
-  ros::NodeHandle nh;
-  return nh.getParam(param, val);
+  // // first look within private namespace
+  // ros::NodeHandle pnh("~");
+  // if (pnh.getParam(param, val))
+  //   return true;
+  //
+  // // then in local namespace
+  // ros::NodeHandle nh;
+  // return nh.getParam(param, val);
 }
 
 // As loading of parameters is quite slow, we share them across all tests
@@ -101,9 +101,12 @@ class SharedData
 
   void initialize()
   {
-    ROS_INFO_STREAM("Loading robot model from " << ros::this_node::getNamespace() << "/" << ROBOT_DESCRIPTION_PARAM);
+    rclcpp::init(argc, argv);
+    auto node = std::make_shared<rclcpp::Node>("test_kinematics");
+    std::cout << "Loading robot model from /" << ROBOT_DESCRIPTION_PARAM << std::endl;
+    // std::cout << "Loading robot model from " << ros::this_node::getNamespace() << "/" << ROBOT_DESCRIPTION_PARAM << std::endl;
     // load robot model
-    rdf_loader::RDFLoader rdf_loader(ROBOT_DESCRIPTION_PARAM);
+    rdf_loader::RDFLoader rdf_loader(node_, ROBOT_DESCRIPTION_PARAM);
     robot_model_ = std::make_shared<robot_model::RobotModel>(rdf_loader.getURDF(), rdf_loader.getSRDF());
     ASSERT_TRUE(bool(robot_model_)) << "Failed to load robot model";
 
