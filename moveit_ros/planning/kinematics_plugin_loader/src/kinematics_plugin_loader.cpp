@@ -256,7 +256,7 @@ void KinematicsPluginLoader::status() const
     RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Loader function was never required");
 }
 
-robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction()
+robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction(std::shared_ptr<rclcpp::Node>& node)
 {
   moveit::tools::Profiler::ScopedStart prof_start;
   moveit::tools::Profiler::ScopedBlock prof_block("KinematicsPluginLoader::getLoaderFunction");
@@ -264,15 +264,19 @@ robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction()
   if (loader_)
     return boost::bind(&KinematicsLoaderImpl::allocKinematicsSolverWithCache, loader_.get(), _1);
 
-  rdf_loader::RDFLoader rml(robot_description_);
+  rdf_loader::RDFLoader rml(node, robot_description_);
   robot_description_ = rml.getRobotDescription();
-  return getLoaderFunction(rml.getSRDF());
+  return getLoaderFunction(rml.getSRDF(), node);
 }
 
-robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction(const srdf::ModelSharedPtr& srdf_model)
+robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction(const srdf::ModelSharedPtr& srdf_model, std::shared_ptr<rclcpp::Node>& node)
 {
   moveit::tools::Profiler::ScopedStart prof_start;
   moveit::tools::Profiler::ScopedBlock prof_block("KinematicsPluginLoader::getLoaderFunction(SRDF)");
+
+  if(robot_description_.length()<1){
+    robot_description_ = std::string("robot_description");
+  }
 
   if (!loader_)
   {
@@ -296,56 +300,61 @@ robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction(const s
         // read data using ROS params
         // ros::NodeHandle nh("~");
         //TODO (anasarrak): Add the appropriate node name for ROS2
-        auto node = rclcpp::Node::make_shared("talker");
-        auto ksolver_params = std::make_shared<rclcpp::SyncParametersClient>(node);
+        auto ksolver_params = std::make_shared<rclcpp::SyncParametersClient>(node, "/dummy_joint_states");
         // read the list of plugin names for possible kinematics solvers
         for (std::size_t i = 0; i < known_groups.size(); ++i)
         {
           std::string base_param_name = known_groups[i].name_;
           RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Looking for param %s ", (base_param_name + ".kinematics_solver").c_str());
           std::string ksolver_param_name;
-          bool found;
-          if (ksolver_params->has_parameter(base_param_name + "/kinematics_solver"))
+          bool found = false;
+          // if (ksolver_params->has_parameter(base_param_name + ".kinematics_solver"))
+          // {
+          //   found = ksolver_params->get_parameter(base_param_name + ".kinematics_solver", ksolver_param_name);
+          //   RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "param i s%s ", ksolver_param_name.c_str());
+          //
+          // }
+          if (!found)
           {
-            found = node->get_parameter(base_param_name + "/kinematics_solver").get_value<bool>();
-          }
-
-          if (!found || !ksolver_params->has_parameter(ksolver_param_name))
-          {
-            base_param_name = robot_description_ + "_kinematics/" + known_groups[i].name_;
-            RCLCPP_DEBUG(LOGGER, "Looking for param %s ", (base_param_name + "/kinematics_solver").c_str());
-            found = node->get_parameter(base_param_name + "/kinematics_solver").get_value<bool>();
-          }
-          if (found)
-          {
-            RCLCPP_DEBUG(LOGGER, "Found param %s", ksolver_param_name.c_str());
-            std::string ksolver;
-            if (ksolver_params->has_parameter(ksolver_param_name))
-            {
-              ksolver = node->get_parameter(ksolver_param_name).get_value<std::string>();
-              std::stringstream ss(ksolver);
-              bool first = true;
-              while (ss.good() && !ss.eof())
-              {
-                if (first)
+            base_param_name = robot_description_ + "_kinematics." + known_groups[i].name_;
             RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Looking for param %s ", (base_param_name + ".kinematics_solver").c_str());
 
+            auto parameters_and_prefixes = ksolver_params->get_parameters({ base_param_name + ".kinematics_solver" });
+            for (auto & value : parameters_and_prefixes) {
+                ksolver_param_name = value.value_to_string();
+                found = true;
+                std::stringstream ss(ksolver_param_name);
+                bool first = true;
+                while (ss.good() && !ss.eof())
                 {
-                  first = false;
-                  groups_.push_back(known_groups[i].name_);
+                  if (first)
+                  {
+                    first = false;
+                    groups_.push_back(known_groups[i].name_);
+                  }
+                  std::string solver;
+                  ss >> solver >> std::ws;
+                  possible_kinematics_solvers[known_groups[i].name_].push_back(solver);
                   RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Using kinematics solver '%s' for group '%s'.", solver.c_str(),
                                   known_groups[i].name_.c_str());
                 }
-                std::string solver;
-                ss >> solver >> std::ws;
-                possible_kinematics_solvers[known_groups[i].name_].push_back(solver);
-                RCLCPP_DEBUG(LOGGER, "Using kinematics solver '%s' for group '%s'.", solver.c_str(),
-                                known_groups[i].name_.c_str());
-              }
             }
+            // rclcpp::Parameter param =  ksolver_params->get_parameter(base_param_name + ".kinematics_solver");
+            // ksolver_param_name = ksolver_params->get_parameter(base_param_name + ".kinematics_solver").get_value<std::string>();
+            // found = ksolver_params->get_parameter(base_param_name + ".kinematics_solver", parameter);
             RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "%d param is %s ", found, ksolver_param_name.c_str());
 
           }
+          // if (found)
+          // {
+          //   RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Found param %s", ksolver_param_name.c_str());
+          //   std::string ksolver;
+          //   if (ksolver_params->has_parameter(ksolver_param_name))
+          //   {
+          //     ksolver = node->get_parameter(ksolver_param_name).get_value<std::string>();
+          //
+          //   }
+          // }
 
           std::string ksolver_timeout_param_name;
           if (ksolver_params->has_parameter(base_param_name + "/kinematics_solver_timeout"))
