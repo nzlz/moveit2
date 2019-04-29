@@ -47,11 +47,25 @@ RobotModelLoader::RobotModelLoader(const std::string& robot_description, bool lo
 {
   Options opt(robot_description);
   opt.load_kinematics_solvers_ = load_kinematics_solvers;
+  printf("RobotModelLoader Node is not declare!!\n");
+  // configure(opt);
+}
+RobotModelLoader::RobotModelLoader(const std::string& robot_description, std::shared_ptr<rclcpp::Node>& node, bool load_kinematics_solvers)
+{
+  Options opt(robot_description);
+  opt.load_kinematics_solvers_ = load_kinematics_solvers;
+  this->node_ = node;
   configure(opt);
 }
 
 RobotModelLoader::RobotModelLoader(const Options& opt)
 {
+  printf("RobotModelLoader Node is not declare!!\n");
+  // configure(opt);
+}
+RobotModelLoader::RobotModelLoader(std::shared_ptr<rclcpp::Node>& node, const Options& opt)
+{
+  this->node_ = node;
   configure(opt);
 }
 
@@ -93,14 +107,13 @@ void RobotModelLoader::configure(const Options& opt)
 {
   moveit::tools::Profiler::ScopedStart prof_start;
   moveit::tools::Profiler::ScopedBlock prof_block("RobotModelLoader::configure");
-
-  auto node = rclcpp::Node::make_shared("additional_joints");
+  //
   rclcpp::Clock clock;
   rclcpp::Time start = clock.now();
   if (!opt.urdf_string_.empty() && !opt.srdf_string_.empty())
     rdf_loader_.reset(new rdf_loader::RDFLoader(opt.urdf_string_, opt.srdf_string_));
   else
-    rdf_loader_.reset(new rdf_loader::RDFLoader(opt.robot_description_));
+    rdf_loader_.reset(new rdf_loader::RDFLoader(node_, opt.robot_description_));
   if (rdf_loader_->getURDF())
   {
     const srdf::ModelSharedPtr& srdf =
@@ -114,7 +127,7 @@ void RobotModelLoader::configure(const Options& opt)
 
     // if there are additional joint limits specified in some .yaml file, read those in
     // TODO (anasarrak): Add the correct node name to the .yaml
-    auto additional_joints_parameters = std::make_shared<rclcpp::SyncParametersClient>(node);
+    auto additional_joints_parameters = std::make_shared<rclcpp::SyncParametersClient>(node_);
 
     for (std::size_t i = 0; i < model_->getJointModels().size(); ++i)
     {
@@ -127,7 +140,7 @@ void RobotModelLoader::configure(const Options& opt)
         double max_position;
         if (additional_joints_parameters->has_parameter(prefix + "max_position"))
         {
-          max_position = node->get_parameter(prefix + "max_position").get_value<double>();
+          max_position = node_->get_parameter(prefix + "max_position").get_value<double>();
           if (canSpecifyPosition(jmodel, j))
           {
             jlim[j].has_position_limits = true;
@@ -137,7 +150,7 @@ void RobotModelLoader::configure(const Options& opt)
         double min_position;
         if (additional_joints_parameters->has_parameter(prefix + "min_position"))
         {
-          min_position = node->get_parameter(prefix + "min_position").get_value<double>();
+          min_position = node_->get_parameter(prefix + "min_position").get_value<double>();
           if (canSpecifyPosition(jmodel, j))
           {
             jlim[j].has_position_limits = true;
@@ -147,25 +160,25 @@ void RobotModelLoader::configure(const Options& opt)
         double max_velocity;
         if (additional_joints_parameters->has_parameter(prefix + "max_velocity"))
         {
-          max_velocity = node->get_parameter(prefix + "max_velocity").get_value<double>();
+          max_velocity = node_->get_parameter(prefix + "max_velocity").get_value<double>();
           jlim[j].has_velocity_limits = true;
           jlim[j].max_velocity = max_velocity;
         }
         bool has_vel_limits;
         if (additional_joints_parameters->has_parameter(prefix + "has_velocity_limits"))
-          has_vel_limits = node->get_parameter(prefix + "has_velocity_limits").get_value<bool>();
+          has_vel_limits = node_->get_parameter(prefix + "has_velocity_limits").get_value<bool>();
           jlim[j].has_velocity_limits = has_vel_limits;
 
         double max_acc;
         if (additional_joints_parameters->has_parameter(prefix + "max_acceleration"))
         {
-          max_acc = node->get_parameter(prefix + "max_acceleration").get_value<double>();
+          max_acc = node_->get_parameter(prefix + "max_acceleration").get_value<double>();
           jlim[j].has_acceleration_limits = true;
           jlim[j].max_acceleration = max_acc;
         }
         bool has_acc_limits;
         if (additional_joints_parameters->has_parameter(prefix + "has_acceleration_limits"))
-        has_acc_limits = node->get_parameter(prefix + "has_acceleration_limits").get_value<bool>();
+        has_acc_limits = node_->get_parameter(prefix + "has_acceleration_limits").get_value<bool>();
           jlim[j].has_acceleration_limits = has_acc_limits;
       }
       jmodel->setVariableBounds(jlim);
@@ -191,7 +204,7 @@ void RobotModelLoader::loadKinematicsSolvers(const kinematics_plugin_loader::Kin
     else
       kinematics_loader_.reset(
           new kinematics_plugin_loader::KinematicsPluginLoader(rdf_loader_->getRobotDescription()));
-    robot_model::SolverAllocatorFn kinematics_allocator = kinematics_loader_->getLoaderFunction(rdf_loader_->getSRDF());
+    robot_model::SolverAllocatorFn kinematics_allocator = kinematics_loader_->getLoaderFunction(rdf_loader_->getSRDF(), node_);
     const std::vector<std::string>& groups = kinematics_loader_->getKnownGroups();
     std::stringstream ss;
     std::copy(groups.begin(), groups.end(), std::ostream_iterator<std::string>(ss, " "));
