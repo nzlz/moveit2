@@ -52,7 +52,6 @@ static rclcpp::Logger LOGGER_KDL_KINEMATICS_PLUGIN = rclcpp::get_logger("kdl_kin
 
 KDLKinematicsPlugin::KDLKinematicsPlugin():initialized_(false)
 {
-  this->node_;
 }
 
 void KDLKinematicsPlugin::getRandomConfiguration(Eigen::VectorXd& jnt_array) const
