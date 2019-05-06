@@ -617,51 +617,51 @@ protected:
   template <typename T>
   inline bool lookupParam(std::shared_ptr<rclcpp::Node>& node, const std::string& param, T& val, const T& default_val) const
   {
-    rclcpp::SyncParametersClient parameters_lookup(node);
-    std::vector<rclcpp::Parameter> groupname_param = parameters_lookup.get_parameters({ group_name_ + "/" + param });
-
-    for (auto& parameter : groupname_param)
-    {
-      if (!parameter.get_name().compare(group_name_ + "/" + param))
-      {
-        val = parameter.value_to_string();
-        return true;
-      }
-    }
-
-    auto only_param = parameters_lookup.get_parameters({ param });
-    for (auto& parameter : only_param)
-    {
-      if (!parameter.get_name().compare(param))
-      {
-        val = parameter.value_to_string();
-        return true;
-      }
-    }
-
-    auto robot_description_groupname_kinematics_param =
-        parameters_lookup.get_parameters({ "robot_description_kinematics/" + group_name_ + "/" + param });
-
-    for (auto& parameter : robot_description_groupname_kinematics_param)
-    {
-      if (!parameter.get_name().compare("robot_description_kinematics/" + group_name_ + "/" + param))
-      {
-        val = parameter.value_to_string();
-        return true;
-      }
-    }
-
-    auto robot_description_kinematics_param =
-        parameters_lookup.get_parameters({ "robot_description_kinematics/" + param });
-
-    for (auto& parameter : robot_description_kinematics_param)
-    {
-      if (!parameter.get_name().compare("robot_description_kinematics/" + param))
-      {
-        val = parameter.value_to_string();
-        return true;
-      }
-    }
+    // rclcpp::SyncParametersClient parameters_lookup(node);
+    // std::vector<rclcpp::Parameter> groupname_param = parameters_lookup.get_parameters({ group_name_ + "/" + param });
+    //
+    // for (auto& parameter : groupname_param)
+    // {
+    //   if (!parameter.get_name().compare(group_name_ + "/" + param))
+    //   {
+    //     val = parameter.value_to_string();
+    //     return true;
+    //   }
+    // }
+    //
+    // auto only_param = parameters_lookup.get_parameters({ param });
+    // for (auto& parameter : only_param)
+    // {
+    //   if (!parameter.get_name().compare(param))
+    //   {
+    //     val = parameter.value_to_string();
+    //     return true;
+    //   }
+    // }
+    //
+    // auto robot_description_groupname_kinematics_param =
+    //     parameters_lookup.get_parameters({ "robot_description_kinematics/" + group_name_ + "/" + param });
+    //
+    // for (auto& parameter : robot_description_groupname_kinematics_param)
+    // {
+    //   if (!parameter.get_name().compare("robot_description_kinematics/" + group_name_ + "/" + param))
+    //   {
+    //     val = parameter.value_to_string();
+    //     return true;
+    //   }
+    // }
+    //
+    // auto robot_description_kinematics_param =
+    //     parameters_lookup.get_parameters({ "robot_description_kinematics/" + param });
+    //
+    // for (auto& parameter : robot_description_kinematics_param)
+    // {
+    //   if (!parameter.get_name().compare("robot_description_kinematics/" + param))
+    //   {
+    //     val = parameter.value_to_string();
+    //     return true;
+    //   }
+    // }
     return false;
   }
 
