@@ -599,6 +599,8 @@ protected:
   std::map<int, double> redundant_joint_discretization_;
   std::vector<DiscretizationMethod> supported_methods_;
 
+  std::shared_ptr<rclcpp::Node> node_;
+
   /**
    * @brief Enables kinematics plugins access to parameters that are defined
    * for the private namespace and inside 'robot_description_kinematics'.

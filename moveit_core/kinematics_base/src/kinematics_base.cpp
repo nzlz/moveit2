@@ -46,6 +46,8 @@ static void noDeleter(const moveit::core::RobotModel* /*unused*/)
 {
 }
 
+rclcpp::Logger LOGGER_KINMATICS_BASE = rclcpp::get_logger("kinematics_base");
+
 void KinematicsBase::storeValues(const moveit::core::RobotModel& robot_model, const std::string& group_name,
                                  const std::string& base_frame, const std::vector<std::string>& tip_frames,
                                  double search_discretization)
@@ -110,7 +112,7 @@ bool KinematicsBase::initialize(const std::string& robot_description, const std:
     return initialize(robot_description, group_name, base_frame, tip_frames[0], search_discretization);
   }
 
-  // RCLCPP_ERROR(LOGGER_KINEMATICS_BASE, "This solver does not support multiple tip frames");
+  RCLCPP_ERROR(LOGGER_KINMATICS_BASE, "This solver does not support multiple tip frames");
   return false;
 }
 
@@ -118,10 +120,7 @@ bool KinematicsBase::initialize(const moveit::core::RobotModel& robot_model, con
                                 const std::string& base_frame, const std::vector<std::string>& tip_frames,
                                 double search_discretization)
 {
-  // RCLCPP_WARN(LOGGER_KINEMATICS_BASE,
-  //                "IK plugin for group '%s' relies on deprecated API. "
-  //                "Please implement initialize(RobotModel, ...).",
-  //                group_name.c_str());
+  RCLCPP_WARN(LOGGER_KINMATICS_BASE, "IK plugin for group '%s' relies on deprecated API. Please implement initialize(RobotModel, ...).", group_name.c_str());
   return false;
 }
 
