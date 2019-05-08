@@ -47,6 +47,8 @@
 static const std::string ROBOT_DESCRIPTION =
     "robot_description";  // name of the robot description (a param name, so it can be changed externally)
 
+rclcpp::Logger LOGGER_MOVE_GROUP = rclcpp::get_logger("moge_group");
+
 namespace move_group
 {
 // These capabilities are loaded unless listed in disable_capabilities
@@ -103,7 +105,7 @@ public:
       }
     }
     else
-      ROS_ERROR("No MoveGroup context created. Nothing will work.");
+      RCLCPP_ERROR(LOGGER_MOVE_GROUP,"No MoveGroup context created. Nothing will work.");
   }
 
 private:
@@ -116,7 +118,7 @@ private:
     }
     catch (pluginlib::PluginlibException& ex)
     {
-      ROS_FATAL_STREAM("Exception while creating plugin loader for move_group capabilities: " << ex.what());
+      RCLCPP_ERROR(LOGGER_MOVE_GROUP,"Exception while creating plugin loader for move_group capabilities: %s",  ex.what());
       return;
     }
 
@@ -157,7 +159,7 @@ private:
       }
       catch (pluginlib::PluginlibException& ex)
       {
-        ROS_ERROR_STREAM("Exception while loading move_group capability '" << *plugin << "': " << ex.what());
+        RCLCPP_ERROR(LOGGER_MOVE_GROUP,"Exception while loading move_group capability '%s': %s",*plugin.c_str(), ex.what());
       }
     }
 
@@ -169,7 +171,7 @@ private:
     for (std::size_t i = 0; i < capabilities_.size(); ++i)
       ss << "*     - " << capabilities_[i]->getName() << std::endl;
     ss << "********************************************************" << std::endl;
-    ROS_INFO_STREAM(ss.str());
+    RCLCPP_INFO(LOGGER_MOVE_GROUP,ss.str().c_str());
   }
 
   ros::NodeHandle node_handle_;
@@ -202,11 +204,12 @@ int main(int argc, char** argv)
         debug = true;
         break;
       }
-    if (debug)
-      ROS_INFO("MoveGroup debug mode is ON");
-    else
-      ROS_INFO("MoveGroup debug mode is OFF");
-
+    if (debug){
+      RCLCPP_INFO(LOGGER_MOVE_GROUP,"MoveGroup debug mode is ON");
+      }
+    else{
+      RCLCPP_INFO(LOGGER_MOVE_GROUP,"MoveGroup debug mode is OFF");
+    }
     printf(MOVEIT_CONSOLE_COLOR_CYAN "Starting planning scene monitors...\n" MOVEIT_CONSOLE_COLOR_RESET);
     planning_scene_monitor->startSceneMonitor();
     planning_scene_monitor->startWorldGeometryMonitor();
@@ -222,7 +225,7 @@ int main(int argc, char** argv)
     ros::waitForShutdown();
   }
   else
-    ROS_ERROR("Planning scene not configured");
+    RCLCPP_ERROR(LOGGER_MOVE_GROUP,"Planning scene not configured");
 
   return 0;
 }
