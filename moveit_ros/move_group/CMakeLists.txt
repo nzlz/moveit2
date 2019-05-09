@@ -9,16 +9,18 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED system)
 find_package(ament_cmake REQUIRED)
 find_package(moveit_core REQUIRED)
 find_package(moveit_ros_planning REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(class_loader REQUIRED)
 
 include_directories(include)
 include_directories(${rclcpp_INCLUDE_DIRS}
@@ -59,7 +61,18 @@ set_target_properties(moveit_move_group_default_capabilities PROPERTIES VERSION 
 #   rclcpp
 #   Boost)
 target_link_libraries(moveit_move_group_capabilities_base ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
-# target_link_libraries(move_group moveit_move_group_capabilities_base ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
+ament_target_dependencies(move_group moveit_move_group_capabilities_base
+  rclcpp
+  Boost
+  pluginlib
+  tinyxml_vendor
+  class_loader
+  tf2_ros
+)
+target_link_libraries(move_group
+  moveit_move_group_capabilities_base
+)
+
 target_link_libraries(moveit_move_group_default_capabilities moveit_move_group_capabilities_base ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
 # target_link_libraries(list_move_group_capabilities ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
 
