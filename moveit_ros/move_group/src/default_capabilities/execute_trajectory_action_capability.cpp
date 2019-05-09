@@ -95,7 +95,7 @@ void MoveGroupExecuteTrajectoryAction::executePathCallback(
   {
     const std::string response = "Cannot execute trajectory since ~allow_trajectory_execution was set to false";
     action_res->error_code.val = moveit_msgs::msg::MoveItErrorCodes::CONTROL_FAILED;
-    goal_handle->set_aborted(action_res);
+    goal_handle->abort(action_res);
     return;
   }
   executePath(goal_handle, action_res);
@@ -103,7 +103,7 @@ void MoveGroupExecuteTrajectoryAction::executePathCallback(
   const std::string response = getActionResultString(action_res->error_code, false, false);
   if (action_res->error_code.val == moveit_msgs::msg::MoveItErrorCodes::SUCCESS)
   {
-    goal_handle->set_succeeded(action_res);
+    goal_handle->succeed(action_res);
   }
   // TODO(anasarrak) not prempt for ros2 actions yet
   // else if (action_res->error_code.val == moveit_msgs::msg::MoveItErrorCodes::PREEMPTED)
@@ -112,7 +112,7 @@ void MoveGroupExecuteTrajectoryAction::executePathCallback(
   // }
   else
   {
-    goal_handle->set_aborted(action_res);
+    goal_handle->abort(action_res);
   }
 
   setExecuteTrajectoryState(IDLE, goal_handle);
