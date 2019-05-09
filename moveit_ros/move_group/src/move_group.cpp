@@ -48,6 +48,7 @@ static const std::string ROBOT_DESCRIPTION =
     "robot_description";  // name of the robot description (a param name, so it can be changed externally)
 
 rclcpp::Logger LOGGER_MOVE_GROUP = rclcpp::get_logger("moge_group");
+bool shutdown_req = false;
 
 namespace move_group
 {
@@ -71,11 +72,13 @@ static const char* DEFAULT_CAPABILITIES[] = {
 class MoveGroupExe
 {
 public:
-  MoveGroupExe(const planning_scene_monitor::PlanningSceneMonitorPtr& psm, bool debug) : node_handle_("~")
+  MoveGroupExe(const planning_scene_monitor::PlanningSceneMonitorPtr& psm, bool debug, std::shared_ptr<rclcpp::Node> node ) : node_(node)
   {
+    auto allow_trajectory_execution_parameters = std::make_shared<rclcpp::SyncParametersClient>(node_);
     // if the user wants to be able to disable execution of paths, they can just set this ROS param to false
     bool allow_trajectory_execution;
-    node_handle_.param("allow_trajectory_execution", allow_trajectory_execution, true);
+    if (allow_trajectory_execution_parameters->has_parameter({"allow_trajectory_execution"}))
+      allow_trajectory_execution = node_->get_parameter("allow_trajectory_execution").as_bool();
 
     context_.reset(new MoveGroupContext(psm, allow_trajectory_execution, debug));
 
@@ -123,23 +126,25 @@ private:
     }
 
     std::set<std::string> capabilities;
-
+    auto capabilities_parameters = std::make_shared<rclcpp::SyncParametersClient>(node_);
     // add default capabilities
     for (size_t i = 0; i < sizeof(DEFAULT_CAPABILITIES) / sizeof(DEFAULT_CAPABILITIES[0]); ++i)
       capabilities.insert(DEFAULT_CAPABILITIES[i]);
 
     // add capabilities listed in ROS parameter
     std::string capability_plugins;
-    if (node_handle_.getParam("capabilities", capability_plugins))
+    if (capabilities_parameters->has_parameter({"capabilities"}))
     {
+      capability_plugins = node_->get_parameter("capabilities").as_string();
       boost::char_separator<char> sep(" ");
       boost::tokenizer<boost::char_separator<char> > tok(capability_plugins, sep);
       capabilities.insert(tok.begin(), tok.end());
     }
 
     // drop capabilities that have been explicitly disabled
-    if (node_handle_.getParam("disable_capabilities", capability_plugins))
+    if (capabilities_parameters->has_parameter("disable_capabilities"))
     {
+      capability_plugins = node_->get_parameter("capabilities").as_string();
       boost::char_separator<char> sep(" ");
       boost::tokenizer<boost::char_separator<char> > tok(capability_plugins, sep);
       for (boost::tokenizer<boost::char_separator<char> >::iterator cap_name = tok.begin(); cap_name != tok.end();
@@ -159,7 +164,7 @@ private:
       }
       catch (pluginlib::PluginlibException& ex)
       {
-        RCLCPP_ERROR(LOGGER_MOVE_GROUP,"Exception while loading move_group capability '%s': %s",*plugin.c_str(), ex.what());
+        RCLCPP_ERROR(LOGGER_MOVE_GROUP,"Exception while loading move_group capability '%s': %s",plugin->c_str(), ex.what());
       }
     }
 
@@ -174,24 +179,30 @@ private:
     RCLCPP_INFO(LOGGER_MOVE_GROUP,ss.str().c_str());
   }
 
-  ros::NodeHandle node_handle_;
+  rclcpp::Node::SharedPtr node_;
   MoveGroupContextPtr context_;
   std::shared_ptr<pluginlib::ClassLoader<MoveGroupCapability> > capability_plugin_loader_;
   std::vector<MoveGroupCapabilityPtr> capabilities_;
 };
 }  // namespace move_group
+void signalHandler(int signum)
+{
+  shutdown_req = true;
+}
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, move_group::NODE_NAME);
+  signal(SIGINT, signalHandler);
+  rclcpp::init(argc, argv);
+  auto node = rclcpp::Node::make_shared(move_group::NODE_NAME);
 
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
-  ros::NodeHandle nh;
-
-  std::shared_ptr<tf2_ros::Buffer> tf_buffer = std::make_shared<tf2_ros::Buffer>(ros::Duration(10.0));
-  std::shared_ptr<tf2_ros::TransformListener> tfl = std::make_shared<tf2_ros::TransformListener>(*tf_buffer, nh);
-
+  rclcpp::executors::SingleThreadedExecutor executor;
+  rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>(RCL_SYSTEM_TIME);
+  // On ROS2 the passed value is a shared Clock
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer = std::make_shared<tf2_ros::Buffer>(clock);
+  std::shared_ptr<tf2_ros::TransformListener> tfl = std::make_shared<tf2_ros::TransformListener>(*tf_buffer, node);
+  while (!shutdown_req)
+  {
   planning_scene_monitor::PlanningSceneMonitorPtr planning_scene_monitor(
       new planning_scene_monitor::PlanningSceneMonitor(ROBOT_DESCRIPTION, tf_buffer));
 
@@ -216,16 +227,19 @@ int main(int argc, char** argv)
     planning_scene_monitor->startStateMonitor();
     printf(MOVEIT_CONSOLE_COLOR_CYAN "Planning scene monitors started.\n" MOVEIT_CONSOLE_COLOR_RESET);
 
-    move_group::MoveGroupExe mge(planning_scene_monitor, debug);
+    move_group::MoveGroupExe mge(planning_scene_monitor, debug, node);
 
     planning_scene_monitor->publishDebugInformation(debug);
 
     mge.status();
 
-    ros::waitForShutdown();
   }
-  else
+  else{
     RCLCPP_ERROR(LOGGER_MOVE_GROUP,"Planning scene not configured");
+  }
 
+  executor.spin_node_some(node);
+
+  }
   return 0;
 }
