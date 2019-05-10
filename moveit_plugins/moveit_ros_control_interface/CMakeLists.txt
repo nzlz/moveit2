@@ -3,28 +3,14 @@ project(moveit_ros_control_interface)
 
 add_compile_options(-std=c++14)
 
-find_package(catkin REQUIRED COMPONENTS
-  actionlib
-  controller_manager_msgs
-  moveit_core
-  moveit_simple_controller_manager
-  pluginlib
-  trajectory_msgs
-)
+find_package(moveit_core REQUIRED)
+find_package(moveit_simple_controller_manager REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(trajectory_msgs REQUIRED)
+find_package(controller_manager_msgs REQUIRED)
+
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system thread)
-
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES
-    ${PROJECT_NAME}_plugin
-    ${PROJECT_NAME}_trajectory_plugin
-  CATKIN_DEPENDS
-    moveit_core
-    controller_manager_msgs
-    trajectory_msgs
-  DEPENDS Boost
-)
 
 # support indigo's ros_control - This can be removed upon EOL indigo
 if("${controller_manager_msgs_VERSION}" VERSION_LESS "0.10.0")
