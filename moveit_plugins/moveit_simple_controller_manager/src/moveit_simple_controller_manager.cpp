@@ -35,29 +35,28 @@
 
 /* Author: Michael Ferguson, Ioan Sucan, E. Gil Jones */
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <moveit_simple_controller_manager/action_based_controller_handle.h>
 #include <moveit_simple_controller_manager/gripper_controller_handle.h>
 #include <moveit_simple_controller_manager/follow_joint_trajectory_controller_handle.h>
-#include <moveit/utils/xmlrpc_casts.h>
 #include <pluginlib/class_list_macros.hpp>
 #include <algorithm>
 #include <map>
 
 using namespace moveit::core;
 
-const std::string LOGNAME("SimpleControllerManager");
-
 namespace moveit_simple_controller_manager
 {
 class MoveItSimpleControllerManager : public moveit_controller_manager::MoveItControllerManager
 {
 public:
-  MoveItSimpleControllerManager() : node_handle_("~")
+  MoveItSimpleControllerManager() : node_(rclcpp::Node::make_shared("moveit_simple_controller_manager"))
   {
+    auto parameters_default_planner = std::make_shared<rclcpp::SyncParametersClient>(node_);
+    
     if (!node_handle_.hasParam("controller_list"))
     {
-      ROS_ERROR_STREAM_NAMED(LOGNAME, "No controller_list specified.");
+      RCLCPP_ERROR(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER,"No controller_list specified.");
       return;
     }
 
@@ -65,7 +64,7 @@ public:
     node_handle_.getParam("controller_list", controller_list);
     if (!isArray(controller_list))
     {
-      ROS_ERROR_NAMED(LOGNAME, "Parameter controller_list should be specified as an array");
+      RCLCPP_ERROR(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER, "Parameter controller_list should be specified as an array");
       return;
     }
 
@@ -74,7 +73,7 @@ public:
     {
       if (!isStruct(controller_list[i], { "name", "joints", "action_ns", "type" }))
       {
-        ROS_ERROR_STREAM_NAMED(LOGNAME, "name, joints, action_ns, and type must be specifed for each controller");
+        RCLCPP_ERROR(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER,"name, joints, action_ns, and type must be specifed for each controller");
         continue;
       }
 
@@ -86,8 +85,7 @@ public:
 
         if (!isArray(controller_list[i]["joints"]))
         {
-          ROS_ERROR_STREAM_NAMED(LOGNAME, "The list of joints for controller " << name
-                                                                               << " is not specified as an array");
+          RCLCPP_ERROR(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER,"The list of joints for controller %s is not specified as an array", name.c_Str());
           continue;
         }
 
@@ -101,7 +99,7 @@ public:
             {
               if (controller_list[i]["joints"].size() != 2)
               {
-                ROS_ERROR_STREAM_NAMED(LOGNAME, "Parallel Gripper requires exactly two joints");
+                RCLCPP_ERROR(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER,"Parallel Gripper requires exactly two joints");
                 continue;
               }
               static_cast<GripperControllerHandle*>(new_handle.get())
@@ -120,7 +118,7 @@ public:
             if (controller_list[i].hasMember("allow_failure"))
               static_cast<GripperControllerHandle*>(new_handle.get())->allowFailure(true);
 
-            ROS_INFO_STREAM_NAMED(LOGNAME, "Added GripperCommand controller for " << name);
+            RCLCPP_INFO(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER, "Added GripperCommand controller for %s", name.c_str());
             controllers_[name] = new_handle;
           }
         }
@@ -130,13 +128,13 @@ public:
           new_handle.reset(h);
           if (h->isConnected())
           {
-            ROS_INFO_STREAM_NAMED(LOGNAME, "Added FollowJointTrajectory controller for " << name);
+            RCLCPP_INFO(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER, "Added FollowJointTrajectory controller for %s", name.c_str());
             controllers_[name] = new_handle;
           }
         }
         else
         {
-          ROS_ERROR_STREAM_NAMED(LOGNAME, "Unknown controller type: " << type.c_str());
+          RCLCPP_ERROR(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER,"Unknown controller type: %s", type.c_str());
           continue;
         }
         if (!controllers_[name])
@@ -153,7 +151,7 @@ public:
       }
       catch (...)
       {
-        ROS_ERROR_STREAM_NAMED(LOGNAME, "Caught unknown exception while parsing controller information");
+        RCLCPP_ERROR(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER,"Caught unknown exception while parsing controller information");
       }
     }
   }
@@ -169,7 +167,7 @@ public:
     if (it != controllers_.end())
       return static_cast<moveit_controller_manager::MoveItControllerHandlePtr>(it->second);
     else
-      ROS_FATAL_STREAM_NAMED(LOGNAME, "No such controller: " << name);
+      RCLCPP_FATAL(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER, "No such controller: %s", name.c_str());
     return moveit_controller_manager::MoveItControllerHandlePtr();
   }
 
@@ -181,7 +179,7 @@ public:
     for (std::map<std::string, ActionBasedControllerHandleBasePtr>::const_iterator it = controllers_.begin();
          it != controllers_.end(); ++it)
       names.push_back(it->first);
-    ROS_INFO_STREAM_NAMED(LOGNAME, "Returned " << names.size() << " controllers in list");
+    RCLCPP_INFO(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER, "Returned %d controllers in list",names.size());
   }
 
   /*
@@ -213,8 +211,7 @@ public:
     }
     else
     {
-      ROS_WARN_NAMED(LOGNAME, "The joints for controller '%s' are not known. Perhaps the controller configuration is "
-                              "not loaded on the param server?",
+      RCLCPP_ERROR(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER, "The joints for controller '%s' are not known. Perhaps the controller configuration is not loaded on the param server?",
                      name.c_str());
       joints.clear();
     }
@@ -239,7 +236,7 @@ public:
   }
 
 protected:
-  ros::NodeHandle node_handle_;
+  rclcpp::Node::SharedPtr node_;
   std::map<std::string, ActionBasedControllerHandleBasePtr> controllers_;
 };
 
