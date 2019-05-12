@@ -190,7 +190,9 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
   - [ ] Add gitlfs?
 </details>
 
-## Compile it locally
+## Compile it locally (Linux)
+
+**Note:** You need to have docker installed on your system.
 
 ```bash
 cd ~ && git clone https://github.com/AcutronicRobotics/moveit2
