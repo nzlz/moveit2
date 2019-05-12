@@ -190,6 +190,21 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
   - [ ] Add gitlfs?
 </details>
 
+## Compile it locally
+
+```bash
+cd ~ && git clone https://github.com/AcutronicRobotics/moveit2
+cd ~/moveit2
+git clone -q -b ros2 --depth=1 https://github.com/acutronicrobotics/moveit_ci.git .moveit_ci
+export MOVEIT_CI_TRAVIS_TIMEOUT=85  # Travis grants us 90 min, but we add a safety margin of 5 min
+export ROS_DISTRO=crystal
+export ROS_REPO=acutronicrobotics
+export UPSTREAM_WORKSPACE=moveit.rosinstall
+export TEST_BLACKLIST="moveit_ros_perception tf2_ros"  # mesh_filter_test fails due to broken Mesa OpenGL
+export CXXFLAGS="-Wall -Wextra -Wwrite-strings -Wunreachable-code -Wpointer-arith -Wredundant-decls -Wno-unused-parameter -Wno-unused-but-set-parameter -Wno-unused-function"
+.moveit_ci/travis.sh
+```
+
 ## Continuous Integration Status
 [![Build Status](https://travis-ci.org/AcutronicRobotics/moveit2.svg?branch=master)](https://travis-ci.org/AcutronicRobotics/moveit2)
 
