@@ -57,7 +57,7 @@ RUN apt-get -qq update && \
 ARG MOVEIT2_BRANCH=
 # Download moveit source, so that we can get necessary dependencies
 RUN mkdir -p $ROS_WS/src \
-    && bash -c 'if [ -z "$MOVEIT2_BRANCH" ]; then MOVEIT2_BRANCH=master; else if [ "$(git ls-remote https://github.com/AcutronicRobotics/moveit2 $MOVEIT2_BRANCH | wc -l)" -eq 0 ]; then exit 1234; fi fi' \
+    && if [ -z "$MOVEIT2_BRANCH" ]; then MOVEIT2_BRANCH=master; else if [ "$(git ls-remote https://github.com/AcutronicRobotics/moveit2 $MOVEIT2_BRANCH | wc -l)" -eq 0 ]; then exit 1234; fi fi \
     && wget https://raw.githubusercontent.com/AcutronicRobotics/moveit2/master/moveit2.repos \
     && echo "  moveit2:\n    type: git\n    url: https://github.com/AcutronicRobotics/moveit2\n    version: $MOVEIT2_BRANCH" >> moveit2.repos \
     && vcs import src < moveit2.repos
