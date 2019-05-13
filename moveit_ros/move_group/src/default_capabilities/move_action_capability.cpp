@@ -110,7 +110,7 @@ void move_group::MoveGroupMoveAction::executeMoveCallback(
   std::string response =
       getActionResultString(action_res->error_code, planned_trajectory_empty, goal->planning_options.plan_only);
   if (action_res->error_code.val == moveit_msgs::msg::MoveItErrorCodes::SUCCESS)
-    goal_handle->set_succeeded(action_res);
+    goal_handle->succeed(action_res);
   else
   {
     // TODO (anasarrak): there is no preempt implementation on
@@ -118,7 +118,7 @@ void move_group::MoveGroupMoveAction::executeMoveCallback(
     // if (action_res->error_code.val == moveit_msgs::msg::MoveItErrorCodes::PREEMPTED)
     //   move_action_server_->setPreempted(action_res, response);
     // else
-    goal_handle->set_aborted(action_res);
+    goal_handle->abort(action_res);
   }
 
   setMoveState(IDLE, goal_handle);
