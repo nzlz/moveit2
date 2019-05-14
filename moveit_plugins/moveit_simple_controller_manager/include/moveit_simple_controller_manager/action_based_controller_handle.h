@@ -47,7 +47,7 @@
 
 namespace moveit_simple_controller_manager
 {
-   rclcpp::Logger LOGGER_ACTION_BASED_CONTROLLER = rclcpp::get_logger("moveit_simple_controller_manager").get_child("action_based_controller");
+static rclcpp::Logger LOGGER_ACTION_BASED_CONTROLLER = rclcpp::get_logger("moveit_simple_controller_manager").get_child("action_based_controller");
 /*
  * This exist solely to inject addJoint/getJoints into base non-templated class.
  */

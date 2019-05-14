@@ -54,7 +54,7 @@ public:
   {
     auto controller_list_parameters = std::make_shared<rclcpp::SyncParametersClient>(node_);
     auto list_controller_params = controller_list_parameters->list_parameters({ "controller_list" }, 10);
-    //TODO (anasarrak) New controller_list yaml structure https://gist.github.com/anasarrak/897a7fc2bc6fbb82777726e76aa6357e
+    //TODO (anasarrak) New controller_list yaml structure  https://gist.github.com/anasarrak/897a7fc2bc6fbb82777726e76aa6357e
     if (!controller_list_parameters->has_parameter("controller_list"))
     {
       RCLCPP_ERROR(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER, "No controller_list specified.");

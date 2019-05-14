@@ -20,7 +20,7 @@ include_directories(include)
 
 add_library(${PROJECT_NAME} SHARED
   src/moveit_simple_controller_manager.cpp
-  # src/follow_joint_trajectory_controller_handle.cpp
+  src/follow_joint_trajectory_controller_handle.cpp
 )
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
