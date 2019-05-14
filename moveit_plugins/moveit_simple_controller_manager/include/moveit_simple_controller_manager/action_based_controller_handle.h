@@ -90,7 +90,7 @@ public:
       timeout = node_->get_parameter("trajectory_execution/controller_connection_timeout").as_double();
     }
 
-    node_->set_parameter(rclcpp::Parameter("trajectory_execution/controller_connection_timeout", 15.0));
+    node_->set_parameters({rclcpp::Parameter("trajectory_execution/controller_connection_timeout", 15.0)});
 
     if (timeout == 0.0)
     {
