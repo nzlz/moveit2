@@ -54,7 +54,7 @@ public:
   {
     auto controller_list_parameters = std::make_shared<rclcpp::SyncParametersClient>(node_);
     auto list_controller_params = controller_list_parameters->list_parameters({ "controller_list" }, 10);
-
+    //TODO (anasarrak) New controller_list yaml structure https://gist.github.com/anasarrak/897a7fc2bc6fbb82777726e76aa6357e
     if (!controller_list_parameters->has_parameter("controller_list"))
     {
       RCLCPP_ERROR(LOGGER_MOVEIT_SIMPLE_CONTROLLER_MANAGER, "No controller_list specified.");
@@ -104,11 +104,10 @@ public:
             if (!index.empty())
               indexes.push_back(index);
           }
-          std::cout << indexes[2] << '\n';
 
-          std::string action_ns_str = name_prefix + ".action_ns";
-          std::string type_str = name_prefix + ".type";
-          std::string joints_str = name_prefix + ".joints";
+          const std::string action_ns_str = name_prefix + ".action_ns";
+          const std::string type_str = name_prefix + ".type";
+          const std::string joints_str = name_prefix + ".joints";
 
           std::string action_ns;
           std::string type;
@@ -155,7 +154,7 @@ public:
               else
               {
                 std::string command_joint_str = name_prefix + ".command_joint";
-                std::vector <std::string> command_joint = node_->get_parameter(command_joint_str).as_string_array();
+                std::string command_joint = node_->get_parameter(command_joint_str).as_string();
                 if (command_joint_str.compare(name) == 0)
                   static_cast<GripperControllerHandle*>(new_handle.get())
                       ->setCommandJoint(command_joint);
@@ -198,8 +197,8 @@ public:
           /* add list of joints, used by controller manager and MoveIt! */
           for (int j = 0; j < joints.size(); ++j)
             new_handle->addJoint(std::string(joints[j]));
-
-          new_handle->configure(joints);
+          //TODO (anasarrak)
+          // new_handle->configure(joints);
           joints.clear();
         }
       }
