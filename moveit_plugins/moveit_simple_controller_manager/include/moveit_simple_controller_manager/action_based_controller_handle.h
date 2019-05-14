@@ -79,7 +79,9 @@ public:
     : ActionBasedControllerHandleBase(name), node_(rclcpp::Node::make_shared(ns)), done_(true), namespace_(ns)
   {
     auto trajectory_execution_params = std::make_shared<rclcpp::SyncParametersClient>(node_);
-    controller_action_client_.reset(new rclcpp_action::Client<T>(getActionName(), true));
+    controller_action_client_.reset();
+    controller_action_client_ = rclcpp_action::create_client<T>(node_, getActionName());
+
     unsigned int attempts = 0;
     rclcpp::Rate rate(std::chrono::milliseconds(1000));
     double timeout;
@@ -92,7 +94,7 @@ public:
 
     if (timeout == 0.0)
     {
-      while (rclcpp::ok() && !controller_action_client_->waitForServer(rclcpp::Duration(5.0)))
+      while (rclcpp::ok() && !controller_action_client_->wait_for_action_server(std::chrono::seconds(5)))
       {
         RCLCPP_WARN(LOGGER_ACTION_BASED_CONTROLLER, "Waiting for %s to come up", getActionName().c_str());
         rate.sleep();
@@ -100,13 +102,13 @@ public:
     }
     else
     {
-      while (rclcpp::ok() && !controller_action_client_->waitForServer(rclcpp::Duration(timeout / 3)) && ++attempts < 3)
+      while (rclcpp::ok() && !controller_action_client_->wait_for_action_server(std::chrono::seconds( (int) timeout / 3)) && ++attempts < 3)
       {
         RCLCPP_WARN(LOGGER_ACTION_BASED_CONTROLLER, "Waiting for %s to come up",getActionName().c_str());
         rate.sleep();
       }
     }
-    if (!controller_action_client_->isServerConnected())
+    if (!controller_action_client_->action_server_is_ready())
     {
       RCLCPP_ERROR(LOGGER_ACTION_BASED_CONTROLLER, "Action client not connected: %s", getActionName().c_str());
       controller_action_client_.reset();
@@ -122,22 +124,32 @@ public:
 
   bool cancelExecution() override
   {
-    if (!controller_action_client_)
-      return false;
-    if (!done_)
-    {
-      RCLCPP_INFO(LOGGER_ACTION_BASED_CONTROLLER, "Cancelling execution for %s", name_.c_str());
-      controller_action_client_->cancelGoal();
-      last_exec_ = moveit_controller_manager::ExecutionStatus::PREEMPTED;
-      done_ = true;
-    }
+    //TODO (anasarrak)
+    // typename goal_msg = T::Goal();
+    // auto goal_handle_future = controller_action_client_->async_send_goal(T);
+    // typename rclcpp_action::ClientGoalHandle<T>::SharedPtr goal_handle = goal_handle_future.get();
+    // if (!controller_action_client_)
+    //   return false;
+    // if (!done_)
+    // {
+    //   auto cancel_result_future = controller_action_client_->async_cancel_goal(goal_handle);
+    //   if (rclcpp::spin_until_future_complete(node_, cancel_result_future) !=
+    //   rclcpp::executor::FutureReturnCode::SUCCESS)
+    //   {
+    //     RCLCPP_INFO(LOGGER_ACTION_BASED_CONTROLLER, "Cancelling execution for %s", name_.c_str());
+    //     last_exec_ = moveit_controller_manager::ExecutionStatus::PREEMPTED;
+    //   }
+    //   done_ = true;
+    // }
     return true;
   }
 
   bool waitForExecution(const rclcpp::Duration& timeout = rclcpp::Duration(0,0)) override
   {
     if (controller_action_client_ && !done_)
-      return controller_action_client_->waitForResult(timeout);
+      // return controller_action_client_->waitForResult(timeout);
+      return controller_action_client_->wait_for_action_server(std::chrono::seconds((int) timeout.seconds()));
+
     return true;
   }
 
