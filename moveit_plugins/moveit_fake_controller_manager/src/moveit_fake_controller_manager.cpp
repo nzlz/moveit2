@@ -35,12 +35,10 @@
 /* Author: Ioan Sucan, Dave Coleman, Robert Haschke */
 
 #include "moveit_fake_controllers.h"
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
 #include <moveit/robot_state/robot_state.h>
 #include <moveit/robot_model_loader/robot_model_loader.h>
-#include <sensor_msgs/JointState.h>
 #include <pluginlib/class_list_macros.hpp>
-#include <ros/console.h>
 #include <map>
 #include <iterator>
 
@@ -48,37 +46,37 @@ namespace moveit_fake_controller_manager
 {
 static const std::string DEFAULT_TYPE = "interpolate";
 static const std::string ROBOT_DESCRIPTION = "robot_description";
-
+static rclcpp::Logger LOGGER_FAKE_CONTROLLER_MANAGER = rclcpp::get_logger("moveit_fake_controller_manager").get_child("MoveItFakeControllerManager");
+static rclcpp::Logger LOGGER_INITIAL_JOINT_VALUES = rclcpp::get_logger("moveit_fake_controller_manager").get_child("loadInitialJointValues");
 class MoveItFakeControllerManager : public moveit_controller_manager::MoveItControllerManager
 {
 public:
-  MoveItFakeControllerManager() : node_handle_("~")
+  MoveItFakeControllerManager() : node_(rclcpp::Node::make_shared("fake_controller"))
   {
-    if (!node_handle_.hasParam("controller_list"))
+    if (!node_.hasParam("controller_list"))
     {
-      ROS_ERROR_STREAM_NAMED("MoveItFakeControllerManager", "No controller_list specified.");
+      RCLCPP_ERROR(LOGGER_FAKE_CONTROLLER_MANAGER, "No controller_list specified.");
       return;
     }
 
     XmlRpc::XmlRpcValue controller_list;
-    node_handle_.getParam("controller_list", controller_list);
+    node_.getParam("controller_list", controller_list);
     if (controller_list.getType() != XmlRpc::XmlRpcValue::TypeArray)
     {
-      ROS_ERROR_NAMED("MoveItFakeControllerManager", "controller_list should be specified as an array");
+      RCLCPP_ERROR(LOGGER_FAKE_CONTROLLER_MANAGER, "controller_list should be specified as an array");
       return;
     }
 
     /* by setting latch to true we preserve the initial joint state while other nodes launch */
     bool latch = true;
-    pub_ = node_handle_.advertise<sensor_msgs::JointState>("fake_controller_joint_states", 100, latch);
-
+    pub_ = node_->create_publisher<sensor_msgs::msg::JointState>("fake_controller_joint_states", 100);
     /* publish initial pose */
     XmlRpc::XmlRpcValue initial;
-    if (node_handle_.getParam("initial", initial))
+    if (node_.getParam("initial", initial))
     {
-      sensor_msgs::JointState js = loadInitialJointValues(initial);
-      js.header.stamp = ros::Time::now();
-      pub_.publish(js);
+      sensor_msgs::msg::JointState js = loadInitialJointValues(initial);
+      js.header.stamp = rclcpp::Clock().now();
+      pub_->publish(js);
     }
 
     /* actually create each controller */
@@ -86,7 +84,7 @@ public:
     {
       if (!controller_list[i].hasMember("name") || !controller_list[i].hasMember("joints"))
       {
-        ROS_ERROR_NAMED("MoveItFakeControllerManager", "Name and joints must be specified for each controller");
+        RCLCPP_ERROR(LOGGER_FAKE_CONTROLLER_MANAGER, "Name and joints must be specified for each controller");
         continue;
       }
 
@@ -96,8 +94,7 @@ public:
 
         if (controller_list[i]["joints"].getType() != XmlRpc::XmlRpcValue::TypeArray)
         {
-          ROS_ERROR_STREAM_NAMED("MoveItFakeControllerManager", "The list of joints for controller "
-                                                                    << name << " is not specified as an array");
+          RCLCPP_ERROR(LOGGER_FAKE_CONTROLLER_MANAGER, "The list of joints for controller %s is not specified as an array",name.c_str());
           continue;
         }
         std::vector<std::string> joints;
@@ -114,88 +111,89 @@ public:
         else if (type == "interpolate")
           controllers_[name].reset(new InterpolatingController(name, joints, pub_));
         else
-          ROS_ERROR_STREAM("Unknown fake controller type: " << type);
+          RCLCPP_ERROR(LOGGER_FAKE_CONTROLLER_MANAGER,"Unknown fake controller type: %s", type.c_str());
       }
       catch (...)
       {
-        ROS_ERROR_NAMED("MoveItFakeControllerManager", "Caught unknown exception while parsing controller information");
+        RCLCPP_ERROR(LOGGER_FAKE_CONTROLLER_MANAGER, "Caught unknown exception while parsing controller information");
       }
     }
   }
 
-  sensor_msgs::JointState loadInitialJointValues(XmlRpc::XmlRpcValue& param) const
-  {
-    sensor_msgs::JointState js;
-
-    if (param.getType() != XmlRpc::XmlRpcValue::TypeArray || param.size() == 0)
-    {
-      ROS_ERROR_ONCE_NAMED("loadInitialJointValues", "Parameter 'initial' should be an array of (group, pose) "
-                                                     "structs.");
-      return js;
-    }
-
-    robot_model_loader::RobotModelLoader robot_model_loader(ROBOT_DESCRIPTION);
-    const robot_model::RobotModelPtr& robot_model = robot_model_loader.getModel();
-    typedef std::map<std::string, double> JointPoseMap;
-    JointPoseMap joints;
-
-    for (int i = 0, end = param.size(); i != end; ++i)
-    {
-      try
-      {
-        std::string group_name = std::string(param[i]["group"]);
-        std::string pose_name = std::string(param[i]["pose"]);
-        if (!robot_model->hasJointModelGroup(group_name))
-        {
-          ROS_WARN_STREAM_NAMED("loadInitialJointValues", "Unknown joint model group: " << group_name);
-          continue;
-        }
-        moveit::core::JointModelGroup* jmg = robot_model->getJointModelGroup(group_name);
-        moveit::core::RobotState robot_state(robot_model);
-        const std::vector<std::string>& joint_names = jmg->getActiveJointModelNames();
-
-        if (!robot_state.setToDefaultValues(jmg, pose_name))
-        {
-          ROS_WARN_NAMED("loadInitialJointValues", "Unknown pose '%s' for group '%s'.", pose_name.c_str(),
-                         group_name.c_str());
-          continue;
-        }
-        ROS_INFO_NAMED("loadInitialJointValues", "Set joints of group '%s' to pose '%s'.", group_name.c_str(),
-                       pose_name.c_str());
-
-        for (std::vector<std::string>::const_iterator jit = joint_names.begin(), end = joint_names.end(); jit != end;
-             ++jit)
-        {
-          const moveit::core::JointModel* jm = robot_state.getJointModel(*jit);
-          if (!jm)
-          {
-            ROS_WARN_STREAM_NAMED("loadInitialJointValues", "Unknown joint: " << *jit);
-            continue;
-          }
-          if (jm->getVariableCount() != 1)
-          {
-            ROS_WARN_STREAM_NAMED("loadInitialJointValues", "Cannot handle multi-variable joint: " << *jit);
-            continue;
-          }
-
-          joints[*jit] = robot_state.getJointPositions(jm)[0];
-        }
-      }
-      catch (...)
-      {
-        ROS_ERROR_ONCE_NAMED("loadInitialJointValues", "Caught unknown exception while reading initial pose "
-                                                       "information.");
-      }
-    }
-
-    // fill the joint state
-    for (JointPoseMap::const_iterator it = joints.begin(), end = joints.end(); it != end; ++it)
-    {
-      js.name.push_back(it->first);
-      js.position.push_back(it->second);
-    }
-    return js;
-  }
+  // TODO(anasarrak)
+  // sensor_msgs::msg::JointState loadInitialJointValues(XmlRpc::XmlRpcValue& param) const
+  // {
+  //   sensor_msgs::msg::JointState js;
+  //
+  //   if (param.getType() != XmlRpc::XmlRpcValue::TypeArray || param.size() == 0)
+  //   {
+  //     RCLCPP_ERROR_ONCE(LOGGER_INITIAL_JOINT_VALUES, "Parameter 'initial' should be an array of (group, pose) "
+  //                                                    "structs.");
+  //     return js;
+  //   }
+  //
+  //   robot_model_loader::RobotModelLoader robot_model_loader(ROBOT_DESCRIPTION);
+  //   const robot_model::RobotModelPtr& robot_model = robot_model_loader.getModel();
+  //   typedef std::map<std::string, double> JointPoseMap;
+  //   JointPoseMap joints;
+  //
+  //   for (int i = 0, end = param.size(); i != end; ++i)
+  //   {
+  //     try
+  //     {
+  //       std::string group_name = std::string(param[i]["group"]);
+  //       std::string pose_name = std::string(param[i]["pose"]);
+  //       if (!robot_model->hasJointModelGroup(group_name))
+  //       {
+  //         ROS_WARN(LOGGER_INITIAL_JOINT_VALUES, "Unknown joint model group: %s", group_name);
+  //         continue;
+  //       }
+  //       moveit::core::JointModelGroup* jmg = robot_model->getJointModelGroup(group_name);
+  //       moveit::core::RobotState robot_state(robot_model);
+  //       const std::vector<std::string>& joint_names = jmg->getActiveJointModelNames();
+  //
+  //       if (!robot_state.setToDefaultValues(jmg, pose_name))
+  //       {
+  //         RCLCPP_WARN(LOGGER_INITIAL_JOINT_VALUES, "Unknown pose '%s' for group '%s'.", pose_name.c_str(),
+  //                        group_name.c_str());
+  //         continue;
+  //       }
+  //       RCLCPP_INFO(LOGGER_INITIAL_JOINT_VALUES, "Set joints of group '%s' to pose '%s'.", group_name.c_str(),
+  //                      pose_name.c_str());
+  //
+  //       for (std::vector<std::string>::const_iterator jit = joint_names.begin(), end = joint_names.end(); jit != end;
+  //            ++jit)
+  //       {
+  //         const moveit::core::JointModel* jm = robot_state.getJointModel(*jit);
+  //         if (!jm)
+  //         {
+  //           ROS_WARN_STREAM_NAMED(LOGGER_INITIAL_JOINT_VALUES, "Unknown joint: " << *jit);
+  //           continue;
+  //         }
+  //         if (jm->getVariableCount() != 1)
+  //         {
+  //           ROS_WARN_STREAM_NAMED(LOGGER_INITIAL_JOINT_VALUES, "Cannot handle multi-variable joint: " << *jit);
+  //           continue;
+  //         }
+  //
+  //         joints[*jit] = robot_state.getJointPositions(jm)[0];
+  //       }
+  //     }
+  //     catch (...)
+  //     {
+  //       RCLCPP_ERROR_ONCE(LOGGER_INITIAL_JOINT_VALUES, "Caught unknown exception while reading initial pose "
+  //                                                      "information.");
+  //     }
+  //   }
+  //
+  //   // fill the joint state
+  //   for (JointPoseMap::const_iterator it = joints.begin(), end = joints.end(); it != end; ++it)
+  //   {
+  //     js.name.push_back(it->first);
+  //     js.position.push_back(it->second);
+  //   }
+  //   return js;
+  // }
 
   ~MoveItFakeControllerManager() override = default;
 
@@ -208,7 +206,7 @@ public:
     if (it != controllers_.end())
       return it->second;
     else
-      ROS_FATAL_STREAM("No such controller: " << name);
+      RCLCPP_FATAL(LOGGER_FAKE_CONTROLLER_MANAGER,"No such controller: %s", name);
     return moveit_controller_manager::MoveItControllerHandlePtr();
   }
 
@@ -220,7 +218,7 @@ public:
     for (std::map<std::string, BaseFakeControllerPtr>::const_iterator it = controllers_.begin();
          it != controllers_.end(); ++it)
       names.push_back(it->first);
-    ROS_INFO_STREAM("Returned " << names.size() << " controllers in list");
+    RCLCPP_INFO(LOGGER_FAKE_CONTROLLER_MANAGER,"Returned %d controllers in list", names.size());
   }
 
   /*
@@ -251,7 +249,7 @@ public:
     }
     else
     {
-      ROS_WARN("The joints for controller '%s' are not known. Perhaps the controller configuration is not loaded on "
+      RCLCPP_WARN(LOGGER_FAKE_CONTROLLER_MANAGER,"The joints for controller '%s' are not known. Perhaps the controller configuration is not loaded on "
                "the param server?",
                name.c_str());
       joints.clear();
@@ -277,8 +275,8 @@ public:
   }
 
 protected:
-  ros::NodeHandle node_handle_;
-  ros::Publisher pub_;
+  rclcpp::Node::SharedPtr node_;
+  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr pub_;
   std::map<std::string, BaseFakeControllerPtr> controllers_;
 };
 

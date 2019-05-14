@@ -96,7 +96,7 @@ bool LastPointController::cancelExecution()
   return true;
 }
 
-bool LastPointController::waitForExecution(const ros::Duration& /*timeout*/)
+bool LastPointController::waitForExecution(const rclcpp::Duration& /*timeout*/)
 {
   ros::Duration(0.5).sleep();  // give some time to receive the published JointState
   return true;
@@ -136,7 +136,7 @@ bool ThreadedController::cancelExecution()
   return true;
 }
 
-bool ThreadedController::waitForExecution(const ros::Duration& /*timeout*/)
+bool ThreadedController::waitForExecution(const rclcpp::Duration& /*timeout*/)
 {
   thread_.join();
   status_ = moveit_controller_manager::ExecutionStatus::SUCCEEDED;
