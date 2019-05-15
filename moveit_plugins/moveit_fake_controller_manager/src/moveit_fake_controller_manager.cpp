@@ -46,8 +46,6 @@ namespace moveit_fake_controller_manager
 {
 static const std::string DEFAULT_TYPE = "interpolate";
 static const std::string ROBOT_DESCRIPTION = "robot_description";
-static rclcpp::Logger LOGGER_FAKE_CONTROLLER_MANAGER = rclcpp::get_logger("moveit_fake_controller_manager").get_child("MoveItFakeControllerManager");
-static rclcpp::Logger LOGGER_INITIAL_JOINT_VALUES = rclcpp::get_logger("moveit_fake_controller_manager").get_child("loadInitialJointValues");
 
 struct Controller_list {
   std::string name;
@@ -72,7 +70,7 @@ public:
 
     if (list_controller_params.prefixes.size() == 0)
     {
-      RCLCPP_ERROR(LOGGER_FAKE_CONTROLLER_MANAGER, "No controller_list specified.");
+      RCLCPP_ERROR(node_->get_logger(), "No controller_list specified.");
       return;
     }
 
@@ -101,7 +99,7 @@ public:
     // node_.getParam("controller_list", controller_list);
     // if (controller_list.getType() != XmlRpc::XmlRpcValue::TypeArray)
     // {
-    //   RCLCPP_ERROR(LOGGER_FAKE_CONTROLLER_MANAGER, "controller_list should be specified as an array");
+    //   RCLCPP_ERROR(node_->get_logger(), "controller_list should be specified as an array");
     //   return;
     // }
 
@@ -137,7 +135,7 @@ public:
     {
       if (controller_list[i].name.empty() || controller_list[i].joints.empty())
       {
-        RCLCPP_ERROR(LOGGER_FAKE_CONTROLLER_MANAGER, "Name and joints must be specified for each controller");
+        RCLCPP_ERROR(node_->get_logger(), "Name and joints must be specified for each controller");
         continue;
       }
 
@@ -147,7 +145,7 @@ public:
 
         // if (controller_list[i]["joints"].getType() != XmlRpc::XmlRpcValue::TypeArray)
         // {
-        //   RCLCPP_ERROR(LOGGER_FAKE_CONTROLLER_MANAGER, "The list of joints for controller %s is not specified as an array",name.c_str());
+        //   RCLCPP_ERROR(node_->get_logger(), "The list of joints for controller %s is not specified as an array",name.c_str());
         //   continue;
         // }
 
@@ -165,11 +163,11 @@ public:
         else if (type == "interpolate")
           controllers_[name].reset(new InterpolatingController(name, joints, pub_));
         else
-          RCLCPP_ERROR(LOGGER_FAKE_CONTROLLER_MANAGER,"Unknown fake controller type: %s", type.c_str());
+          RCLCPP_ERROR(node_->get_logger(),"Unknown fake controller type: %s", type.c_str());
       }
       catch (...)
       {
-        RCLCPP_ERROR(LOGGER_FAKE_CONTROLLER_MANAGER, "Caught unknown exception while parsing controller information");
+        RCLCPP_ERROR(node_->get_logger(), "Caught unknown exception while parsing controller information");
       }
     }
   }
@@ -181,7 +179,7 @@ public:
     //TODO(anasarrak)
     // if (param.getType() != XmlRpc::XmlRpcValue::TypeArray || param.size() == 0)
     // {
-    //   RCLCPP_ERROR_ONCE(LOGGER_INITIAL_JOINT_VALUES, "Parameter 'initial' should be an array of (group, pose) "
+    //   RCLCPP_ERROR_ONCE(node_->get_logger(), "Parameter 'initial' should be an array of (group, pose) "
     //                                                  "structs.");
     //   return js;
     // }
@@ -199,7 +197,7 @@ public:
         std::string pose_name = std::string(param[i].pose);
         if (!robot_model->hasJointModelGroup(group_name))
         {
-          RCLCPP_WARN(LOGGER_INITIAL_JOINT_VALUES, "Unknown joint model group: %s", group_name);
+          RCLCPP_WARN(node_->get_logger(), "Unknown joint model group: %s", group_name);
           continue;
         }
         moveit::core::JointModelGroup* jmg = robot_model->getJointModelGroup(group_name);
@@ -208,11 +206,11 @@ public:
 
         if (!robot_state.setToDefaultValues(jmg, pose_name))
         {
-          RCLCPP_WARN(LOGGER_INITIAL_JOINT_VALUES, "Unknown pose '%s' for group '%s'.", pose_name.c_str(),
+          RCLCPP_WARN(node_->get_logger(), "Unknown pose '%s' for group '%s'.", pose_name.c_str(),
                          group_name.c_str());
           continue;
         }
-        RCLCPP_INFO(LOGGER_INITIAL_JOINT_VALUES, "Set joints of group '%s' to pose '%s'.", group_name.c_str(),
+        RCLCPP_INFO(node_->get_logger(), "Set joints of group '%s' to pose '%s'.", group_name.c_str(),
                        pose_name.c_str());
 
         for (std::vector<std::string>::const_iterator jit = joint_names.begin(), end = joint_names.end(); jit != end;
@@ -221,12 +219,12 @@ public:
           const moveit::core::JointModel* jm = robot_state.getJointModel(*jit);
           if (!jm)
           {
-            RCLCPP_WARN(LOGGER_INITIAL_JOINT_VALUES, "Unknown joint: %s", *jit);
+            RCLCPP_WARN(node_->get_logger(), "Unknown joint: %s", *jit);
             continue;
           }
           if (jm->getVariableCount() != 1)
           {
-            RCLCPP_WARN(LOGGER_INITIAL_JOINT_VALUES, "Cannot handle multi-variable joint: %s", *jit);
+            RCLCPP_WARN(node_->get_logger(), "Cannot handle multi-variable joint: %s", *jit);
             continue;
           }
 
@@ -235,7 +233,7 @@ public:
       }
       catch (...)
       {
-        RCLCPP_ERROR_ONCE(LOGGER_INITIAL_JOINT_VALUES, "Caught unknown exception while reading initial pose "
+        RCLCPP_ERROR_ONCE(node_->get_logger(), "Caught unknown exception while reading initial pose "
                                                        "information.");
       }
     }
@@ -260,7 +258,7 @@ public:
     if (it != controllers_.end())
       return it->second;
     else
-      RCLCPP_FATAL(LOGGER_FAKE_CONTROLLER_MANAGER,"No such controller: %s", name);
+      RCLCPP_FATAL(node_->get_logger(),"No such controller: %s", name);
     return moveit_controller_manager::MoveItControllerHandlePtr();
   }
 
@@ -272,7 +270,7 @@ public:
     for (std::map<std::string, BaseFakeControllerPtr>::const_iterator it = controllers_.begin();
          it != controllers_.end(); ++it)
       names.push_back(it->first);
-    RCLCPP_INFO(LOGGER_FAKE_CONTROLLER_MANAGER,"Returned %d controllers in list", names.size());
+    RCLCPP_INFO(node_->get_logger(),"Returned %d controllers in list", names.size());
   }
 
   /*
@@ -303,7 +301,7 @@ public:
     }
     else
     {
-      RCLCPP_WARN(LOGGER_FAKE_CONTROLLER_MANAGER,"The joints for controller '%s' are not known. Perhaps the controller configuration is not loaded on "
+      RCLCPP_WARN(node_->get_logger(),"The joints for controller '%s' are not known. Perhaps the controller configuration is not loaded on "
                "the param server?",
                name.c_str());
       joints.clear();
