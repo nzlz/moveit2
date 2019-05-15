@@ -334,5 +334,5 @@ protected:
 
 }  // end namespace moveit_fake_controller_manager
 
-PLUGINLIB_EXPORT_CLASS(moveit_fake_controller_manager::MoveItFakeControllerManager,
-                       moveit_controller_manager::MoveItControllerManager);
+// PLUGINLIB_EXPORT_CLASS(moveit_fake_controller_manager::MoveItFakeControllerManager,
+//                        moveit_controller_manager::MoveItControllerManager);
