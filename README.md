@@ -199,12 +199,9 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
 
 ## Install and test MoveIt 2
 
-### Using a Docker container
-TODO
+Note that moveit2 is a work in progress. Limited effort has been allocated to provide instructions on how to reproduce the available work.
 
-### From sources (**DEPRECATED**)
-- [Ubuntu 18.04](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/ubuntu)
-- [OS X 10.14](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/osx) (**DEPRECATED**)
+<details><summary>Install and test options</summary>
 
 ### Using the CI infrastructure
 Moveit uses a Docker-based CI infrastructure to run tests and validate commits. Such infrastructure adapted for MoveIt 2 is available at https://github.com/acutronicrobotics/moveit_ci.git. 
@@ -229,6 +226,27 @@ export CXXFLAGS="-Wall -Wextra -Wwrite-strings -Wunreachable-code -Wpointer-arit
 
 #### Using the CI infrastructure in OS X
 TODO
+
+### Using a Docker container (**DEPRECATED**)
+An attempt to provide an environment whereto build the existing moveit2 repository is available at https://github.com/AcutronicRobotics/moveit2/tree/local-build/.docker/local-build.
+
+```bash
+# from https://github.com/AcutronicRobotics/moveit2/tree/local-build/.docker/local-build
+# Build it
+docker build -t local-build --build-arg=<branch> .
+# or docker build -t local-build .
+
+# Run it
+docker run -it local-build
+# inside of the container, compile the moveit2 code
+colcon build --merge-install #Inside of the docker container
+```
+
+### From sources (**DEPRECATED**)
+- [Ubuntu 18.04](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/ubuntu)
+- [OS X 10.14](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/osx) (**DEPRECATED**)
+
+</details>
 
 ## Continuous Integration
 [![Build Status](https://travis-ci.org/AcutronicRobotics/moveit2.svg?branch=master)](https://travis-ci.org/AcutronicRobotics/moveit2)
