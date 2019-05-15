@@ -1,5 +1,7 @@
 <img src="https://github.com/AcutronicRobotics/moveit2/raw/master/.logo/official/moveit2_logo-black.png" alt="MoveIt 2 Logo" width="200"/>
 
+[![Build Status](https://travis-ci.org/AcutronicRobotics/moveit2.svg?branch=master)](https://travis-ci.org/AcutronicRobotics/moveit2)
+
 The MoveIt! Motion Planning Framework **for ROS 2.0**
 
 - [Milestones](#milestones)
@@ -14,12 +16,17 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
 
 0. [Official announcement, commitment from Acutronic Robotics to allocate PMs and fund PickNik](https://acutronicrobotics.com/news/ros-2-moveit-robotic-motion-planning/)
 1. [Why MoveIt 2 and approach](https://acutronicrobotics.com/news/moveit-2-planning-framework-why/)
+2. [Porting and understanding `moveit_core`](https://discourse.ros.org/t/the-moveit-2-journey-part-1-porting-and-understanding-moveit-core/8718)
 
-### Progress
+## Progress
+
+<details><summary>Install instructions (DEPRECATED)</summary>
 
 - [x] Install instructions
   - [x] [Ubuntu 18.04](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/ubuntu)
   - [x] [OS X 10.14](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/osx)
+
+</details>
 
 <details><summary>Update/setup infrastructure for development</summary>
 
@@ -150,17 +157,19 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
     - [ ] kdl_kinematics_plugin
 </details>
 
-<details><summary>New features in ROS 2.0</summary>
+<details><summary>New features in ROS 2.0 (<b>not started</b>)</summary>
 
 - [ ] New features in ROS 2.0
   - [ ] Migrate plugin architecture to ROS2 nodelets
 </details>
 
-<details><summary>Documentation</summary>
+<details><summary>Documentation (<b>not started</b>) </summary>
+
 - [ ] Documentation
   - [ ] Tutorials for MoveIt2
   - [ ] Create tutorial on using ros1/ros2 bridge to support ros1 hardware drivers
   - [ ] Move install instructions to moveit.ros.org
+  - [ ] 
 </details>
 
 <details><summary>Major refactoring and divergence from moveit2 (<b>not started</b>)</summary>
@@ -190,8 +199,21 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
   - [ ] Add gitlfs?
 </details>
 
-## Compile it locally (Linux)
+## Install and test MoveIt 2 (WIP)
 
+### Using a Docker container
+TODO
+
+### From sources (**DEPRECATED**)
+- [Ubuntu 18.04](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/ubuntu)
+- [OS X 10.14](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/osx) (**DEPRECATED**)
+
+### Using the CI infrastructure
+Moveit uses a Docker-based CI infrastructure to run tests and validate commits. Such infrastructure adapted for MoveIt 2 is available at https://github.com/acutronicrobotics/moveit_ci.git. 
+
+Using the CI infrastructure, one can get access to MoveIt 2 current status and test its capabilities
+
+#### Using the CI infrastructure in Ubuntu
 **Note:** You need to have docker installed on your system.
 
 ```bash
@@ -207,11 +229,12 @@ export CXXFLAGS="-Wall -Wextra -Wwrite-strings -Wunreachable-code -Wpointer-arit
 .moveit_ci/travis.sh
 ```
 
-## Continuous Integration Status
-[![Build Status](https://travis-ci.org/AcutronicRobotics/moveit2.svg?branch=master)](https://travis-ci.org/AcutronicRobotics/moveit2)
+#### Using the CI infrastructure in OS X
+TODO
 
-## Docker Containers
-https://cloud.docker.com/u/acutronicrobotics/repository/docker/acutronicrobotics/moveit2
+
+## Continuos Integration
+Refer to https://github.com/AcutronicRobotics/moveit_ci. Docker containers (containing the appropriate ROS 2 release with the right dependencies) are created for the purpose of CI and available at https://cloud.docker.com/u/acutronicrobotics/repository/docker/acutronicrobotics/moveit2.
 
 ## ROS Buildfarm
-Debian releases of MoveIt2 will not be available during the alpha development stage. Check back May 2019.
+Debian releases of MoveIt 2 aren't planned for now.
