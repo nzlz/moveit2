@@ -116,43 +116,34 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
 
 <details><summary>Necessary for a Minimal Working Example</summary>
 
-- [ ] Necessary for a Minimal Working Example (This list can vary, they are the initial includes for the *planning_interface/move_group_interface* that is what we need for a **plan** and **execute**)
+- [ ] Necessary for a Minimal Working Example
+  - [x] moveit_core
   - [x] moveit_ros_perception
     - [x] occupancy_map_monitor
-  - [ ] move_group
-    - [ ] capability_names
-      - [x] query_planners_service_capability
-      - [x] move_action_capability
-      - [ ] execute_trajectory_action_capability
-    - [x] move_group_capability
-    - [ ] move_group_context
-  - [ ] moveit_ros_planning
+  - [x] move_group
+  - [x] moveit_ros_planning
     - [x] rdf_loader
     - [x] collision_plugin_loader
     - [x] kinematics_plugin_loader
     - [x] robot_model_loader
-    - [ ] constraint_sampler_manager_loader
+    - [x] constraint_sampler_manager_loader
+    - [x] planning_request_adapter_plugins
     - [x] planning_pipeline
     - [x] planning_scene_monitor
     - [x] trajectory_execution_manager
     - [x] plan_execution
   - [ ] planning_interface
     - [x] common_planning_interface_objects
-    - [ ] planning_scene_interface
-      - [ ] planning_scene_interface
-    - [ ] move_group_interface
-  - [ ] moveit_ros_manipulation
-    - [ ] move_group_pick_place_capability
-      - [ ] capability_names.h
-    - [ ] moveit_pick_place_planner
-      - [ ] pick_place
-  - [ ] moveit_ros_visualization
-    - [ ] rviz_plugin_render_tools
-    - [ ] planning_scene_rviz_plugin
+    - [x] planning_scene_interface
+    - [ ] move_group_interface (_partially_)
+    - [x] test
   - [ ] moveit_planner
-    - [ ] ompl
+    - [x] ompl
   - [ ] moveit_kinematics
-    - [ ] kdl_kinematics_plugin
+    - [x] kdl_kinematics_plugin
+  - [ ] moveit_plugins
+    - [x] moveit_fake_cotroller_manager
+    - [x] moveit_simple_controller_manager
 </details>
 
 <details><summary>New features in ROS 2.0 (<b>not started</b>)</summary>
