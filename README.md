@@ -18,7 +18,7 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
 
 ## Progress
 
-<details><summary>Install instructions (DEPRECATED)</summary>
+<details><summary>Install instructions (DEPRECATED, see below)</summary>
 
 - [x] Install instructions
   - [x] [Ubuntu 18.04](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/ubuntu)
