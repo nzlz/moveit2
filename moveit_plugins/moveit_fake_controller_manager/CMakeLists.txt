@@ -16,7 +16,7 @@ find_package(rclcpp REQUIRED)
 
 include_directories(include)
 
-include_directories(${Boost_INCLUDE_DIRS} ${rclcpp_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS} ${rclcpp_INCLUDE_DIRS} ${moveit_ros_planning_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME} SHARED
    src/moveit_fake_controller_manager.cpp
@@ -32,6 +32,8 @@ ament_target_dependencies(${PROJECT_NAME}
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 target_link_libraries(${PROJECT_NAME} ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
+
+pluginlib_export_plugin_description_file(${PROJECT_NAME} moveit_fake_controller_manager_plugin_description.xml)
 
 install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
 
