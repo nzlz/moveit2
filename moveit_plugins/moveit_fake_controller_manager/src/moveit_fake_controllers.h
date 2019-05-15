@@ -113,7 +113,8 @@ protected:
 class InterpolatingController : public ThreadedController
 {
 public:
-  InterpolatingController(const std::string& name, const std::vector<std::string>& joints, const rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr& pub);
+  InterpolatingController(const std::string& name, const std::vector<std::string>& joints, const rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr& pub,
+                          const rclcpp::Node::SharedPtr& node_);
   ~InterpolatingController() override;
 
 protected:
@@ -121,6 +122,7 @@ protected:
 
 private:
   rclcpp::WallRate rate_;
+  rclcpp::Node::SharedPtr node_;
 };
 }
 

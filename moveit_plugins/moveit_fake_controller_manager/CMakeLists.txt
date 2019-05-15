@@ -20,7 +20,7 @@ include_directories(${Boost_INCLUDE_DIRS} ${rclcpp_INCLUDE_DIRS} ${moveit_ros_pl
 
 add_library(${PROJECT_NAME} SHARED
    src/moveit_fake_controller_manager.cpp
-   # src/moveit_fake_controllers.cpp
+   src/moveit_fake_controllers.cpp
  )
 
 ament_target_dependencies(${PROJECT_NAME}

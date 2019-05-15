@@ -161,7 +161,7 @@ public:
         else if (type == "via points")
           controllers_[name].reset(new ViaPointController(name, joints, pub_));
         else if (type == "interpolate")
-          controllers_[name].reset(new InterpolatingController(name, joints, pub_));
+          controllers_[name].reset(new InterpolatingController(name, joints, pub_,node_));
         else
           RCLCPP_ERROR(node_->get_logger(),"Unknown fake controller type: %s", type.c_str());
       }
