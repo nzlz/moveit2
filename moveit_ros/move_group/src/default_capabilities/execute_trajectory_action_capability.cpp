@@ -47,8 +47,9 @@ MoveGroupExecuteTrajectoryAction::MoveGroupExecuteTrajectoryAction() : MoveGroup
 {
 }
 
-void MoveGroupExecuteTrajectoryAction::initialize()
+void MoveGroupExecuteTrajectoryAction::initialize(std::shared_ptr<rclcpp::Node>& node)
 {
+  this->node_ = node;
   // start the move action server
   execute_action_server_.reset();
   execute_action_server_ = rclcpp_action::create_server<moveit_msgs::action::ExecuteTrajectory>(
@@ -95,7 +96,7 @@ void MoveGroupExecuteTrajectoryAction::executePathCallback(
   {
     const std::string response = "Cannot execute trajectory since ~allow_trajectory_execution was set to false";
     action_res->error_code.val = moveit_msgs::msg::MoveItErrorCodes::CONTROL_FAILED;
-    goal_handle->set_aborted(action_res);
+    goal_handle->abort(action_res);
     return;
   }
   executePath(goal_handle, action_res);
@@ -103,7 +104,7 @@ void MoveGroupExecuteTrajectoryAction::executePathCallback(
   const std::string response = getActionResultString(action_res->error_code, false, false);
   if (action_res->error_code.val == moveit_msgs::msg::MoveItErrorCodes::SUCCESS)
   {
-    goal_handle->set_succeeded(action_res);
+    goal_handle->succeed(action_res);
   }
   // TODO(anasarrak) not prempt for ros2 actions yet
   // else if (action_res->error_code.val == moveit_msgs::msg::MoveItErrorCodes::PREEMPTED)
@@ -112,7 +113,7 @@ void MoveGroupExecuteTrajectoryAction::executePathCallback(
   // }
   else
   {
-    goal_handle->set_aborted(action_res);
+    goal_handle->abort(action_res);
   }
 
   setExecuteTrajectoryState(IDLE, goal_handle);
@@ -164,8 +165,11 @@ void MoveGroupExecuteTrajectoryAction::setExecuteTrajectoryState(
     const std::shared_ptr<rclcpp_action::ServerGoalHandle<moveit_msgs::action::ExecuteTrajectory>> goal_handle)
 {
   auto execute_feedback = std::shared_ptr<moveit_msgs::action::ExecuteTrajectory::Feedback>();
-  execute_feedback->state = stateToStr(state);
-  goal_handle->publish_feedback(execute_feedback);
+  printf("setExecuteTrajectoryState %s\n", stateToStr(state).c_str());
+  // TODO (ahcorde)
+  // execute_feedback->state = stateToStr(state);
+  // goal_handle->publish_feedback(execute_feedback);
+  printf("publish_feedbacked\n");
 }
 
 }  // namespace move_group

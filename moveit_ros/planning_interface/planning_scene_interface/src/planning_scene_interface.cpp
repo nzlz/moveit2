@@ -48,9 +48,9 @@ namespace planning_interface
 class PlanningSceneInterface::PlanningSceneInterfaceImpl
 {
 public:
-  explicit PlanningSceneInterfaceImpl(const std::string& ns = "")
+  explicit PlanningSceneInterfaceImpl(std::shared_ptr<rclcpp::Node>& node, const std::string& ns = "")
   {
-    node_ = rclcpp::Node::make_shared(ns);
+    node_ = node;
     planning_scene_service_ =
         node_->create_client<moveit_msgs::srv::GetPlanningScene>(move_group::GET_PLANNING_SCENE_SERVICE_NAME);
     apply_planning_scene_service_ =
@@ -279,9 +279,9 @@ private:
   robot_model::RobotModelConstPtr robot_model_;
 };
 
-PlanningSceneInterface::PlanningSceneInterface(const std::string& ns)
+PlanningSceneInterface::PlanningSceneInterface(std::shared_ptr<rclcpp::Node>& node, const std::string& ns)
 {
-  impl_ = new PlanningSceneInterfaceImpl(ns);
+  impl_ = new PlanningSceneInterfaceImpl(node, ns);
 }
 
 PlanningSceneInterface::~PlanningSceneInterface()

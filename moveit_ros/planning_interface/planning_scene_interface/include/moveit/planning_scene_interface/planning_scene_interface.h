@@ -53,7 +53,7 @@ MOVEIT_CLASS_FORWARD(PlanningSceneInterface);
 class PlanningSceneInterface
 {
 public:
-  explicit PlanningSceneInterface(const std::string& ns = "");
+  explicit PlanningSceneInterface(std::shared_ptr<rclcpp::Node>& node, const std::string& ns = "");
   ~PlanningSceneInterface();
 
   /**

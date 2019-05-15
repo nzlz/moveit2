@@ -85,11 +85,13 @@ TrajectoryExecutionManager::TrajectoryExecutionManager(const robot_model::RobotM
                                                        const std::shared_ptr<rclcpp::Node> node)
   : robot_model_(robot_model), csm_(csm), node_(node)
 {
-  manage_controllers_parameters = std::make_shared<rclcpp::SyncParametersClient>(node_);
+  manage_controllers_parameters = std::make_shared<rclcpp::SyncParametersClient>(node_, "dummy_joint_states");
 
-  if(!manage_controllers_parameters->has_parameter({manage_controllers_}))
+  if(!manage_controllers_parameters->has_parameter({"moveit_manage_controllers"}))
       manage_controllers_ = false;
-
+  else{
+    manage_controllers_ = manage_controllers_parameters->get_parameter("moveit_manage_controllers", false);
+  }
   initialize();
 }
 
@@ -142,11 +144,12 @@ void TrajectoryExecutionManager::initialize()
 
   if (controller_manager_loader_)
   {
-    std::string controller;
+    std::string controller = "moveit_simple_controller_manager/MoveItSimpleControllerManager";
 
-    manage_controllers_parameters = std::make_shared<rclcpp::SyncParametersClient>(node_);
+    manage_controllers_parameters = std::make_shared<rclcpp::SyncParametersClient>(node_, "dummy_joint_states");
 
-    if(!manage_controllers_parameters->has_parameter({"moveit_controller_manager"})){
+    if(manage_controllers_parameters->has_parameter({"moveit_controller_manager"})){
+      // controller = manage_controllers_parameters->get_parameter("moveit_controller_manager", "moveit_simple_controller_manager/MoveItSimpleControllerManager");
       const std::vector<std::string>& classes = controller_manager_loader_->getDeclaredClasses();
       if (classes.size() == 1)
       {
@@ -166,6 +169,7 @@ void TrajectoryExecutionManager::initialize()
       try
       {
         controller_manager_ = controller_manager_loader_->createUniqueInstance(controller);
+        controller_manager_->initialize(node_);
       }
       catch (pluginlib::PluginlibException& ex)
       {
@@ -178,7 +182,7 @@ void TrajectoryExecutionManager::initialize()
   reloadControllerInformation();
   event_topic_subscriber_ = node_->create_subscription<std_msgs::msg::String>(
     EXECUTION_EVENT_TOPIC, std::bind(&TrajectoryExecutionManager::receiveEvent, this, std::placeholders::_1));
-    
+
   reconfigure_impl_ = new DynamicReconfigureImpl(this);
 
   if (manage_controllers_){

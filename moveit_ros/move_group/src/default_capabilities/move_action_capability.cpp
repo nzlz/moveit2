@@ -48,12 +48,13 @@ move_group::MoveGroupMoveAction::MoveGroupMoveAction()
 {
 }
 
-void move_group::MoveGroupMoveAction::initialize()
+void move_group::MoveGroupMoveAction::initialize(std::shared_ptr<rclcpp::Node>& node)
 {
+  this->node_ = node;
   // start the move action server
   move_action_server_.reset();
   move_action_server_ = rclcpp_action::create_server<moveit_msgs::action::MoveGroup>(
-      node_, MOVE_ACTION,
+      node, MOVE_ACTION,
       std::bind(&move_group::MoveGroupMoveAction::handle_move_goal, this, std::placeholders::_1, std::placeholders::_2),
       std::bind(&move_group::MoveGroupMoveAction::handle_move_cancel, this, std::placeholders::_1),
       std::bind(&move_group::MoveGroupMoveAction::handle_move_accept, this, std::placeholders::_1));
@@ -110,7 +111,7 @@ void move_group::MoveGroupMoveAction::executeMoveCallback(
   std::string response =
       getActionResultString(action_res->error_code, planned_trajectory_empty, goal->planning_options.plan_only);
   if (action_res->error_code.val == moveit_msgs::msg::MoveItErrorCodes::SUCCESS)
-    goal_handle->set_succeeded(action_res);
+    goal_handle->succeed(action_res);
   else
   {
     // TODO (anasarrak): there is no preempt implementation on
@@ -118,7 +119,7 @@ void move_group::MoveGroupMoveAction::executeMoveCallback(
     // if (action_res->error_code.val == moveit_msgs::msg::MoveItErrorCodes::PREEMPTED)
     //   move_action_server_->setPreempted(action_res, response);
     // else
-    goal_handle->set_aborted(action_res);
+    goal_handle->abort(action_res);
   }
 
   setMoveState(IDLE, goal_handle);
@@ -287,6 +288,7 @@ void move_group::MoveGroupMoveAction::setMoveState(
     const std::shared_ptr<rclcpp_action::ServerGoalHandle<moveit_msgs::action::MoveGroup>> goal_handle)
 {
   move_state_ = state;
+  auto move_feedback_ = std::make_shared<moveit_msgs::action::MoveGroup::Feedback>();
   move_feedback_->state = stateToStr(state);
   goal_handle->publish_feedback(move_feedback_);
 }

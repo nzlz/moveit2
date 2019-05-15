@@ -47,7 +47,7 @@
 
 namespace kinematics_plugin_loader
 {
-rclcpp::Logger LOGGER = rclcpp::get_logger("kinematics_plugin_loader");
+rclcpp::Logger LOGGER_KINEMATICS_PLUGIN_LOADER = rclcpp::get_logger("kinematics_plugin_loader");
 
 class KinematicsPluginLoader::KinematicsLoaderImpl
 {
@@ -75,7 +75,10 @@ public:
     }
     catch (pluginlib::PluginlibException& e)
     {
-      RCLCPP_ERROR(LOGGER, "Unable to construct kinematics loader. Error: %s", e.what());
+      RCLCPP_ERROR(LOGGER_KINEMATICS_PLUGIN_LOADER, "Unable to construct kinematics loader. Error: %s", e.what());
+    }
+    if(robot_description_.length()<1){
+      robot_description_ = std::string("robot_description");
     }
   }
 
@@ -94,14 +97,14 @@ public:
     if (ik_it != iksolver_to_tip_links_.end())
     {
       // the tip is being chosen based on a corresponding rosparam ik link
-      RCLCPP_DEBUG(LOGGER, "Choosing tip frame of kinematic solver for group %s"
+      RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Choosing tip frame of kinematic solver for group %s"
                                   "based on values in rosparam server.",jmg->getName().c_str());
       tips = ik_it->second;
     }
     else
     {
       // get the last link in the chain
-      RCLCPP_DEBUG(LOGGER, "Choosing tip frame of kinematic solver for group"
+      RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Choosing tip frame of kinematic solver for group"
                                   "based on last link in chain",jmg->getName().c_str());
 
       tips.push_back(jmg->getLinkModels().back()->getName());
@@ -110,7 +113,7 @@ public:
     // Error check
     if (tips.empty())
     {
-      RCLCPP_ERROR(LOGGER, "Error choosing kinematic solver tip frame(s).");
+      RCLCPP_ERROR(LOGGER_KINEMATICS_PLUGIN_LOADER, "Error choosing kinematic solver tip frame(s).");
     }
 
     // Debug tip choices
@@ -118,7 +121,7 @@ public:
     tip_debug << "Planning group '" << jmg->getName() << "' has tip(s): ";
     for (std::size_t i = 0; i < tips.size(); ++i)
       tip_debug << tips[i] << ", ";
-    RCLCPP_DEBUG(LOGGER, tip_debug.str());
+    RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, tip_debug.str());
 
     return tips;
   }
@@ -128,29 +131,29 @@ public:
     kinematics::KinematicsBasePtr result;
     if (!kinematics_loader_)
     {
-      RCLCPP_ERROR(LOGGER, "Invalid kinematics loader.");
+      RCLCPP_ERROR(LOGGER_KINEMATICS_PLUGIN_LOADER, "Invalid kinematics loader.");
       return result;
     }
     if (!jmg)
     {
-      RCLCPP_ERROR(LOGGER, "Specified group is NULL. Cannot allocate kinematics solver.");
+      RCLCPP_ERROR(LOGGER_KINEMATICS_PLUGIN_LOADER, "Specified group is NULL. Cannot allocate kinematics solver.");
       return result;
     }
     const std::vector<const robot_model::LinkModel*>& links = jmg->getLinkModels();
     if (links.empty())
     {
-      RCLCPP_ERROR(LOGGER, "No links specified for group '%s'. Cannot allocate kinematics solver.",
+      RCLCPP_ERROR(LOGGER_KINEMATICS_PLUGIN_LOADER, "No links specified for group '%s'. Cannot allocate kinematics solver.",
                       jmg->getName().c_str());
       return result;
     }
 
-    RCLCPP_DEBUG(LOGGER, "Trying to allocate kinematics solver for group '%s'", jmg->getName().c_str());
+    RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Trying to allocate kinematics solver for group '%s'", jmg->getName().c_str());
 
     std::map<std::string, std::vector<std::string> >::const_iterator it =
         possible_kinematics_solvers_.find(jmg->getName());
     if (it == possible_kinematics_solvers_.end())
     {
-      RCLCPP_DEBUG(LOGGER, "No kinematics solver available for this group");
+      RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "No kinematics solver available for this group");
       return result;
     }
 
@@ -179,14 +182,14 @@ public:
               !result->initialize(robot_description_, jmg->getName(),
                                   (base.empty() || base[0] != '/') ? base : base.substr(1), tips, search_res))
           {
-            RCLCPP_ERROR(LOGGER, "Kinematics solver of type '%s' could not be initialized for group '%s'",
+            RCLCPP_ERROR(LOGGER_KINEMATICS_PLUGIN_LOADER, "Kinematics solver of type '%s' could not be initialized for group '%s'",
                             it->second[i].c_str(), jmg->getName().c_str());
             result.reset();
             continue;
           }
 
           result->setDefaultTimeout(jmg->getDefaultIKTimeout());
-          RCLCPP_DEBUG(LOGGER,
+          RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER,
                           "Successfully allocated and initialized a kinematics solver of type '%s' with search "
                           "resolution %lf for group '%s' at address %p",
                           it->second[i].c_str(), search_res, jmg->getName().c_str(), result.get());
@@ -195,13 +198,13 @@ public:
       }
       catch (pluginlib::PluginlibException& e)
       {
-        RCLCPP_ERROR(LOGGER, "The kinematics plugin (%s) failed to load. Error: %s", it->first.c_str(), e.what());
+        RCLCPP_ERROR(LOGGER_KINEMATICS_PLUGIN_LOADER, "The kinematics plugin (%s) failed to load. Error: %s", it->first.c_str(), e.what());
       }
     }
 
     if (!result)
     {
-      RCLCPP_DEBUG(LOGGER, "No usable kinematics solver was found for this group.\n"
+      RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "No usable kinematics solver was found for this group.\n"
                                "Did you load kinematics.yaml into your node's namespace?");
     }
     return result;
@@ -227,7 +230,7 @@ public:
     for (std::map<std::string, std::vector<std::string> >::const_iterator it = possible_kinematics_solvers_.begin();
          it != possible_kinematics_solvers_.end(); ++it){
       for (std::size_t i = 0; i < it->second.size(); ++i){
-        RCLCPP_INFO(LOGGER, "Solver for group '%s': '%s' (search resolution = %lf)", it->first.c_str(),
+        RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Solver for group '%s': '%s' (search resolution = %lf)", it->first.c_str(),
                        it->second[i].c_str(), search_res_.at(it->first)[i]);
        }
      }
@@ -250,10 +253,10 @@ void KinematicsPluginLoader::status() const
   if (loader_)
     loader_->status();
   else
-    RCLCPP_INFO(LOGGER, "Loader function was never required");
+    RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Loader function was never required");
 }
 
-robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction()
+robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction(std::shared_ptr<rclcpp::Node>& node)
 {
   moveit::tools::Profiler::ScopedStart prof_start;
   moveit::tools::Profiler::ScopedBlock prof_block("KinematicsPluginLoader::getLoaderFunction");
@@ -261,19 +264,23 @@ robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction()
   if (loader_)
     return boost::bind(&KinematicsLoaderImpl::allocKinematicsSolverWithCache, loader_.get(), _1);
 
-  rdf_loader::RDFLoader rml(robot_description_);
+  rdf_loader::RDFLoader rml(node, robot_description_);
   robot_description_ = rml.getRobotDescription();
-  return getLoaderFunction(rml.getSRDF());
+  return getLoaderFunction(rml.getSRDF(), node);
 }
 
-robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction(const srdf::ModelSharedPtr& srdf_model)
+robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction(const srdf::ModelSharedPtr& srdf_model, std::shared_ptr<rclcpp::Node>& node)
 {
   moveit::tools::Profiler::ScopedStart prof_start;
   moveit::tools::Profiler::ScopedBlock prof_block("KinematicsPluginLoader::getLoaderFunction(SRDF)");
 
+  if(robot_description_.length()<1){
+    robot_description_ = std::string("robot_description");
+  }
+
   if (!loader_)
   {
-    RCLCPP_DEBUG(LOGGER, "Configuring kinematics solvers");
+    RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Configuring kinematics solvers");
     groups_.clear();
 
     std::map<std::string, std::vector<std::string> > possible_kinematics_solvers;
@@ -288,56 +295,66 @@ robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction(const s
 
       if (default_solver_plugin_.empty())
       {
-        RCLCPP_DEBUG(LOGGER, "Loading settings for kinematics solvers from the ROS param server ...");
+        RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Loading settings for kinematics solvers from the ROS param server ...");
 
         // read data using ROS params
         // ros::NodeHandle nh("~");
         //TODO (anasarrak): Add the appropriate node name for ROS2
-        auto node = rclcpp::Node::make_shared("talker");
-        auto ksolver_params = std::make_shared<rclcpp::SyncParametersClient>(node);
+        auto ksolver_params = std::make_shared<rclcpp::SyncParametersClient>(node, "/dummy_joint_states");
         // read the list of plugin names for possible kinematics solvers
         for (std::size_t i = 0; i < known_groups.size(); ++i)
         {
           std::string base_param_name = known_groups[i].name_;
-          RCLCPP_DEBUG(LOGGER, "Looking for param %s ",
-                          (base_param_name + "/kinematics_solver").c_str());
+          RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Looking for param %s ", (base_param_name + ".kinematics_solver").c_str());
           std::string ksolver_param_name;
-          bool found;
-          if (ksolver_params->has_parameter(base_param_name + "/kinematics_solver"))
+          bool found = false;
+          // if (ksolver_params->has_parameter(base_param_name + ".kinematics_solver"))
+          // {
+          //   found = ksolver_params->get_parameter(base_param_name + ".kinematics_solver", ksolver_param_name);
+          //   RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "param i s%s ", ksolver_param_name.c_str());
+          //
+          // }
+          if (!found)
           {
-            found = node->get_parameter(base_param_name + "/kinematics_solver").get_value<bool>();
-          }
+            base_param_name = robot_description_ + "_kinematics." + known_groups[i].name_;
+            RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Looking for param %s ", (base_param_name + ".kinematics_solver").c_str());
 
-          if (!found || !ksolver_params->has_parameter(ksolver_param_name))
-          {
-            base_param_name = robot_description_ + "_kinematics/" + known_groups[i].name_;
-            RCLCPP_DEBUG(LOGGER, "Looking for param %s ", (base_param_name + "/kinematics_solver").c_str());
-            found = node->get_parameter(base_param_name + "/kinematics_solver").get_value<bool>();
-          }
-          if (found)
-          {
-            RCLCPP_DEBUG(LOGGER, "Found param %s", ksolver_param_name.c_str());
-            std::string ksolver;
-            if (ksolver_params->has_parameter(ksolver_param_name))
-            {
-              ksolver = node->get_parameter(ksolver_param_name).get_value<std::string>();
-              std::stringstream ss(ksolver);
-              bool first = true;
-              while (ss.good() && !ss.eof())
-              {
-                if (first)
+            auto parameters_and_prefixes = ksolver_params->get_parameters({ base_param_name + ".kinematics_solver" });
+            for (auto & value : parameters_and_prefixes) {
+                ksolver_param_name = value.value_to_string();
+                found = true;
+                std::stringstream ss(ksolver_param_name);
+                bool first = true;
+                while (ss.good() && !ss.eof())
                 {
-                  first = false;
-                  groups_.push_back(known_groups[i].name_);
+                  if (first)
+                  {
+                    first = false;
+                    groups_.push_back(known_groups[i].name_);
+                  }
+                  std::string solver;
+                  ss >> solver >> std::ws;
+                  possible_kinematics_solvers[known_groups[i].name_].push_back(solver);
+                  RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Using kinematics solver '%s' for group '%s'.", solver.c_str(),
+                                  known_groups[i].name_.c_str());
                 }
-                std::string solver;
-                ss >> solver >> std::ws;
-                possible_kinematics_solvers[known_groups[i].name_].push_back(solver);
-                RCLCPP_DEBUG(LOGGER, "Using kinematics solver '%s' for group '%s'.", solver.c_str(),
-                                known_groups[i].name_.c_str());
-              }
             }
+            // rclcpp::Parameter param =  ksolver_params->get_parameter(base_param_name + ".kinematics_solver");
+            // ksolver_param_name = ksolver_params->get_parameter(base_param_name + ".kinematics_solver").get_value<std::string>();
+            // found = ksolver_params->get_parameter(base_param_name + ".kinematics_solver", parameter);
+            RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "%d param is %s ", found, ksolver_param_name.c_str());
+
           }
+          // if (found)
+          // {
+          //   RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Found param %s", ksolver_param_name.c_str());
+          //   std::string ksolver;
+          //   if (ksolver_params->has_parameter(ksolver_param_name))
+          //   {
+          //     ksolver = node->get_parameter(ksolver_param_name).get_value<std::string>();
+          //
+          //   }
+          // }
 
           std::string ksolver_timeout_param_name;
           if (ksolver_params->has_parameter(base_param_name + "/kinematics_solver_timeout"))
@@ -362,7 +379,7 @@ robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction(const s
           if (ksolver_params->has_parameter(base_param_name + "/kinematics_solver_attempts"))
           {
             ksolver_attempts_param_name = node->get_parameter(base_param_name + "/kinematics_solver_attempts").get_value<std::string>();
-            RCLCPP_WARN(LOGGER, "Kinematics solver doesn't support #attempts anymore, but only a timeout.\n"
+            RCLCPP_WARN(LOGGER_KINEMATICS_PLUGIN_LOADER, "Kinematics solver doesn't support #attempts anymore, but only a timeout.\n"
                                          "Please remove the parameter '%s' from your configuration.",
                                 ksolver_attempts_param_name.c_str());
           }
@@ -408,7 +425,7 @@ robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction(const s
             if (ksolver_params->has_parameter(ksolver_ik_link_param_name))  // has a custom rosparam-based tip link
             {
               ksolver_ik_link = node->get_parameter(ksolver_ik_link_param_name).get_value<std::string>();
-              RCLCPP_WARN(LOGGER, "Using kinematics_solver_ik_link rosparam is "
+              RCLCPP_WARN(LOGGER_KINEMATICS_PLUGIN_LOADER, "Using kinematics_solver_ik_link rosparam is "
                                              "deprecated in favor of kinematics_solver_ik_links "
                                              "rosparam array.");
               iksolver_to_tip_links[known_groups[i].name_].push_back(ksolver_ik_link);
@@ -426,7 +443,7 @@ robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction(const s
             if(ksolver_params->has_parameter(ksolver_ik_links_param_name)){
               ksolver_ik_links = node->get_parameter(ksolver_ik_links_param_name).get_value<std::vector<std::string>>();
               if(node->get_parameter(ksolver_ik_links_param_name).get_type_name().find("array")){
-                RCLCPP_WARN(LOGGER, "the parameter '%s' needs to be of type 'Array'",
+                RCLCPP_WARN(LOGGER_KINEMATICS_PLUGIN_LOADER, "the parameter '%s' needs to be of type 'Array'",
                                           ksolver_ik_links_param_name.c_str());
               }else{
                 for (int32_t j = 0; j < ksolver_ik_links.size(); ++j)
@@ -434,7 +451,7 @@ robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction(const s
                   // ROS_ASSERT(ksolver_ik_links[j].getType() == XmlRpc::XmlRpcValue::TypeString);
                   //TODO (anasarrak): does this make sense?
                   assert(typeid(ksolver_ik_links[j]).name() == "string" );
-                  RCLCPP_DEBUG(LOGGER, "found tip %s for group %s", static_cast<std::string>(ksolver_ik_links[j]).c_str(),
+                  RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "found tip %s for group %s", static_cast<std::string>(ksolver_ik_links[j]).c_str(),
                                             known_groups[i].name_.c_str());
                   iksolver_to_tip_links[known_groups[i].name_].push_back(static_cast<std::string>(ksolver_ik_links[j]));
                 }
@@ -450,7 +467,7 @@ robot_model::SolverAllocatorFn KinematicsPluginLoader::getLoaderFunction(const s
       }
       else
       {
-        RCLCPP_DEBUG(LOGGER, "Using specified default settings for kinematics solvers ...");
+        RCLCPP_INFO(LOGGER_KINEMATICS_PLUGIN_LOADER, "Using specified default settings for kinematics solvers ...");
         for (std::size_t i = 0; i < known_groups.size(); ++i)
         {
           possible_kinematics_solvers[known_groups[i].name_].resize(1, default_solver_plugin_);

@@ -115,7 +115,7 @@ std::shared_ptr<tf2_ros::Buffer> getSharedTF()
   return buffer;
 }
 
-robot_model::RobotModelConstPtr getSharedRobotModel(const std::string& robot_description)
+robot_model::RobotModelConstPtr getSharedRobotModel(const std::string& robot_description, std::shared_ptr<rclcpp::Node>& node)
 {
   SharedStorage& s = getSharedStorage();
   boost::mutex::scoped_lock slock(s.lock_);
@@ -125,7 +125,7 @@ robot_model::RobotModelConstPtr getSharedRobotModel(const std::string& robot_des
   {
     RobotModelLoader::Options opt(robot_description);
     opt.load_kinematics_solvers_ = true;
-    RobotModelLoaderPtr loader(new RobotModelLoader(opt));
+    RobotModelLoaderPtr loader(new RobotModelLoader(robot_description, node, opt.load_kinematics_solvers_ ));
     // create an aliasing shared_ptr
     model = robot_model::RobotModelPtr(loader, loader->getModel().get());
     it->second = model;

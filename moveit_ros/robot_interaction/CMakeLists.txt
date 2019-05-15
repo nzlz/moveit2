@@ -35,7 +35,7 @@ include_directories(include
                     ${Boost_INCLUDE_DIRS}
                     ${catkin_INCLUDE_DIRS})
 
-add_library(${MOVEIT_LIB_NAME}
+add_library(${MOVEIT_LIB_NAME} SHARED
   src/interactive_marker_helpers.cpp
   src/kinematic_options.cpp
   src/kinematic_options_map.cpp

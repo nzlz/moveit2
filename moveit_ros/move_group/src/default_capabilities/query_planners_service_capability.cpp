@@ -42,8 +42,9 @@ move_group::MoveGroupQueryPlannersService::MoveGroupQueryPlannersService() : Mov
 {
 }
 
-void move_group::MoveGroupQueryPlannersService::initialize()
+void move_group::MoveGroupQueryPlannersService::initialize(std::shared_ptr<rclcpp::Node>& node)
 {
+  this->node_ = node;
   std::function<bool( std::shared_ptr<rmw_request_id_t>,
                        std::shared_ptr<moveit_msgs::srv::QueryPlannerInterfaces::Request>,
                        std::shared_ptr<moveit_msgs::srv::QueryPlannerInterfaces::Response>)> cb_query_interface = std::bind(

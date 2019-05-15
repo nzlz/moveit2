@@ -149,6 +149,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   visualization_msgs
   Boost
 )
+pluginlib_export_plugin_description_file(moveit_core collision_detector_fcl_description.xml)
 
 # to run: catkin_make -DENABLE_COVERAGE_TESTING=ON package_name_coverage
 if(BUILD_TESTING AND ENABLE_COVERAGE_TESTING)
@@ -182,6 +183,8 @@ add_subdirectory(exceptions)
 add_subdirectory(profiler)
 add_subdirectory(utils)
 add_subdirectory(background_processing)
+add_subdirectory(collision_detection)
+add_subdirectory(collision_detection_fcl)
 add_subdirectory(kinematics_base)
 add_subdirectory(controller_manager)
 add_subdirectory(sensor_manager)
@@ -189,8 +192,6 @@ add_subdirectory(robot_model)
 add_subdirectory(transforms)
 add_subdirectory(robot_state)
 add_subdirectory(robot_trajectory)
-add_subdirectory(collision_detection)
-add_subdirectory(collision_detection_fcl)
 add_subdirectory(kinematic_constraints)
 add_subdirectory(planning_scene)
 add_subdirectory(constraint_samplers)

@@ -105,7 +105,7 @@ public:
   struct Options
   {
     Options(const std::string& group_name, const std::string& desc = ROBOT_DESCRIPTION,
-            const std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("default_move_group") /*= ros::NodeHandle()*/)
+            const std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("default_move_group") )
       : group_name_(group_name), robot_description_(desc), node_(node)
     {
     }

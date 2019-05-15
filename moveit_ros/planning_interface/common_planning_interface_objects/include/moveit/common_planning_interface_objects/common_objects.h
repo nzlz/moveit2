@@ -46,7 +46,7 @@ namespace planning_interface
 {
 std::shared_ptr<tf2_ros::Buffer> getSharedTF();
 
-robot_model::RobotModelConstPtr getSharedRobotModel(const std::string& robot_description);
+robot_model::RobotModelConstPtr getSharedRobotModel(const std::string& robot_description, std::shared_ptr<rclcpp::Node>& node);
 
 /**
   @brief getSharedStateMonitor is a simpler version of getSharedStateMonitor(const robot_model::RobotModelConstPtr

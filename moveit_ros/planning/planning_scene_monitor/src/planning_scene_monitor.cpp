@@ -50,7 +50,7 @@
 #include <boost/algorithm/string/join.hpp>
 #include <memory>
 
-rclcpp::Logger LOGGER = rclcpp::get_logger("planning_scene_monitor");
+rclcpp::Logger LOGGER_PLANNING_SCENE_MONITOR = rclcpp::get_logger("planning_scene_monitor");
 
 namespace planning_scene_monitor
 {
@@ -120,55 +120,34 @@ const std::string PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_SERVICE = "get_pl
 const std::string PlanningSceneMonitor::MONITORED_PLANNING_SCENE_TOPIC = "monitored_planning_scene";
 
 PlanningSceneMonitor::PlanningSceneMonitor(const std::string& robot_description,
+                                           std::shared_ptr<rclcpp::Node>& node,
                                            const std::shared_ptr<tf2_ros::Buffer>& tf_buffer, const std::string& name)
-  : PlanningSceneMonitor(planning_scene::PlanningScenePtr(), robot_description, tf_buffer, name)
+  : PlanningSceneMonitor(planning_scene::PlanningScenePtr(), robot_description, node, tf_buffer, name)
 {
 }
 
 PlanningSceneMonitor::PlanningSceneMonitor(const planning_scene::PlanningScenePtr& scene,
                                            const std::string& robot_description,
+                                           std::shared_ptr<rclcpp::Node>& node,
                                            const std::shared_ptr<tf2_ros::Buffer>& tf_buffer, const std::string& name)
-  : PlanningSceneMonitor(scene, std::make_shared<robot_model_loader::RobotModelLoader>(robot_description), tf_buffer,
+  : PlanningSceneMonitor(scene, std::make_shared<robot_model_loader::RobotModelLoader>(robot_description, node), node, tf_buffer,
                          name)
 {
 }
 
 PlanningSceneMonitor::PlanningSceneMonitor(const robot_model_loader::RobotModelLoaderPtr& rm_loader,
+                                           std::shared_ptr<rclcpp::Node>& node,
                                            const std::shared_ptr<tf2_ros::Buffer>& tf_buffer, const std::string& name)
-  : PlanningSceneMonitor(planning_scene::PlanningScenePtr(), rm_loader, tf_buffer, name)
+  : PlanningSceneMonitor(planning_scene::PlanningScenePtr(), rm_loader, node, tf_buffer, name)
 {
 }
 
 PlanningSceneMonitor::PlanningSceneMonitor(const planning_scene::PlanningScenePtr& scene,
                                            const robot_model_loader::RobotModelLoaderPtr& rm_loader,
-                                           const std::shared_ptr<tf2_ros::Buffer>& tf_buffer, const std::string& name)
-  : monitor_name_(name)
-  , tf_buffer_(tf_buffer)
-  , rm_loader_(rm_loader)
-  , shape_transform_cache_lookup_wait_time_(rclcpp::Duration(0, 0))
-{
-  // TODO (anasarrak): A replacement for ros2? is it needed?
-  // root_nh_.setCallbackQueue(&queue_);
-  // nh_.setCallbackQueue(&queue_);
-  // TODO (anasarrak): Replace it with rclcpp::executors::SingleThreadedExecutor, the best idea? the spin() it might be
-  // needed to replace...
-  // spinner_.reset(new ros::AsyncSpinner(1, &queue_));
-  // spinner_->start();
-  spinner_->add_node(node_);
-  // TODO (anasarrak): Add a thread to spin, there is no start() method for rclcpp::executors::SingleThreadedExecutor
-  // spinner_->spin();
-  initialize(scene);
-}
-
-PlanningSceneMonitor::PlanningSceneMonitor(const planning_scene::PlanningScenePtr& scene,
-                                           const robot_model_loader::RobotModelLoaderPtr& rm_loader,
-                                           const std::shared_ptr<rclcpp::Node> node,
-                                           const std::shared_ptr<tf2_ros::Buffer>& tf_buffer, const std::string& name)
-  : monitor_name_(name)
-  , node_(node)
-  , tf_buffer_(tf_buffer)
-  , rm_loader_(rm_loader)
-  , shape_transform_cache_lookup_wait_time_(rclcpp::Duration(0, 0))
+                                           std::shared_ptr<rclcpp::Node>& node,
+                                           const std::shared_ptr<tf2_ros::Buffer>& tf_buffer,
+                                           const std::string& name)
+  : monitor_name_(name), node_(node), tf_buffer_(tf_buffer), rm_loader_(rm_loader), shape_transform_cache_lookup_wait_time_(rclcpp::Duration(0,0))
 {
   // use same callback queue as root_nh_
   // nh_.setCallbackQueue(root_nh_.getCallbackQueue());
@@ -1072,28 +1051,29 @@ void PlanningSceneMonitor::startWorldGeometryMonitor(const std::string& collisio
               "updates.");
 
   // Listen to the /collision_objects topic to detect requests to add/remove/update collision objects to/from the world
-  if (!collision_objects_topic.empty())
-  {
-    collision_object_subscriber_.reset();
-    if (tf_buffer_)
-    {
-      collision_object_filter_.reset(new tf2_ros::MessageFilter<moveit_msgs::msg::CollisionObject>(
-          *collision_object_subscriber_, *tf_buffer_, scene_->getPlanningFrame(), 1024, node_));
-      // collision_object_filter_->connectInput(*collision_object_subscriber_);
-      collision_object_filter_->registerCallback(&PlanningSceneMonitor::collisionObjectCallback, this);
-      // TODO (anasarrak): No registerCallback implementation
-      // collision_object_filter_->registerFailureCallback(
-      //     std::bind(&PlanningSceneMonitor::collisionObjectFailTFCallback, this, _1, _2));
-      RCLCPP_INFO(node_->get_logger(), "Listening to '%s' using message notifier with target frame '%s'",
-                  collision_object_subscriber_->getTopic().c_str(),
-                  collision_object_filter_->getTargetFramesString().c_str());
-    }
-    else
-    {
-      collision_object_subscriber_->registerCallback(&PlanningSceneMonitor::collisionObjectCallback, this);
-      RCLCPP_INFO(node_->get_logger(), "Listening to '%s'", collision_objects_topic.c_str());
-    }
-  }
+  // TODO (ahcorde)
+  // if (!collision_objects_topic.empty())
+  // {
+  //   collision_object_subscriber_.reset();
+  //   if (tf_buffer_)
+  //   {
+  //     collision_object_filter_.reset(new tf2_ros::MessageFilter<moveit_msgs::msg::CollisionObject>(
+  //         *collision_object_subscriber_, *tf_buffer_, scene_->getPlanningFrame(), 1024, node_));
+  //     // collision_object_filter_->connectInput(*collision_object_subscriber_);
+  //     collision_object_filter_->registerCallback(&PlanningSceneMonitor::collisionObjectCallback, this);
+  //     // TODO (anasarrak): No registerCallback implementation
+  //     // collision_object_filter_->registerFailureCallback(
+  //     //     std::bind(&PlanningSceneMonitor::collisionObjectFailTFCallback, this, _1, _2));
+  //     RCLCPP_INFO(node_->get_logger(), "Listening to '%s' using message notifier with target frame '%s'",
+  //                 collision_object_subscriber_->getTopic().c_str(),
+  //                 collision_object_filter_->getTargetFramesString().c_str());
+  //   }
+  //   else
+  //   {
+  //     collision_object_subscriber_->registerCallback(&PlanningSceneMonitor::collisionObjectCallback, this);
+  //     RCLCPP_INFO(node_->get_logger(), "Listening to '%s'", collision_objects_topic.c_str());
+  //   }
+  // }
 
   if (!planning_scene_world_topic.empty())
   {
@@ -1105,21 +1085,21 @@ void PlanningSceneMonitor::startWorldGeometryMonitor(const std::string& collisio
   }
 
   // Ocotomap monitor is optional
-  if (load_octomap_monitor)
-  {
-    if (!octomap_monitor_)
-    {
-      octomap_monitor_.reset(new occupancy_map_monitor::OccupancyMapMonitor(tf_buffer_, scene_->getPlanningFrame()));
-      excludeRobotLinksFromOctree();
-      excludeAttachedBodiesFromOctree();
-      excludeWorldObjectsFromOctree();
-
-      octomap_monitor_->setTransformCacheCallback(
-          boost::bind(&PlanningSceneMonitor::getShapeTransformCache, this, _1, _2, _3));
-      octomap_monitor_->setUpdateCallback(boost::bind(&PlanningSceneMonitor::octomapUpdateCallback, this));
-    }
-    octomap_monitor_->startMonitor();
-  }
+  // if (load_octomap_monitor)
+  // {
+  //   if (!octomap_monitor_)
+  //   {
+  //     octomap_monitor_.reset(new occupancy_map_monitor::OccupancyMapMonitor(tf_buffer_, scene_->getPlanningFrame()));
+  //     excludeRobotLinksFromOctree();
+  //     excludeAttachedBodiesFromOctree();
+  //     excludeWorldObjectsFromOctree();
+  //
+  //     octomap_monitor_->setTransformCacheCallback(
+  //         boost::bind(&PlanningSceneMonitor::getShapeTransformCache, this, _1, _2, _3));
+  //     octomap_monitor_->setUpdateCallback(boost::bind(&PlanningSceneMonitor::octomapUpdateCallback, this));
+  //   }
+  //   octomap_monitor_->startMonitor();
+  // }
 }
 
 void PlanningSceneMonitor::stopWorldGeometryMonitor()
@@ -1179,17 +1159,19 @@ void PlanningSceneMonitor::stopStateMonitor()
 {
   if (current_state_monitor_)
     current_state_monitor_->stopStateMonitor();
-  if (attached_collision_object_subscriber_)
-    attached_collision_object_subscriber_.reset();
+  //TODO (ahcorde):
+  // if (attached_collision_object_subscriber_)
+  //   attached_collision_object_subscriber_.reset();
+
   // stop must be called with state_pending_mutex_ unlocked to avoid deadlock
   // Internal implementation to stop the walltimer ros 1
   // http://docs.ros.org/indigo/api/roscpp/html/classros_1_1WallTimer.html#ac3f697bdf6f0d86150f0bc9ac106d9aa
   // TODO (anasarrak): review these changes
-  delete &state_update_timer_;
-  {
-    boost::mutex::scoped_lock lock(state_pending_mutex_);
-    state_update_pending_ = false;
-  }
+  // delete &state_update_timer_;
+  // {
+  //   boost::mutex::scoped_lock lock(state_pending_mutex_);
+  //   state_update_pending_ = false;
+  // }
 }
 
 void PlanningSceneMonitor::onStateUpdate(const sensor_msgs::msg::JointState::ConstPtr& /*joint_state */)

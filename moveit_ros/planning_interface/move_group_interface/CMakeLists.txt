@@ -1,17 +1,26 @@
 set(MOVEIT_LIB_NAME moveit_move_group_interface)
 
-add_library(${MOVEIT_LIB_NAME} src/move_group_interface.cpp)
+add_library(${MOVEIT_LIB_NAME} SHARED src/move_group_interface.cpp)
 set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 
 ament_target_dependencies(${MOVEIT_LIB_NAME}
-    "moveit_common_planning_interface_objects"
-    "moveit_planning_scene_interface"
-    "rclcpp"
+    moveit_planning_scene_interface
+    rclcpp
+    rclcpp_action
     moveit_core
+    moveit_msgs
+    moveit_ros_planning
 )
-#TODO(anasarrak): re-enable when we start with python_move_group
-# add_library(${MOVEIT_LIB_NAME}_python src/wrap_python_move_group.cpp)
-# target_link_libraries(${MOVEIT_LIB_NAME}_python ${MOVEIT_LIB_NAME} ${PYTHON_LIBRARIES} ${rclcpp_LIBRARIES} ${Boost_LIBRARIES} moveit_py_bindings_tools)
+
+target_link_libraries(${MOVEIT_LIB_NAME}
+  moveit_common_planning_interface_objects
+)
+# add_library(${MOVEIT_LIB_NAME}_python SHARED src/wrap_python_move_group.cpp)
+# target_link_libraries(${MOVEIT_LIB_NAME}_python
+#   ${MOVEIT_LIB_NAME}
+#   ${PYTHON_LIBRARIES}
+#   ${Boost_LIBRARIES}
+#   )
 # add_dependencies(${MOVEIT_LIB_NAME}_python ${catkin_EXPORTED_TARGETS})
 # set_target_properties(${MOVEIT_LIB_NAME}_python PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 # set_target_properties(${MOVEIT_LIB_NAME}_python PROPERTIES OUTPUT_NAME _moveit_move_group_interface PREFIX "")
@@ -28,5 +37,14 @@ install(TARGETS ${MOVEIT_LIB_NAME}
 
 install(DIRECTORY include/ DESTINATION include)
 
-# add_executable(demo src/demo.cpp)
-# target_link_libraries(demo ${MOVEIT_LIB_NAME} ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(demo_move_group_interface src/demo.cpp)
+ament_target_dependencies(demo_move_group_interface
+  rclcpp
+  Boost
+  moveit_msgs
+  moveit_ros_planning
+)
+target_link_libraries(demo_move_group_interface
+  ${MOVEIT_LIB_NAME}
+  moveit_common_planning_interface_objects
+)

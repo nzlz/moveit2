@@ -3,59 +3,43 @@ project(moveit_kinematics)
 
 add_compile_options(-std=c++14)
 
-if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
-endif()
+find_package(ament_cmake REQUIRED)
 
 find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(orocos_kdl REQUIRED)
-find_package(catkin REQUIRED COMPONENTS
-  moveit_core
-  moveit_ros_planning
-  pluginlib
-  roscpp
-  tf2
-  tf2_kdl
-)
+find_package(kdl_parser REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(random_numbers REQUIRED)
+find_package(class_loader REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(moveit_core REQUIRED)
+find_package(moveit_ros_planning REQUIRED)
+
+message("class_loader_LIBRARIES " ${class_loader_LIBRARIES})
+message("class_loader_INCLUDE_DIRS " ${class_loader_INCLUDE_DIRS})
+message("pluginlib_LIBRARIES " ${pluginlib_LIBRARIES})
+message("pluginlib_INCLUDE_DIRS " ${pluginlib_INCLUDE_DIRS})
+message(" ")
 
 set(THIS_PACKAGE_INCLUDE_DIRS
     kdl_kinematics_plugin/include
-    lma_kinematics_plugin/include
-    srv_kinematics_plugin/include
-    cached_ik_kinematics_plugin/include
+    # lma_kinematics_plugin/include
+    # srv_kinematics_plugin/include
+    # cached_ik_kinematics_plugin/include
 )
 
-catkin_package(
-  LIBRARIES
-  INCLUDE_DIRS
-    ${THIS_PACKAGE_INCLUDE_DIRS}
-  CATKIN_DEPENDS
-    pluginlib
-    moveit_core
-    moveit_ros_planning
-  DEPENDS
-    EIGEN3
-)
+pluginlib_export_plugin_description_file(moveit_core kdl_kinematics_plugin_description.xml)
+ament_export_libraries(${PROJECT_NAME} kdl_kinematics_plugin)
 
 include_directories(${THIS_PACKAGE_INCLUDE_DIRS}
-                    ${Boost_INCLUDE_DIRS}
-                    ${EIGEN3_INCLUDE_DIRS}
-                    ${catkin_INCLUDE_DIRS}
 )
 
 add_subdirectory(kdl_kinematics_plugin)
-add_subdirectory(lma_kinematics_plugin)
-add_subdirectory(srv_kinematics_plugin)
-add_subdirectory(ikfast_kinematics_plugin)
-add_subdirectory(cached_ik_kinematics_plugin)
+# add_subdirectory(lma_kinematics_plugin)
+# add_subdirectory(srv_kinematics_plugin)
+# add_subdirectory(ikfast_kinematics_plugin)
+# add_subdirectory(cached_ik_kinematics_plugin)
 add_subdirectory(test)
 
-install(
-  FILES
-    kdl_kinematics_plugin_description.xml
-    lma_kinematics_plugin_description.xml
-    srv_kinematics_plugin_description.xml
-    cached_ik_kinematics_plugin_description.xml
-  DESTINATION
-    ${CATKIN_PACKAGE_SHARE_DESTINATION})
+ament_package()

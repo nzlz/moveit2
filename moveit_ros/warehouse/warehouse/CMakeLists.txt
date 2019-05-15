@@ -1,6 +1,6 @@
 set(MOVEIT_LIB_NAME moveit_warehouse)
 
-add_library(${MOVEIT_LIB_NAME}
+add_library(${MOVEIT_LIB_NAME} SHARED
   src/moveit_message_storage.cpp
   src/planning_scene_storage.cpp
   src/planning_scene_world_storage.cpp

@@ -23,8 +23,10 @@ find_package(tf2_eigen REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(moveit_ros_planning REQUIRED)
 
 find_package(PythonInterp REQUIRED)
 find_package(PythonLibs "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}" REQUIRED)
@@ -60,13 +62,13 @@ set(THIS_PACKAGE_INCLUDE_LIBRARIES
 
 set(THIS_PACKAGE_INCLUDE_DEPENDENCIES
       moveit_ros_planning
-      moveit_ros_warehouse
-      moveit_ros_manipulation
+      # moveit_ros_warehouse
+      # moveit_ros_manipulation
       moveit_ros_move_group
       geometry_msgs
       moveit_msgs
       tf2_geometry_msgs
-      EIGEN3
+      # EIGEN3
 )
 
 include_directories(${THIS_PACKAGE_INCLUDE_DIRS}
@@ -86,6 +88,6 @@ add_subdirectory(common_planning_interface_objects)
 add_subdirectory(planning_scene_interface)
 add_subdirectory(move_group_interface)
 # add_subdirectory(robot_interface)
-# add_subdirectory(test)
+add_subdirectory(test)
 
 ament_package()

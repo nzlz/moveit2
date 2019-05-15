@@ -68,7 +68,7 @@ public:
 
   void setContext(const MoveGroupContextPtr& context);
 
-  virtual void initialize() = 0;
+  virtual void initialize(std::shared_ptr<rclcpp::Node>& node) = 0;
 
   const std::string& getName() const
   {

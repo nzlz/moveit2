@@ -91,7 +91,8 @@ private:
       constraint_sampler_plugin_loader_;
 };
     ConstraintSamplerManagerLoader::ConstraintSamplerManagerLoader(
-        const constraint_samplers::ConstraintSamplerManagerPtr& csm, const std::shared_ptr<rclcpp::Node> node)
+        std::shared_ptr<rclcpp::Node>& node,
+        const constraint_samplers::ConstraintSamplerManagerPtr& csm)
   : constraint_sampler_manager_(csm ? csm : constraint_samplers::ConstraintSamplerManagerPtr(
                                                 new constraint_samplers::ConstraintSamplerManager()))
   , impl_(new Helper(constraint_sampler_manager_, node))

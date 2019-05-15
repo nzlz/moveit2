@@ -53,7 +53,7 @@ class MoveGroupExecuteTrajectoryAction : public MoveGroupCapability
 public:
   MoveGroupExecuteTrajectoryAction();
 
-  void initialize() override;
+  void initialize(std::shared_ptr<rclcpp::Node>& node) override;
 
 private:
   void executePathCallback(

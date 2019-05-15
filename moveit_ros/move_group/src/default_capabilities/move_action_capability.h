@@ -50,7 +50,7 @@ class MoveGroupMoveAction : public MoveGroupCapability
 public:
   MoveGroupMoveAction();
 
-  void initialize() override;
+  void initialize(std::shared_ptr<rclcpp::Node>& node) override;
 
 private:
   void executeMoveCallback(
@@ -80,7 +80,6 @@ private:
   void handle_move_accept(
       const std::shared_ptr<rclcpp_action::ServerGoalHandle<moveit_msgs::action::MoveGroup>> goal_handle);
   std::shared_ptr<rclcpp_action::Server<moveit_msgs::action::MoveGroup>> move_action_server_;
-  std::shared_ptr<moveit_msgs::action::MoveGroup::Feedback> move_feedback_;
 
   MoveGroupState move_state_;
   bool preempt_requested_;

@@ -38,7 +38,7 @@
 #include <moveit/robot_state/conversions.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-rclcpp::Logger LOGGER = rclcpp::get_logger("move_group_capability");
+rclcpp::Logger LOGGER_MOVE_GROUP_CAPABILITY = rclcpp::get_logger("move_group_capability");
 
 void move_group::MoveGroupCapability::setContext(const MoveGroupContextPtr& context)
 {
@@ -84,7 +84,7 @@ void move_group::MoveGroupCapability::convertToMsg(const std::vector<plan_execut
                                                    moveit_msgs::msg::RobotTrajectory& trajectory_msg) const
 {
   if (trajectory.size() > 1)
-    RCLCPP_ERROR(LOGGER,"Internal logic error: trajectory component ignored. !!! THIS IS A SERIOUS ERROR !!!");
+    RCLCPP_ERROR(LOGGER_MOVE_GROUP_CAPABILITY,"Internal logic error: trajectory component ignored. !!! THIS IS A SERIOUS ERROR !!!");
   if (!trajectory.empty())
     convertToMsg(trajectory[0].trajectory_, first_state_msg, trajectory_msg);
 }
@@ -95,7 +95,7 @@ move_group::MoveGroupCapability::clearRequestStartState(const planning_interface
   planning_interface::MotionPlanRequest r = request;
   r.start_state = moveit_msgs::msg::RobotState();
   r.start_state.is_diff = true;
-  RCLCPP_WARN(LOGGER,"Execution of motions should always start at the robot's current state. Ignoring the state supplied as "
+  RCLCPP_WARN(LOGGER_MOVE_GROUP_CAPABILITY,"Execution of motions should always start at the robot's current state. Ignoring the state supplied as "
            "start state in the motion planning request");
   return r;
 }
@@ -106,7 +106,7 @@ move_group::MoveGroupCapability::clearSceneRobotState(const moveit_msgs::msg::Pl
   moveit_msgs::msg::PlanningScene r = scene;
   r.robot_state = moveit_msgs::msg::RobotState();
   r.robot_state.is_diff = true;
-  RCLCPP_WARN(LOGGER,"Execution of motions should always start at the robot's current state. Ignoring the state supplied as "
+  RCLCPP_WARN(LOGGER_MOVE_GROUP_CAPABILITY,"Execution of motions should always start at the robot's current state. Ignoring the state supplied as "
            "difference in the planning scene diff");
   return r;
 }
@@ -196,7 +196,7 @@ bool move_group::MoveGroupCapability::performTransform(geometry_msgs::msg::PoseS
   }
   catch (tf2::TransformException& ex)
   {
-    RCLCPP_ERROR(LOGGER, "TF Problem: %s", ex.what());
+    RCLCPP_ERROR(LOGGER_MOVE_GROUP_CAPABILITY, "TF Problem: %s", ex.what());
     return false;
   }
   return true;

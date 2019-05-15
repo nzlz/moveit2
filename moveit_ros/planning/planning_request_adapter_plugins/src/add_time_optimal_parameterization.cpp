@@ -37,7 +37,6 @@
 #include <moveit/planning_request_adapter/planning_request_adapter.h>
 #include <moveit/trajectory_processing/time_optimal_trajectory_generation.h>
 #include <class_loader/class_loader.hpp>
-#include <ros/console.h>
 
 namespace default_planner_request_adapters
 {
@@ -63,11 +62,14 @@ public:
     bool result = planner(planning_scene, req, res);
     if (result && res.trajectory_)
     {
-      ROS_DEBUG("Running '%s'", getDescription().c_str());
+      // ROS_DEBUG("Running '%s'", getDescription().c_str());
+      printf("Running '%s'", getDescription().c_str());
       TimeOptimalTrajectoryGeneration totg;
       if (!totg.computeTimeStamps(*res.trajectory_, req.max_velocity_scaling_factor,
-                                  req.max_acceleration_scaling_factor))
-        ROS_WARN("Time parametrization for the solution path failed.");
+                                  req.max_acceleration_scaling_factor)){
+            // ROS_WARN("Time parametrization for the solution path failed.");
+            printf("Time parametrization for the solution path failed.");
+      }
     }
 
     return result;

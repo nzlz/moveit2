@@ -1,7 +1,14 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(moveit_ros_planning)
 
-add_compile_options(-std=c++14)
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
 
 if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -53,6 +60,7 @@ set(libraries
   moveit_plan_execution
   moveit_planning_scene_monitor
   moveit_collision_plugin_loader
+  moveit_constraint_sampler_manager_loader
 )
 
 
@@ -81,17 +89,13 @@ add_subdirectory(kinematics_plugin_loader)
 add_subdirectory(robot_model_loader)
 add_subdirectory(constraint_sampler_manager_loader)
 add_subdirectory(planning_pipeline)
-# add_subdirectory(planning_request_adapter_plugins)
+add_subdirectory(planning_request_adapter_plugins)
 add_subdirectory(planning_scene_monitor)
 # add_subdirectory(planning_components_tools)
 add_subdirectory(trajectory_execution_manager)
 add_subdirectory(plan_execution)
 
-install(
-  FILES
-    planning_request_adapters_plugin_description.xml
-  DESTINATION
-    share)
+pluginlib_export_plugin_description_file(moveit_core planning_request_adapters_plugin_description.xml)
 
 ament_export_include_directories(include)
 ament_export_libraries(${libraries})
