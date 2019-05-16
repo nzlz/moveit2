@@ -36,7 +36,6 @@
 /* Author: Ioan Sucan, Robert Haschke */
 
 #include "moveit_fake_controllers.h"
-// #include <ros/param.h>
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <boost/thread.hpp>
 #include <limits>
