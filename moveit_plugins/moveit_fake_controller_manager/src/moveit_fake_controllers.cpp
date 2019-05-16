@@ -53,7 +53,7 @@ BaseFakeController::BaseFakeController(const std::string& name, const std::vecto
   ss << "Fake controller '" << name << "' with joints [ ";
   std::copy(joints.begin(), joints.end(), std::ostream_iterator<std::string>(ss, " "));
   ss << "]";
-  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER, ss.str().c_str());
+  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER, "%s", ss.str().c_str());
 }
 
 void BaseFakeController::getJoints(std::vector<std::string>& joints) const
@@ -76,7 +76,7 @@ LastPointController::~LastPointController() = default;
 
 bool LastPointController::sendTrajectory(const moveit_msgs::msg::RobotTrajectory& t)
 {
-  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER,"Fake execution of trajectory");
+  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER, "Fake execution of trajectory");
   if (t.joint_trajectory.points.empty())
     return true;
 
@@ -133,7 +133,7 @@ bool ThreadedController::sendTrajectory(const moveit_msgs::msg::RobotTrajectory&
 bool ThreadedController::cancelExecution()
 {
   cancelTrajectory();
-  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER,"Fake trajectory execution cancelled");
+  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER, "Fake trajectory execution cancelled");
   status_ = moveit_controller_manager::ExecutionStatus::ABORTED;
   return true;
 }
@@ -160,7 +160,7 @@ ViaPointController::~ViaPointController() = default;
 
 void ViaPointController::execTrajectory(const moveit_msgs::msg::RobotTrajectory& t)
 {
-  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER,"Fake execution of trajectory");
+  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER, "Fake execution of trajectory");
   sensor_msgs::msg::JointState js;
   js.header = t.joint_trajectory.header;
   js.name = t.joint_trajectory.joint_names;
@@ -179,13 +179,13 @@ void ViaPointController::execTrajectory(const moveit_msgs::msg::RobotTrajectory&
     rclcpp::Duration wait_time(via->time_from_start.sec - (rclcpp::Clock().now() - start_time).seconds());
     if (wait_time.seconds() > std::numeric_limits<float>::epsilon())
     {
-      RCLCPP_DEBUG(LOGGER_FAKE_CONTROLLER,"Fake execution: waiting %0.1fs for next via point, %ld remaining", wait_time.seconds(), end - via);
+      RCLCPP_DEBUG(LOGGER_FAKE_CONTROLLER, "Fake execution: waiting %0.1fs for next via point, %ld remaining", wait_time.seconds(), end - via);
       rclcpp::sleep_for(std::chrono::milliseconds((int)wait_time.seconds()));
     }
     js.header.stamp = rclcpp::Clock().now();
     pub_->publish(js);
   }
-  RCLCPP_DEBUG(LOGGER_FAKE_CONTROLLER,"Fake execution of trajectory: done");
+  RCLCPP_DEBUG(LOGGER_FAKE_CONTROLLER, "Fake execution of trajectory: done");
 }
 
 InterpolatingController::InterpolatingController(const std::string& name, const std::vector<std::string>& joints,
@@ -195,8 +195,8 @@ InterpolatingController::InterpolatingController(const std::string& name, const 
 {
   auto fake_interpolating_controller_rate_param = std::make_shared<rclcpp::SyncParametersClient>(node_);
   double r;
-  if(node_->has_parameter("~fake_interpolating_controller_rate")){
-    r = node_->get_parameter("~fake_interpolating_controller_rate").as_double();
+  if(fake_interpolating_controller_rate_param->has_parameter("~fake_interpolating_controller_rate")){
+    r = fake_interpolating_controller_rate_param->get_parameter("~fake_interpolating_controller_rate", 10);
   }
   rclcpp::WallRate rate_(r);
 }
@@ -223,7 +223,7 @@ void interpolate(sensor_msgs::msg::JointState& js, const trajectory_msgs::msg::J
 
 void InterpolatingController::execTrajectory(const moveit_msgs::msg::RobotTrajectory& t)
 {
-  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER,"Fake execution of trajectory");
+  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER, "Fake execution of trajectory");
   if (t.joint_trajectory.points.empty())
     return;
 
@@ -250,7 +250,7 @@ void InterpolatingController::execTrajectory(const moveit_msgs::msg::RobotTrajec
       break;
 
     double duration = next->time_from_start.sec - prev->time_from_start.sec;
-    RCLCPP_INFO(LOGGER_FAKE_CONTROLLER,"elapsed: %.3f via points %td,%td / %td  alpha: %.3f", elapsed.seconds(), prev - points.begin(),
+    RCLCPP_INFO(LOGGER_FAKE_CONTROLLER, "elapsed: %.3f via points %td,%td / %td  alpha: %.3f", elapsed.seconds(), prev - points.begin(),
               next - points.begin(), end - points.begin(),
               duration > std::numeric_limits<double>::epsilon() ? (elapsed.seconds() - prev->time_from_start.sec) / duration :
                                                                   1.0);
@@ -263,7 +263,7 @@ void InterpolatingController::execTrajectory(const moveit_msgs::msg::RobotTrajec
     return;
 
   rclcpp::Duration elapsed = rclcpp::Clock().now() - start_time;
-  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER,"elapsed: %.3f via points %td,%td / %td  alpha: 1.0", elapsed.seconds(), prev - points.begin(),
+  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER, "elapsed: %.3f via points %td,%td / %td  alpha: 1.0", elapsed.seconds(), prev - points.begin(),
             next - points.begin(), end - points.begin());
 
   // publish last point
@@ -271,7 +271,7 @@ void InterpolatingController::execTrajectory(const moveit_msgs::msg::RobotTrajec
   js.header.stamp = rclcpp::Clock().now();
   pub_->publish(js);
 
-  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER,"Fake execution of trajectory: done");
+  RCLCPP_INFO(LOGGER_FAKE_CONTROLLER, "Fake execution of trajectory: done");
 }
 
 }  // end namespace moveit_fake_controller_manager
