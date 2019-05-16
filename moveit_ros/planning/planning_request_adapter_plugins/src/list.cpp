@@ -75,6 +75,6 @@ int main(int argc, char** argv)
       std::cout << " \t\t  " << ad->getDescription() << std::endl;
     std::cout << std::endl << std::endl;
   }
-
+  rclcpp::shutdown();
   return 0;
 }
