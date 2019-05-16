@@ -57,7 +57,8 @@ public:
     if (!bounds_param->has_parameter(BOUNDS_PARAM_NAME))
     {
       bounds_dist_ = 0.05;
-      RCLCPP_INFO(node_->get_logger(), "Param '%s' was not set. Using default value: %f", BOUNDS_PARAM_NAME.c_str(), bounds_dist_);
+      RCLCPP_INFO(node_->get_logger(), "Param '%s' was not set. Using default value: %f", BOUNDS_PARAM_NAME.c_str(),
+                  bounds_dist_);
     }
     else
     {
@@ -68,7 +69,8 @@ public:
     if (!bounds_param->has_parameter(DT_PARAM_NAME))
     {
       max_dt_offset_ = 0.5;
-      RCLCPP_INFO(node_->get_logger(), "Param '%s' was not set. Using default value: %f", DT_PARAM_NAME.c_str(), max_dt_offset_);
+      RCLCPP_INFO(node_->get_logger(), "Param '%s' was not set. Using default value: %f", DT_PARAM_NAME.c_str(),
+                  max_dt_offset_);
     }
     else
     {
@@ -174,7 +176,8 @@ public:
             joint_bounds_low << b[k].min_position_ << " ";
             joint_bounds_hi << b[k].max_position_ << " ";
           }
-          RCLCPP_WARN(node_->get_logger(),"Joint '%s' from the starting state is outside bounds by a significant margin: [%s] should be in "
+          RCLCPP_WARN(node_->get_logger(),
+                      "Joint '%s' from the starting state is outside bounds by a significant margin: [%s] should be in "
                       "the range [%s], [%s] but the error above the ~%s parameter (currently set to %f)",
                       jmodels[i]->getName().c_str(), joint_values.str().c_str(), joint_bounds_low.str().c_str(),
                       joint_bounds_hi.str().c_str(), BOUNDS_PARAM_NAME.c_str(), bounds_dist_);
