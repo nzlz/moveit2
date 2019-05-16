@@ -63,8 +63,10 @@ struct Initial {
 class MoveItFakeControllerManager : public moveit_controller_manager::MoveItControllerManager
 {
 public:
-  MoveItFakeControllerManager() : node_(rclcpp::Node::make_shared("fake_controller"))
+
+  void initialize(std::shared_ptr<rclcpp::Node>& node)
   {
+    this->node_ = node;
     auto initial_parameters = std::make_shared<rclcpp::SyncParametersClient>(node_);
     auto list_controller_params = initial_parameters->list_parameters({"controller_list"},10);
 
@@ -96,19 +98,11 @@ public:
         controller_list.push_back(ct);
     }
 
-    // node_.getParam("controller_list", controller_list);
-    // if (controller_list.getType() != XmlRpc::XmlRpcValue::TypeArray)
-    // {
-    //   RCLCPP_ERROR(node_->get_logger(), "controller_list should be specified as an array");
-    //   return;
-    // }
-
     /* by setting latch to true we preserve the initial joint state while other nodes launch */
     bool latch = true;
     pub_ = node_->create_publisher<sensor_msgs::msg::JointState>("fake_controller_joint_states", 100);
     /* publish initial pose */
     std::vector <Initial> initials;
-    // std::string initial;
     std::string group;
     Initial initial;
 
@@ -143,12 +137,6 @@ public:
       {
         const std::string name = std::string(controller_list[i].name);
 
-        // if (controller_list[i]["joints"].getType() != XmlRpc::XmlRpcValue::TypeArray)
-        // {
-        //   RCLCPP_ERROR(node_->get_logger(), "The list of joints for controller %s is not specified as an array",name.c_str());
-        //   continue;
-        // }
-
         std::vector<std::string> joints;
         joints.reserve(controller_list[i].joints.size());
         for (int j = 0; j < controller_list[i].joints.size(); ++j)
@@ -172,18 +160,13 @@ public:
     }
   }
 
+  MoveItFakeControllerManager()
+  {
+  }
 
   sensor_msgs::msg::JointState loadInitialJointValues(std::vector <moveit_fake_controller_manager::Initial>& param) const
   {
     sensor_msgs::msg::JointState js;
-    //TODO(anasarrak)
-    // if (param.getType() != XmlRpc::XmlRpcValue::TypeArray || param.size() == 0)
-    // {
-    //   RCLCPP_ERROR_ONCE(node_->get_logger(), "Parameter 'initial' should be an array of (group, pose) "
-    //                                                  "structs.");
-    //   return js;
-    // }
-
     robot_model_loader::RobotModelLoader robot_model_loader(ROBOT_DESCRIPTION);
     const robot_model::RobotModelPtr& robot_model = robot_model_loader.getModel();
     typedef std::map<std::string, double> JointPoseMap;
@@ -334,5 +317,5 @@ protected:
 
 }  // end namespace moveit_fake_controller_manager
 
-// PLUGINLIB_EXPORT_CLASS(moveit_fake_controller_manager::MoveItFakeControllerManager,
-//                        moveit_controller_manager::MoveItControllerManager);
+PLUGINLIB_EXPORT_CLASS(moveit_fake_controller_manager::MoveItFakeControllerManager,
+                       moveit_controller_manager::MoveItControllerManager);
