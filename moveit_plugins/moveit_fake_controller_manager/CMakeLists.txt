@@ -33,13 +33,9 @@ ament_target_dependencies(${PROJECT_NAME}
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 target_link_libraries(${PROJECT_NAME} ${rclcpp_LIBRARIES} ${Boost_LIBRARIES})
 
-pluginlib_export_plugin_description_file(${PROJECT_NAME} moveit_fake_controller_manager_plugin_description.xml)
+pluginlib_export_plugin_description_file(moveit_core moveit_fake_controller_manager_plugin_description.xml)
 
 install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
-
-install(FILES moveit_fake_controller_manager_plugin_description.xml
-        DESTINATION share/${PROJECT_NAME}
-       )
 
 ament_export_include_directories(include)
 ament_export_dependencies(moveit_core)
