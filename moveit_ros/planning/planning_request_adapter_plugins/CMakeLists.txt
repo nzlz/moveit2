@@ -17,7 +17,8 @@ set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_V
 
 target_link_libraries(${MOVEIT_LIB_NAME}
   ${Boost_LIBRARIES}
-  ${rclccp_LIBRARIES}
+  ${rclcpp_LIBRARIES}
+  ${moveit_core_LIBRARIES}
 )
 
 
@@ -26,9 +27,14 @@ install(TARGETS ${MOVEIT_LIB_NAME}
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME})
 
-# add_executable(moveit_list_request_adapter_plugins src/list.cpp)
-# target_link_libraries(moveit_list_request_adapter_plugins ${Boost_LIBRARIES})
+add_executable(moveit_list_request_adapter_plugins src/list.cpp)
 
-# install(TARGETS ${MOVEIT_LIB_NAME} moveit_list_request_adapter_plugins
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+target_link_libraries(moveit_list_request_adapter_plugins
+  ${Boost_LIBRARIES}
+  ${pluginlib_LIBRARIES}
+  ${rclcpp_LIBRARIES}
+)
+
+install(TARGETS ${MOVEIT_LIB_NAME} moveit_list_request_adapter_plugins
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME})
