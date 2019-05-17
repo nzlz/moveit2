@@ -334,6 +334,7 @@ bool LMAKinematicsPlugin::getPositionFK(const std::vector<std::string>& link_nam
   {
     if (fk_solver_->JntToCart(jnt_pos_in, p_out) >= 0)
     {
+      //TODO (anasarrak): Add a toMsg transformation for KDL::Frame
       poses[i].position.x = p_out.p[0];
       poses[i].position.y = p_out.p[1];
       poses[i].position.z = p_out.p[2];
