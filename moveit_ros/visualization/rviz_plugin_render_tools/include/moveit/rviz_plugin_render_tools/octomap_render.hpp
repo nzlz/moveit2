@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2008, Willow Garage, Inc.
+ *  Copyright (c) 2013, Willow Garage, Inc.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -32,31 +32,70 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-/* Author: Ioan Sucan */
+/* Author: Julius Kammerl */
 
-#ifndef MOVEIT_PLANNING_SCENE_RVIZ_PLUGIN_PLANNING_LINK_UPDATER_
-#define MOVEIT_PLANNING_SCENE_RVIZ_PLUGIN_PLANNING_LINK_UPDATER_
+#ifndef MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_OCTOMAP_RENDER_
+#define MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_OCTOMAP_RENDER_
 
-#include <rviz/robot/link_updater.h>
-#include <moveit/robot_state/robot_state.h>
+#include <memory>
+#include <vector>
+#include "rviz_rendering/objects/point_cloud.hpp"
+
+namespace octomap
+{
+class OcTree;
+}
+
+namespace Ogre
+{
+class SceneManager;
+class SceneNode;
+class AxisAlignedBox;
+class Vector3;
+class Quaternion;
+}
 
 namespace moveit_rviz_plugin
 {
-/** \brief Update the links of an rviz::Robot using a robot_state::RobotState */
-class PlanningLinkUpdater : public rviz::LinkUpdater
+enum OctreeVoxelRenderMode
+{
+  OCTOMAP_FREE_VOXELS = 1,
+  OCTOMAP_OCCUPIED_VOXELS = 2
+};
+
+enum OctreeVoxelColorMode
+{
+  OCTOMAP_Z_AXIS_COLOR,
+  OCTOMAP_PROBABLILTY_COLOR,
+};
+
+class OcTreeRender
 {
 public:
-  PlanningLinkUpdater(const robot_state::RobotStateConstPtr& state) : kinematic_state_(state)
-  {
-  }
+  OcTreeRender(const std::shared_ptr<const octomap::OcTree>& octree, OctreeVoxelRenderMode octree_voxel_rendering,
+               OctreeVoxelColorMode octree_color_mode, std::size_t max_octree_depth, Ogre::SceneManager* scene_manager,
+               Ogre::SceneNode* parent_node);
+  virtual ~OcTreeRender();
 
-  bool getLinkTransforms(const std::string& link_name, Ogre::Vector3& visual_position,
-                         Ogre::Quaternion& visual_orientation, Ogre::Vector3& collision_position,
-                         Ogre::Quaternion& collision_orientation) const override;
+  void setPosition(const Ogre::Vector3& position);
+  void setOrientation(const Ogre::Quaternion& orientation);
 
 private:
-  robot_state::RobotStateConstPtr kinematic_state_;
+  void setColor(double z_pos, double min_z, double max_z, double color_factor, rviz::PointCloud::Point* point);
+  void setProbColor(double prob, rviz::PointCloud::Point* point);
+
+  void octreeDecoding(const std::shared_ptr<const octomap::OcTree>& octree,
+                      OctreeVoxelRenderMode octree_voxel_rendering, OctreeVoxelColorMode octree_color_mode);
+
+  // Ogre-rviz point clouds
+  std::vector<rviz::PointCloud*> cloud_;
+  std::shared_ptr<const octomap::OcTree> octree_;
+
+  Ogre::SceneNode* scene_node_;
+  Ogre::SceneManager* scene_manager_;
+
+  double colorFactor_;
+  std::size_t octree_depth_;
 };
 }
-
 #endif

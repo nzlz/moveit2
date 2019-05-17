@@ -32,60 +32,49 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-/* Author: Ioan Sucan */
+/* Author: Robert Haschke */
 
-#ifndef MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_PLUGIN_PLANNING_SCENE_RENDER_
-#define MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_PLUGIN_PLANNING_SCENE_RENDER_
+#ifndef MOVEIT_MOTION_PLANNING_RVIZ_PLUGIN_MOTION_PLANNING_PARAM_WIDGET_
+#define MOVEIT_MOTION_PLANNING_RVIZ_PLUGIN_MOTION_PLANNING_PARAM_WIDGET_
 
+#include <rviz/properties/property_tree_widget.h>
 #include <moveit/macros/class_forward.h>
-#include <moveit/planning_scene/planning_scene.h>
-#include <moveit/rviz_plugin_render_tools/render_shapes.h>
-#include <rviz/helpers/color.h>
-#include <OgreMaterial.h>
-
-namespace Ogre
+namespace moveit
 {
-class SceneNode;
+namespace planning_interface
+{
+MOVEIT_CLASS_FORWARD(MoveGroupInterface);
 }
-
-namespace rviz
-{
-class DisplayContext;
 }
 
 namespace moveit_rviz_plugin
 {
-MOVEIT_CLASS_FORWARD(RobotStateVisualization);
-MOVEIT_CLASS_FORWARD(RenderShapes);
-MOVEIT_CLASS_FORWARD(PlanningSceneRender);
-
-class PlanningSceneRender
+class MotionPlanningParamWidget : public rviz::PropertyTreeWidget
 {
+  Q_OBJECT
 public:
-  PlanningSceneRender(Ogre::SceneNode* root_node, rviz::DisplayContext* context,
-                      const RobotStateVisualizationPtr& robot);
-  ~PlanningSceneRender();
+  MotionPlanningParamWidget(const MotionPlanningParamWidget&) = delete;
+  MotionPlanningParamWidget(QWidget* parent = 0);
+  ~MotionPlanningParamWidget() override;
 
-  Ogre::SceneNode* getGeometryNode()
-  {
-    return planning_scene_geometry_node_;
-  }
+  void setMoveGroup(const moveit::planning_interface::MoveGroupInterfacePtr& mg);
+  void setGroupName(const std::string& group_name);
 
-  const RobotStateVisualizationPtr& getRobotVisualization()
-  {
-    return scene_robot_;
-  }
+public Q_SLOTS:
+  void setPlannerId(const std::string& planner_id);
 
-  void renderPlanningScene(const planning_scene::PlanningSceneConstPtr& scene, const rviz::Color& default_scene_color,
-                           const rviz::Color& default_attached_color, OctreeVoxelRenderMode voxel_render_mode,
-                           OctreeVoxelColorMode voxel_color_mode, float default_scene_alpha);
-  void clear();
+private Q_SLOTS:
+  void changedValue();
 
 private:
-  Ogre::SceneNode* planning_scene_geometry_node_;
-  rviz::DisplayContext* context_;
-  RenderShapesPtr render_shapes_;
-  RobotStateVisualizationPtr scene_robot_;
+  rviz::Property* createPropertyTree();
+
+private:
+  rviz::PropertyTreeModel* property_tree_model_;
+
+  moveit::planning_interface::MoveGroupInterfacePtr move_group_;
+  std::string group_name_;
+  std::string planner_id_;
 };
 }
 

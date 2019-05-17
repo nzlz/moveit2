@@ -15,30 +15,22 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 endif()
 
 find_package(Boost REQUIRED thread date_time system filesystem)
-find_package(catkin REQUIRED COMPONENTS
-  class_loader
-  geometric_shapes
-  interactive_markers
-  moveit_ros_perception
-  moveit_ros_planning_interface
-  moveit_ros_robot_interaction
-  moveit_ros_warehouse
-  object_recognition_msgs
-  pluginlib
-  rosconsole
-  roscpp
-  rospy
-  rviz
-  tf2_eigen
-  roscpp
-  rosconsole
-  object_recognition_msgs
-)
-# TODO: Remove when Kinetic support is dropped
-if(rviz_VERSION VERSION_LESS 1.13.1) # Does rviz supports TF2?
-  add_definitions(-DRVIZ_TF1)
-endif()
 
+find_package(ament_cmake REQUIRED)
+find_package(class_loader REQUIRED)
+find_package(geometric_shapes REQUIRED)
+#find_package(interactive_markers REQUIRED)
+find_package(moveit_ros_perception REQUIRED)
+find_package(moveit_ros_planning_interface REQUIRED)
+#find_package(moveit_ros_robot_interaction REQUIRED)
+#find_package(moveit_ros_warehouse REQUIRED)
+find_package(object_recognition_msgs REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclrpp REQUIRED)
+find_package(rclpy REQUIRED)
+#find_package(rviz2 REQUIRED) Must specify package
+find_package(tf2_eigen REQUIRED)
+find_package(rclrpp REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 # Qt Stuff
@@ -60,58 +52,59 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 add_definitions(-DQT_NO_KEYWORDS)
 
-catkin_package(
-  LIBRARIES
-    moveit_motion_planning_rviz_plugin_core
-    moveit_planning_scene_rviz_plugin_core
-    moveit_robot_state_rviz_plugin_core
-    moveit_rviz_plugin_render_tools
-    moveit_trajectory_rviz_plugin_core
-  INCLUDE_DIRS
-    motion_planning_rviz_plugin/include
-    planning_scene_rviz_plugin/include
-    robot_state_rviz_plugin/include
-    rviz_plugin_render_tools/include
-    trajectory_rviz_plugin/include
-  CATKIN_DEPENDS
-    moveit_ros_planning_interface
-    moveit_ros_robot_interaction
-    object_recognition_msgs
-  DEPENDS
-    EIGEN3
+set(THIS_PACKAGE_INCLUDE_DIRS
+  #motion_planning_rviz_plugin/include
+  #planning_scene_rviz_plugin/include
+  #robot_state_rviz_plugin/include
+  rviz_plugin_render_tools/include
+  #trajectory_rviz_plugin/include
+  ${rclcpp_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
+  ${QT_INCLUDE_DIR}
 )
 
-catkin_install_python(PROGRAMS scripts/moveit_joy.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-catkin_python_setup()
+set(THIS_PACKAGE_INCLUDE_LIBRARIES
+  #moveit_motion_planning_rviz_plugin_core
+  #moveit_planning_scene_rviz_plugin_core
+  #moveit_robot_state_rviz_plugin_core
+  moveit_rviz_plugin_render_tools
+  #moveit_trajectory_rviz_plugin_core
+)
 
-include_directories(rviz_plugin_render_tools/include
-                    robot_state_rviz_plugin/include
-                    planning_scene_rviz_plugin/include
-                    motion_planning_rviz_plugin/include
-                    trajectory_rviz_plugin/include
-                    ${Boost_INCLUDE_DIRS}
-                    ${catkin_INCLUDE_DIRS})
+set(THIS_PACKAGE_INCLUDE_DEPENDS
+  #moveit_ros_planning_interface
+  #moveit_ros_robot_interaction
+  object_recognition_msgs
+)
 
-include_directories(SYSTEM
-                    ${EIGEN3_INCLUDE_DIRS}
-                    ${QT_INCLUDE_DIR})
+#[[install(
+  PROGRAMS
+  scripts/moveit_joy.py
+  DESTINATION lib/${PROJECT_NAME}
+)]]
 
 add_subdirectory(rviz_plugin_render_tools)
-add_subdirectory(robot_state_rviz_plugin)
-add_subdirectory(planning_scene_rviz_plugin)
-add_subdirectory(motion_planning_rviz_plugin)
-add_subdirectory(trajectory_rviz_plugin)
+#add_subdirectory(robot_state_rviz_plugin)
+#add_subdirectory(planning_scene_rviz_plugin)
+#add_subdirectory(motion_planning_rviz_plugin)
+#add_subdirectory(trajectory_rviz_plugin)
 
 install(FILES
-  motion_planning_rviz_plugin_description.xml
-  trajectory_rviz_plugin_description.xml
-  planning_scene_rviz_plugin_description.xml
-  robot_state_rviz_plugin_description.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+  #motion_planning_rviz_plugin_description.xml
+  #trajectory_rviz_plugin_description.xml
+  #planning_scene_rviz_plugin_description.xml
+  #robot_state_rviz_plugin_description.xml
+  DESTINATION share/${PROJECT_NAME})
 
-install(DIRECTORY icons DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY icons DESTINATION share/${PROJECT_NAME})
 
-if (CATKIN_ENABLE_TESTING)
+#[[if (CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
   add_rostest(test/moveit_joy.test)
-endif()
+endif()]]
+
+ament_export_include_directories(${THIS_PACKAGE_INCLUDE_DIRS})
+ament_export_libraries(${THIS_PACKAGE_INCLUDE_LIBRARIES})
+ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
+ament_package()
