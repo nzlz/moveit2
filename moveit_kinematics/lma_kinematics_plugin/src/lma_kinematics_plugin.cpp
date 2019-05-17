@@ -144,7 +144,7 @@ bool LMAKinematicsPlugin::initialize(const moveit::core::RobotModel& robot_model
 
 bool LMAKinematicsPlugin::timedOut(const std::chrono::system_clock::time_point& start_time, double duration) const
 {
-  return ((std::chrono::system_clock::now() - start_time).count() >= duration);
+  return (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start_time).count() *1e-9 >= duration);
 }
 
 bool LMAKinematicsPlugin::getPositionIK(const geometry_msgs::msg::Pose& ik_pose, const std::vector<double>& ik_seed_state,
