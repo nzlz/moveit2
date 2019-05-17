@@ -20,7 +20,7 @@ find_package(moveit_msgs REQUIRED)
 set(THIS_PACKAGE_INCLUDE_DIRS
     kdl_kinematics_plugin/include
     lma_kinematics_plugin/include
-    # srv_kinematics_plugin/include
+    srv_kinematics_plugin/include
     # cached_ik_kinematics_plugin/include
 )
 
@@ -40,7 +40,7 @@ include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS}
 
 add_subdirectory(kdl_kinematics_plugin)
 add_subdirectory(lma_kinematics_plugin)
-# add_subdirectory(srv_kinematics_plugin)
+add_subdirectory(srv_kinematics_plugin)
 # add_subdirectory(ikfast_kinematics_plugin)
 # add_subdirectory(cached_ik_kinematics_plugin)
 add_subdirectory(test)
