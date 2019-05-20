@@ -10,7 +10,9 @@ set(HEADERS
   include/moveit/rviz_plugin_render_tools/trajectory_panel.hpp
 )
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(include
+  ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 add_library(${MOVEIT_LIB_NAME} SHARED
   src/render_shapes.cpp
