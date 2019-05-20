@@ -28,7 +28,7 @@ find_package(object_recognition_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
-#find_package(rviz2 REQUIRED) Must specify package
+find_package(rviz_common REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(Eigen3 REQUIRED)
 
