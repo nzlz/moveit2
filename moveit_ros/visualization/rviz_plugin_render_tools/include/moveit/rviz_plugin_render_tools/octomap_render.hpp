@@ -39,7 +39,7 @@
 
 #include <memory>
 #include <vector>
-#include "rviz_rendering/objects/point_cloud.hpp"
+#include <rviz_rendering/objects/point_cloud.hpp>
 
 namespace octomap
 {

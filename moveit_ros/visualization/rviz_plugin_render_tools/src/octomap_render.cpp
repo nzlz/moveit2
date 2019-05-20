@@ -34,7 +34,7 @@
 
 /* Author: Julius Kammerl */
 
-#include <moveit/rviz_plugin_render_tools/octomap_render.h>
+#include "moveit/rviz_plugin_render_tools/octomap_render.hpp"
 
 #include <octomap_msgs/Octomap.h>
 #include <octomap/octomap.h>
@@ -42,7 +42,7 @@
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 
-#include <rviz/ogre_helpers/point_cloud.h>
+#include <rviz_rendering/objects/point_cloud.hpp>
 
 namespace moveit_rviz_plugin
 {

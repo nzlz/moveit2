@@ -34,8 +34,8 @@
 
 /* Author: Ioan Sucan */
 
-#include <moveit/rviz_plugin_render_tools/render_shapes.h>
-#include <moveit/rviz_plugin_render_tools/octomap_render.h>
+#include "moveit/rviz_plugin_render_tools/render_shapes.hpp"
+#include "moveit/rviz_plugin_render_tools/octomap_render.hpp"
 #include <geometric_shapes/mesh_operations.h>
 
 #include <OgreSceneNode.h>
@@ -43,11 +43,11 @@
 #include <OgreManualObject.h>
 #include <OgreMaterialManager.h>
 
-#include <rviz/ogre_helpers/shape.h>
-#include <rviz/ogre_helpers/mesh_shape.h>
+#include <rviz_rendering/objects/shape.hpp>
+//#include <rviz/ogre_helpers/mesh_shape.h>
 
-#include <rviz/display_context.h>
-#include <rviz/robot/robot.h>
+#include <rviz_common/display_context.hpp>
+#include <rviz_default_plugins/robot/robot.hpp>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/math/constants/constants.hpp>
@@ -56,7 +56,7 @@
 
 namespace moveit_rviz_plugin
 {
-RenderShapes::RenderShapes(rviz::DisplayContext* context) : context_(context)
+RenderShapes::RenderShapes(rviz_common::DisplayContext* context) : context_(context)
 {
 }
 
@@ -73,7 +73,7 @@ void RenderShapes::clear()
 
 void RenderShapes::renderShape(Ogre::SceneNode* node, const shapes::Shape* s, const Eigen::Isometry3d& p,
                                OctreeVoxelRenderMode octree_voxel_rendering, OctreeVoxelColorMode octree_color_mode,
-                               const rviz::Color& color, float alpha)
+                               const Ogre::ColourValue::ColourValue& color)
 {
   rviz::Shape* ogre_shape = nullptr;
   Eigen::Vector3d translation = p.translation();
@@ -86,7 +86,7 @@ void RenderShapes::renderShape(Ogre::SceneNode* node, const shapes::Shape* s, co
   {
     std::unique_ptr<shapes::Mesh> m(shapes::createMeshFromShape(static_cast<const shapes::Cone&>(*s)));
     if (m)
-      renderShape(node, m.get(), p, octree_voxel_rendering, octree_color_mode, color, alpha);
+      renderShape(node, m.get(), p, octree_voxel_rendering, octree_color_mode, color);
     return;
   }
 
@@ -170,7 +170,7 @@ void RenderShapes::renderShape(Ogre::SceneNode* node, const shapes::Shape* s, co
 
   if (ogre_shape)
   {
-    ogre_shape->setColor(color.r_, color.g_, color.b_, alpha);
+    ogre_shape->setColor(color.r, color.g, color.b, color.a);
 
     if (s->type == shapes::CYLINDER)
     {
