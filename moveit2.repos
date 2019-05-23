@@ -6,7 +6,7 @@ repositories:
   geometry2:
     type: git
     url: https://github.com/AcutronicRobotics/geometry2
-    version: master
+    version: ros2
   geometric_shapes:
     type: git
     url: https://github.com/AcutronicRobotics/geometric_shapes
@@ -46,10 +46,6 @@ repositories:
   console_bridge_vendor:
     type: git
     url: https://github.com/ros2/console_bridge_vendor
-    version: crystal
-  image_common:
-    type: git
-    url: https://github.com/ros-perception/image_common
     version: crystal
   angles:
     type: git
