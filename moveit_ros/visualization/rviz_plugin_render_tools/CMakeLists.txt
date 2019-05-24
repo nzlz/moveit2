@@ -11,7 +11,6 @@ set(HEADERS
 )
 
 include_directories(include
-  ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 add_library(${MOVEIT_LIB_NAME} SHARED
@@ -26,11 +25,20 @@ add_library(${MOVEIT_LIB_NAME} SHARED
 )
 #set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 
+target_include_directories(${MOVEIT_LIB_NAME} PUBLIC
+  ${rclcpp_INCLUDE_DIRS}
+)
+
+ament_target_dependencies(${MOVEIT_LIB_NAME}
+  rviz_default_plugins
+  Boost
+  rclcpp
+  rviz_ogre_vendor
+)
+
 target_link_libraries(${MOVEIT_LIB_NAME}
-  #${catkin_LIBRARIES}
   ${OGRE_LIBRARIES}
   ${QT_LIBRARIES}
-  ${Boost_LIBRARIES}
 )
 
 install(DIRECTORY include/ DESTINATION share/${MOVEIT_LIB_NAME})

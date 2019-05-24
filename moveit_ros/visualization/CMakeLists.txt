@@ -31,6 +31,8 @@ find_package(rclpy REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(rviz_default_plugins REQUIRED)
+find_package(rviz_ogre_vendor REQUIRED)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
