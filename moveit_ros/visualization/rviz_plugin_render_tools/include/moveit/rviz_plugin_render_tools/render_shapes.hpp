@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2008, Willow Garage, Inc.
+ *  Copyright (c) 2012, Willow Garage, Inc.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -34,30 +34,50 @@
 
 /* Author: Ioan Sucan */
 
-#include "moveit/rviz_plugin_render_tools/planning_link_updater.hpp"
-#include <OgreQuaternion.h>
-#include <OgreVector3.h>
+#ifndef MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_RENDER_SHAPES_
+#define MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_RENDER_SHAPES_
 
-bool moveit_rviz_plugin::PlanningLinkUpdater::getLinkTransforms(const std::string& link_name,
-                                                                Ogre::Vector3& visual_position,
-                                                                Ogre::Quaternion& visual_orientation,
-                                                                Ogre::Vector3& collision_position,
-                                                                Ogre::Quaternion& collision_orientation) const
+#include "moveit/rviz_plugin_render_tools/octomap_render.hpp"
+#include <moveit/macros/class_forward.h>
+#include <geometric_shapes/shapes.h>
+#include <OgreColourValue.h>
+#include <Eigen/Geometry>
+#include <string>
+#include <memory>
+
+namespace Ogre
 {
-  const robot_model::LinkModel* link_model = kinematic_state_->getLinkModel(link_name);
-
-  if (!link_model)
-  {
-    return false;
-  }
-
-  const Eigen::Vector3d& robot_visual_position = kinematic_state_->getGlobalLinkTransform(link_model).translation();
-  Eigen::Quaterniond robot_visual_orientation(kinematic_state_->getGlobalLinkTransform(link_model).rotation());
-  visual_position = Ogre::Vector3(robot_visual_position.x(), robot_visual_position.y(), robot_visual_position.z());
-  visual_orientation = Ogre::Quaternion(robot_visual_orientation.w(), robot_visual_orientation.x(),
-                                        robot_visual_orientation.y(), robot_visual_orientation.z());
-  collision_position = visual_position;
-  collision_orientation = visual_orientation;
-
-  return true;
+class SceneNode;
 }
+
+namespace rviz
+{
+class DisplayContext;
+class Shape;
+}
+
+namespace moveit_rviz_plugin
+{
+MOVEIT_CLASS_FORWARD(OcTreeRender);
+MOVEIT_CLASS_FORWARD(RenderShapes);
+
+class RenderShapes
+{
+public:
+  RenderShapes(rviz_common::DisplayContext* context);
+  ~RenderShapes();
+
+  void renderShape(Ogre::SceneNode* node, const shapes::Shape* s, const Eigen::Isometry3d& p,
+                   OctreeVoxelRenderMode octree_voxel_rendering, OctreeVoxelColorMode octree_color_mode,
+                   const Ogre::ColourValue::ColourValue& color);
+  void clear();
+
+private:
+  rviz_common::DisplayContext* context_;
+
+  std::vector<std::unique_ptr<rviz::Shape> > scene_shapes_;
+  std::vector<OcTreeRenderPtr> octree_voxel_grids_;
+};
+}
+
+#endif

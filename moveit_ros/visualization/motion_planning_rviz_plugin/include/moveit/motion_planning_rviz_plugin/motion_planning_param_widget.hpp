@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2017, Yannick Jonetzko
+ *  Copyright (c) 2012, Willow Garage, Inc.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -32,66 +32,50 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-/* Author: Yannick Jonetzko */
+/* Author: Robert Haschke */
 
-#ifndef MOVEIT_TRAJECTORY_RVIZ_PLUGIN_TRAJECTORY_PANEL_
-#define MOVEIT_TRAJECTORY_RVIZ_PLUGIN_TRAJECTORY_PANEL_
+#ifndef MOVEIT_MOTION_PLANNING_RVIZ_PLUGIN_MOTION_PLANNING_PARAM_WIDGET_
+#define MOVEIT_MOTION_PLANNING_RVIZ_PLUGIN_MOTION_PLANNING_PARAM_WIDGET_
 
-#ifndef Q_MOC_RUN
-#include <ros/ros.h>
-#endif
-
-#include <rviz/panel.h>
-
-#include <QSlider>
-#include <QLabel>
-#include <QPushButton>
+#include <rviz/properties/property_tree_widget.h>
+#include <moveit/macros/class_forward.h>
+namespace moveit
+{
+namespace planning_interface
+{
+MOVEIT_CLASS_FORWARD(MoveGroupInterface);
+}
+}
 
 namespace moveit_rviz_plugin
 {
-class TrajectoryPanel : public rviz::Panel
+class MotionPlanningParamWidget : public rviz::PropertyTreeWidget
 {
   Q_OBJECT
-
 public:
-  TrajectoryPanel(QWidget* parent = 0);
+  MotionPlanningParamWidget(const MotionPlanningParamWidget&) = delete;
+  MotionPlanningParamWidget(QWidget* parent = 0);
+  ~MotionPlanningParamWidget() override;
 
-  ~TrajectoryPanel() override;
+  void setMoveGroup(const moveit::planning_interface::MoveGroupInterfacePtr& mg);
+  void setGroupName(const std::string& group_name);
 
-  void onInitialize() override;
-  void onEnable();
-  void onDisable();
-  void update(int way_point_count);
-
-  // Switches between pause and play mode
-  void pauseButton(bool check);
-
-  void setSliderPosition(int position);
-
-  int getSliderPosition() const
-  {
-    return slider_->sliderPosition();
-  }
-
-  bool isPaused() const
-  {
-    return paused_;
-  }
+public Q_SLOTS:
+  void setPlannerId(const std::string& planner_id);
 
 private Q_SLOTS:
-  void sliderValueChanged(int value);
-  void buttonClicked();
+  void changedValue();
 
-protected:
-  QSlider* slider_;
-  QLabel* maximum_label_;
-  QLabel* minimum_label_;
-  QPushButton* button_;
+private:
+  rviz::Property* createPropertyTree();
 
-  bool paused_;
-  int last_way_point_;
+private:
+  rviz::PropertyTreeModel* property_tree_model_;
+
+  moveit::planning_interface::MoveGroupInterfacePtr move_group_;
+  std::string group_name_;
+  std::string planner_id_;
 };
-
-}  // namespace moveit_rviz_plugin
+}
 
 #endif

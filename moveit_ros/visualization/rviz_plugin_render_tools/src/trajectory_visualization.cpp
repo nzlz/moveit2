@@ -39,22 +39,23 @@
 
 #include <moveit/rviz_plugin_render_tools/trajectory_visualization.h>
 
-#include <moveit/rviz_plugin_render_tools/planning_link_updater.h>
-#include <moveit/rviz_plugin_render_tools/robot_state_visualization.h>
-#include <rviz/robot/robot.h>
+#include "moveit/rviz_plugin_render_tools/planning_link_updater.hpp"
+#include "moveit/rviz_plugin_render_tools/robot_state_visualization.hpp"
+#include <rviz_default_plugins/robot/robot.hpp>
 
-#include <rviz/properties/property.h>
-#include <rviz/properties/int_property.h>
-#include <rviz/properties/string_property.h>
-#include <rviz/properties/bool_property.h>
-#include <rviz/properties/float_property.h>
-#include <rviz/properties/ros_topic_property.h>
-#include <rviz/properties/editable_enum_property.h>
-#include <rviz/properties/color_property.h>
+#include <rviz_common/properties/property.hpp>
+#include <rviz_common/int_property.hpp>
+#include <rviz_common/string_property.hpp>
+#include <rviz_common/bool_property.hpp>
+#include <rviz_common/float_property.hpp>
+#include <rviz_common/ros_topic_property.hpp>
+#include <rviz_common/editable_enum_property.hpp>
+#include <rviz_common/color_property.hpp>
 #include <moveit/trajectory_processing/trajectory_tools.h>
-#include <rviz/robot/robot_link.h>
-#include <rviz/display_context.h>
-#include <rviz/window_manager_interface.h>
+
+#include <rviz_default_plugins/robot/robot_link.hpp>
+#include <rviz_common/display_context.hpp>
+#include <rviz_common/window_manager_interface.hpp>
 
 namespace moveit_rviz_plugin
 {

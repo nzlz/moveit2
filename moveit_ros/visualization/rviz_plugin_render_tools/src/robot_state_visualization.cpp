@@ -34,9 +34,9 @@
 
 /* Author: Ioan Sucan */
 
-#include <moveit/rviz_plugin_render_tools/robot_state_visualization.h>
-#include <moveit/rviz_plugin_render_tools/planning_link_updater.h>
-#include <moveit/rviz_plugin_render_tools/render_shapes.h>
+#include "moveit/rviz_plugin_render_tools/robot_state_visualization.hpp"
+#include "moveit/rviz_plugin_render_tools/planning_link_updater.hpp"
+#include "moveit/rviz_plugin_render_tools/render_shapes.hpp"
 #include <QApplication>
 
 namespace moveit_rviz_plugin

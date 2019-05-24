@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2013, Willow Garage, Inc.
+ *  Copyright (c) 2012, Willow Garage, Inc.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -32,72 +32,62 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-/* Author: Julius Kammerl */
+/* Author: Ioan Sucan */
 
-#ifndef MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_OCTOMAP_RENDER_
-#define MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_OCTOMAP_RENDER_
+#ifndef MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_PLUGIN_PLANNING_SCENE_RENDER_
+#define MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_PLUGIN_PLANNING_SCENE_RENDER_
 
-#include <memory>
-#include <vector>
-#include <rviz/ogre_helpers/point_cloud.h>
+#include <moveit/macros/class_forward.h>
+#include <moveit/planning_scene/planning_scene.h>
+#include "moveit/rviz_plugin_render_tools/render_shapes.hpp"
 
-#include <moveit/rviz_plugin_render_tools/octomap_render.h>
-
-namespace octomap
-{
-class OcTree;
-}
+#include <OgreColourValue.h>
+#include <OgreMaterial.h>
 
 namespace Ogre
 {
-class SceneManager;
 class SceneNode;
-class AxisAlignedBox;
-class Vector3;
-class Quaternion;
+}
+
+namespace rviz
+{
+class DisplayContext;
 }
 
 namespace moveit_rviz_plugin
 {
-enum OctreeVoxelRenderMode
-{
-  OCTOMAP_FREE_VOXELS = 1,
-  OCTOMAP_OCCUPIED_VOXELS = 2
-};
+MOVEIT_CLASS_FORWARD(RobotStateVisualization);
+MOVEIT_CLASS_FORWARD(RenderShapes);
+MOVEIT_CLASS_FORWARD(PlanningSceneRender);
 
-enum OctreeVoxelColorMode
-{
-  OCTOMAP_Z_AXIS_COLOR,
-  OCTOMAP_PROBABLILTY_COLOR,
-};
-
-class OcTreeRender
+class PlanningSceneRender
 {
 public:
-  OcTreeRender(const std::shared_ptr<const octomap::OcTree>& octree, OctreeVoxelRenderMode octree_voxel_rendering,
-               OctreeVoxelColorMode octree_color_mode, std::size_t max_octree_depth, Ogre::SceneManager* scene_manager,
-               Ogre::SceneNode* parent_node);
-  virtual ~OcTreeRender();
+  PlanningSceneRender(Ogre::SceneNode* root_node, rviz::DisplayContext* context,
+                      const RobotStateVisualizationPtr& robot);
+  ~PlanningSceneRender();
 
-  void setPosition(const Ogre::Vector3& position);
-  void setOrientation(const Ogre::Quaternion& orientation);
+  Ogre::SceneNode* getGeometryNode()
+  {
+    return planning_scene_geometry_node_;
+  }
+
+  const RobotStateVisualizationPtr& getRobotVisualization()
+  {
+    return scene_robot_;
+  }
+
+  void renderPlanningScene(const planning_scene::PlanningSceneConstPtr& scene, const Ogre::ColourValue::ColourValue& default_scene_color,
+                           const Ogre::ColourValue::ColourValue& default_attached_color, OctreeVoxelRenderMode voxel_render_mode,
+                           OctreeVoxelColorMode voxel_color_mode, float default_scene_alpha);
+  void clear();
 
 private:
-  void setColor(double z_pos, double min_z, double max_z, double color_factor, rviz::PointCloud::Point* point);
-  void setProbColor(double prob, rviz::PointCloud::Point* point);
-
-  void octreeDecoding(const std::shared_ptr<const octomap::OcTree>& octree,
-                      OctreeVoxelRenderMode octree_voxel_rendering, OctreeVoxelColorMode octree_color_mode);
-
-  // Ogre-rviz point clouds
-  std::vector<rviz::PointCloud*> cloud_;
-  std::shared_ptr<const octomap::OcTree> octree_;
-
-  Ogre::SceneNode* scene_node_;
-  Ogre::SceneManager* scene_manager_;
-
-  double colorFactor_;
-  std::size_t octree_depth_;
+  Ogre::SceneNode* planning_scene_geometry_node_;
+  rviz::DisplayContext* context_;
+  RenderShapesPtr render_shapes_;
+  RobotStateVisualizationPtr scene_robot_;
 };
 }
+
 #endif

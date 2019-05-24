@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2012, Willow Garage, Inc.
+ *  Copyright (c) 2008, Willow Garage, Inc.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -34,58 +34,28 @@
 
 /* Author: Ioan Sucan */
 
-#ifndef MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_PLUGIN_PLANNING_SCENE_RENDER_
-#define MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_PLUGIN_PLANNING_SCENE_RENDER_
+#ifndef MOVEIT_PLANNING_SCENE_RVIZ_PLUGIN_PLANNING_LINK_UPDATER_
+#define MOVEIT_PLANNING_SCENE_RVIZ_PLUGIN_PLANNING_LINK_UPDATER_
 
-#include <moveit/macros/class_forward.h>
-#include <moveit/planning_scene/planning_scene.h>
-#include <moveit/rviz_plugin_render_tools/render_shapes.h>
-#include <rviz/helpers/color.h>
-#include <OgreMaterial.h>
-
-namespace Ogre
-{
-class SceneNode;
-}
-
-namespace rviz
-{
-class DisplayContext;
-}
+#include <rviz_default_plugins/robot/link_updater.hpp>
+#include <moveit/robot_state/robot_state.h>
 
 namespace moveit_rviz_plugin
 {
-MOVEIT_CLASS_FORWARD(RobotStateVisualization);
-MOVEIT_CLASS_FORWARD(RenderShapes);
-MOVEIT_CLASS_FORWARD(PlanningSceneRender);
-
-class PlanningSceneRender
+/** \brief Update the links of an rviz::Robot using a robot_state::RobotState */
+class PlanningLinkUpdater : public rviz::LinkUpdater
 {
 public:
-  PlanningSceneRender(Ogre::SceneNode* root_node, rviz::DisplayContext* context,
-                      const RobotStateVisualizationPtr& robot);
-  ~PlanningSceneRender();
-
-  Ogre::SceneNode* getGeometryNode()
+  PlanningLinkUpdater(const robot_state::RobotStateConstPtr& state) : kinematic_state_(state)
   {
-    return planning_scene_geometry_node_;
   }
 
-  const RobotStateVisualizationPtr& getRobotVisualization()
-  {
-    return scene_robot_;
-  }
-
-  void renderPlanningScene(const planning_scene::PlanningSceneConstPtr& scene, const rviz::Color& default_scene_color,
-                           const rviz::Color& default_attached_color, OctreeVoxelRenderMode voxel_render_mode,
-                           OctreeVoxelColorMode voxel_color_mode, float default_scene_alpha);
-  void clear();
+  bool getLinkTransforms(const std::string& link_name, Ogre::Vector3& visual_position,
+                         Ogre::Quaternion& visual_orientation, Ogre::Vector3& collision_position,
+                         Ogre::Quaternion& collision_orientation) const override;
 
 private:
-  Ogre::SceneNode* planning_scene_geometry_node_;
-  rviz::DisplayContext* context_;
-  RenderShapesPtr render_shapes_;
-  RobotStateVisualizationPtr scene_robot_;
+  robot_state::RobotStateConstPtr kinematic_state_;
 };
 }
 

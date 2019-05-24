@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2008, Willow Garage, Inc.
+ *  Copyright (c) 2017, Yannick Jonetzko
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -32,31 +32,67 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-/* Author: Ioan Sucan */
+/* Author: Yannick Jonetzko */
 
-#ifndef MOVEIT_PLANNING_SCENE_RVIZ_PLUGIN_PLANNING_LINK_UPDATER_
-#define MOVEIT_PLANNING_SCENE_RVIZ_PLUGIN_PLANNING_LINK_UPDATER_
+#ifndef MOVEIT_TRAJECTORY_RVIZ_PLUGIN_TRAJECTORY_PANEL_
+#define MOVEIT_TRAJECTORY_RVIZ_PLUGIN_TRAJECTORY_PANEL_
 
-#include <rviz/robot/link_updater.h>
-#include <moveit/robot_state/robot_state.h>
+#ifndef Q_MOC_RUN
+#include <rclcpp/rclcpp.hpp>
+#endif
+
+#include <rviz_common/panel.hpp>
+
+#include <QSlider>
+#include <QLabel>
+#include <QPushButton>
+
 
 namespace moveit_rviz_plugin
 {
-/** \brief Update the links of an rviz::Robot using a robot_state::RobotState */
-class PlanningLinkUpdater : public rviz::LinkUpdater
+class TrajectoryPanel : public rviz_common::Panel
 {
+  Q_OBJECT
+
 public:
-  PlanningLinkUpdater(const robot_state::RobotStateConstPtr& state) : kinematic_state_(state)
+  TrajectoryPanel(QWidget* parent = 0);
+
+  ~TrajectoryPanel() override;
+
+  void onInitialize() override;
+  void onEnable();
+  void onDisable();
+  void update(int way_point_count);
+
+  // Switches between pause and play mode
+  void pauseButton(bool check);
+
+  void setSliderPosition(int position);
+
+  int getSliderPosition() const
   {
+    return slider_->sliderPosition();
   }
 
-  bool getLinkTransforms(const std::string& link_name, Ogre::Vector3& visual_position,
-                         Ogre::Quaternion& visual_orientation, Ogre::Vector3& collision_position,
-                         Ogre::Quaternion& collision_orientation) const override;
+  bool isPaused() const
+  {
+    return paused_;
+  }
 
-private:
-  robot_state::RobotStateConstPtr kinematic_state_;
+private Q_SLOTS:
+  void sliderValueChanged(int value);
+  void buttonClicked();
+
+protected:
+  QSlider* slider_;
+  QLabel* maximum_label_;
+  QLabel* minimum_label_;
+  QPushButton* button_;
+
+  bool paused_;
+  int last_way_point_;
 };
-}
+
+}  // namespace moveit_rviz_plugin
 
 #endif

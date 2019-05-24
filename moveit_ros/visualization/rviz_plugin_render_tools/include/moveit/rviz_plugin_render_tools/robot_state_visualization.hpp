@@ -39,8 +39,8 @@
 
 #include <moveit/macros/class_forward.h>
 #include <moveit/robot_state/robot_state.h>
-#include <moveit/rviz_plugin_render_tools/octomap_render.h>
-#include <rviz/robot/robot.h>
+#include "moveit/rviz_plugin_render_tools/octomap_render.hpp"
+#include <rviz_default_plugins/robot/robot.hpp>
 
 namespace moveit_rviz_plugin
 {
@@ -94,7 +94,7 @@ private:
   void updateHelper(const robot_state::RobotStateConstPtr& kinematic_state,
                     const std_msgs::ColorRGBA& default_attached_object_color,
                     const std::map<std::string, std_msgs::ColorRGBA>* color_map);
-  rviz::Robot robot_;
+  robot::Robot robot_;
   RenderShapesPtr render_shapes_;
   std_msgs::ColorRGBA default_attached_object_color_;
   OctreeVoxelRenderMode octree_voxel_render_mode_;
