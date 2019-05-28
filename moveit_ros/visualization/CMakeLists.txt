@@ -24,6 +24,7 @@ find_package(moveit_ros_perception REQUIRED)
 #find_package(moveit_ros_planning_interface REQUIRED)
 #find_package(moveit_ros_robot_interaction REQUIRED)
 #find_package(moveit_ros_warehouse REQUIRED)
+find_package(moveit_core REQUIRED)
 find_package(object_recognition_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -33,6 +34,7 @@ find_package(tf2_eigen REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(rviz_default_plugins REQUIRED)
 find_package(rviz_ogre_vendor REQUIRED)
+find_package(OGRE REQUIRED)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -62,6 +64,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   #moveit_ros_planning_interface
   #moveit_ros_robot_interaction
   object_recognition_msgs
+  Eigen3
 )
 
 #[[install(
@@ -69,6 +72,19 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   scripts/moveit_joy.py
   DESTINATION lib/${PROJECT_NAME}
 )]]
+
+include_directories(rviz_plugin_render_tools/include
+                    # robot_state_rviz_plugin/include
+                    # planning_scene_rviz_plugin/include
+                    # motion_planning_rviz_plugin/include
+                    # trajectory_rviz_plugin/include
+                    ${Boost_INCLUDE_DIRS}
+                    ${rclcpp_INCLUDE_DIRS})
+
+include_directories(SYSTEM
+                    ${EIGEN3_INCLUDE_DIRS}
+                    ${QT_INCLUDE_DIR}
+                    ${OGRE_INCLUDE_DIRS})
 
 add_subdirectory(rviz_plugin_render_tools)
 #add_subdirectory(robot_state_rviz_plugin)
