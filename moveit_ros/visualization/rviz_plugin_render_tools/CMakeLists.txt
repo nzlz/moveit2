@@ -27,6 +27,7 @@ add_library(${MOVEIT_LIB_NAME} SHARED
 
 target_include_directories(${MOVEIT_LIB_NAME} PUBLIC
   ${rclcpp_INCLUDE_DIRS}
+  ${moveit_core_INCLUDE_DIRS}
 )
 
 ament_target_dependencies(${MOVEIT_LIB_NAME}
@@ -34,15 +35,17 @@ ament_target_dependencies(${MOVEIT_LIB_NAME}
   Boost
   rclcpp
   rviz_ogre_vendor
+  moveit_core
 )
 
 target_link_libraries(${MOVEIT_LIB_NAME}
   ${OGRE_LIBRARIES}
   ${QT_LIBRARIES}
+  Qt5::Widgets
 )
 
-install(DIRECTORY include/ DESTINATION share/${MOVEIT_LIB_NAME})
+install(DIRECTORY include/ DESTINATION include)
 
 install(TARGETS ${MOVEIT_LIB_NAME}
-  ARCHIVE DESTINATION share/${MOVEIT_LIB_NAME}
-  LIBRARY DESTINATION share/${MOVEIT_LIB_NAME})
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib)

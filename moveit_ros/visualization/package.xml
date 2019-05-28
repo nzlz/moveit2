@@ -26,7 +26,9 @@
   <build_depend>libogre-dev</build_depend>
   <build_depend>libqt5-opengl-dev</build_depend>
   <build_depend>qtbase5-dev</build_depend>
+  <build_depend>moveit_core</build_depend>
 
+  <exec_depend>moveit_core</exec_depend>
   <exec_depend>geometric_shapes</exec_depend>
   <!--<exec_depend>interactive_markers</exec_depend>-->
   <!--<exec_depend>moveit_ros_robot_interaction</exec_depend>-->

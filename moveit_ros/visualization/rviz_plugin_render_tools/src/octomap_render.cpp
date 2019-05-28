@@ -36,7 +36,7 @@
 
 #include "moveit/rviz_plugin_render_tools/octomap_render.hpp"
 
-#include <octomap_msgs/Octomap.h>
+#include <octomap_msgs/msg/octomap.hpp>
 #include <octomap/octomap.h>
 
 #include <OgreSceneNode.h>
