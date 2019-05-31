@@ -174,7 +174,7 @@ protected:
   rviz_common::properties::BoolProperty* display_path_visual_enabled_property_;
   rviz_common::properties::BoolProperty* display_path_collision_enabled_property_;
   rviz_common::properties::EditableEnumProperty* state_display_time_property_;
-  rviz::RosTopicProperty* trajectory_topic_property_;
+  rviz_common::properties::RosTopicProperty* trajectory_topic_property_;
   rviz_common::properties::FloatProperty* robot_path_alpha_property_;
   rviz_common::properties::BoolProperty* loop_display_property_;
   rviz_common::properties::BoolProperty* trail_display_property_;

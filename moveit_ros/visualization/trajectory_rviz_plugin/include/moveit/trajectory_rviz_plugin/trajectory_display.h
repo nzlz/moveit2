@@ -92,7 +92,7 @@ protected:
   bool load_robot_model_;  // for delayed robot initialization
 
   // Properties
-  rviz::StringProperty* robot_description_property_;
+  rviz_common::properties::StringProperty* robot_description_property_;
 };
 
 }  // namespace moveit_rviz_plugin

@@ -134,9 +134,9 @@ protected:
   bool update_state_;
   bool load_robot_model_;  // for delayed robot initialization
 
-  rviz::StringProperty* robot_description_property_;
-  rviz::StringProperty* root_link_name_property_;
-  rviz::RosTopicProperty* robot_state_topic_property_;
+  rviz_common::properties::StringProperty* robot_description_property_;
+  rviz_common::properties::StringProperty* root_link_name_property_;
+  rviz_common::properties::RosTopicProperty* robot_state_topic_property_;
   rviz_common::properties::FloatProperty* robot_alpha_property_;
   rviz_common::properties::ColorProperty* attached_body_color_property_;
   rviz_common::properties::BoolProperty* enable_link_highlight_;
