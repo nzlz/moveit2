@@ -93,76 +93,76 @@ MotionPlanningDisplay::MotionPlanningDisplay()
   path_category_ = new rviz_common::properties::Property("Planned Path", QVariant(), "", this);
 
   // Metrics category -----------------------------------------------------------------------------------------
-  compute_weight_limit_property_ = new rviz::BoolProperty(
+  compute_weight_limit_property_ = new rviz_common::properties::BoolProperty(
       "Show Weight Limit", false, "Shows the weight limit at a particular pose for an end-effector", metrics_category_,
       SLOT(changedShowWeightLimit()), this);
 
   show_manipulability_index_property_ =
-      new rviz::BoolProperty("Show Manipulability Index", false, "Shows the manipulability index for an end-effector",
+      new rviz_common::properties::BoolProperty("Show Manipulability Index", false, "Shows the manipulability index for an end-effector",
                              metrics_category_, SLOT(changedShowManipulabilityIndex()), this);
 
   show_manipulability_property_ =
-      new rviz::BoolProperty("Show Manipulability", false, "Shows the manipulability for an end-effector",
+      new rviz_common::properties::BoolProperty("Show Manipulability", false, "Shows the manipulability for an end-effector",
                              metrics_category_, SLOT(changedShowManipulability()), this);
 
-  show_joint_torques_property_ = new rviz::BoolProperty("Show Joint Torques", false,
+  show_joint_torques_property_ = new rviz_common::properties::BoolProperty("Show Joint Torques", false,
                                                         "Shows the joint torques for a given configuration and payload",
                                                         metrics_category_, SLOT(changedShowJointTorques()), this);
 
   metrics_set_payload_property_ =
-      new rviz::FloatProperty("Payload", 1.0f, "Specify the payload at the end effector (kg)", metrics_category_,
+      new rviz_common::properties::FloatProperty("Payload", 1.0f, "Specify the payload at the end effector (kg)", metrics_category_,
                               SLOT(changedMetricsSetPayload()), this);
   metrics_set_payload_property_->setMin(0.0);
 
-  metrics_text_height_property_ = new rviz::FloatProperty("TextHeight", 0.08f, "Text height", metrics_category_,
+  metrics_text_height_property_ = new rviz_common::properties::FloatProperty("TextHeight", 0.08f, "Text height", metrics_category_,
                                                           SLOT(changedMetricsTextHeight()), this);
   metrics_text_height_property_->setMin(0.001);
 
   // Planning request category -----------------------------------------------------------------------------------------
 
-  planning_group_property_ = new rviz::EditableEnumProperty(
+  planning_group_property_ = new rviz_common::properties::EditableEnumProperty(
       "Planning Group", "", "The name of the group of links to plan for (from the ones defined in the SRDF)",
       plan_category_, SLOT(changedPlanningGroup()), this);
-  show_workspace_property_ = new rviz::BoolProperty("Show Workspace", false, "Shows the axis-aligned bounding box for "
+  show_workspace_property_ = new rviz_common::properties::BoolProperty("Show Workspace", false, "Shows the axis-aligned bounding box for "
                                                                              "the workspace allowed for planning",
                                                     plan_category_, SLOT(changedWorkspace()), this);
   query_start_state_property_ =
-      new rviz::BoolProperty("Query Start State", false, "Set a custom start state for the motion planning query",
+      new rviz_common::properties::BoolProperty("Query Start State", false, "Set a custom start state for the motion planning query",
                              plan_category_, SLOT(changedQueryStartState()), this);
   query_goal_state_property_ =
-      new rviz::BoolProperty("Query Goal State", true, "Shows the goal state for the motion planning query",
+      new rviz_common::properties::BoolProperty("Query Goal State", true, "Shows the goal state for the motion planning query",
                              plan_category_, SLOT(changedQueryGoalState()), this);
   query_marker_scale_property_ =
-      new rviz::FloatProperty("Interactive Marker Size", 0.0f,
+      new rviz_common::properties::FloatProperty("Interactive Marker Size", 0.0f,
                               "Specifies scale of the interactive marker overlayed on the robot. 0 is auto scale.",
                               plan_category_, SLOT(changedQueryMarkerScale()), this);
   query_marker_scale_property_->setMin(0.0f);
 
   query_start_color_property_ =
-      new rviz::ColorProperty("Start State Color", QColor(0, 255, 0), "The highlight color for the start state",
+      new rviz_common::properties::ColorProperty("Start State Color", QColor(0, 255, 0), "The highlight color for the start state",
                               plan_category_, SLOT(changedQueryStartColor()), this);
   query_start_alpha_property_ =
-      new rviz::FloatProperty("Start State Alpha", 1.0f, "Specifies the alpha for the robot links", plan_category_,
+      new rviz_common::properties::FloatProperty("Start State Alpha", 1.0f, "Specifies the alpha for the robot links", plan_category_,
                               SLOT(changedQueryStartAlpha()), this);
   query_start_alpha_property_->setMin(0.0);
   query_start_alpha_property_->setMax(1.0);
 
   query_goal_color_property_ =
-      new rviz::ColorProperty("Goal State Color", QColor(250, 128, 0), "The highlight color for the goal state",
+      new rviz_common::properties::ColorProperty("Goal State Color", QColor(250, 128, 0), "The highlight color for the goal state",
                               plan_category_, SLOT(changedQueryGoalColor()), this);
 
   query_goal_alpha_property_ =
-      new rviz::FloatProperty("Goal State Alpha", 1.0f, "Specifies the alpha for the robot links", plan_category_,
+      new rviz_common::properties::FloatProperty("Goal State Alpha", 1.0f, "Specifies the alpha for the robot links", plan_category_,
                               SLOT(changedQueryGoalAlpha()), this);
   query_goal_alpha_property_->setMin(0.0);
   query_goal_alpha_property_->setMax(1.0);
 
   query_colliding_link_color_property_ =
-      new rviz::ColorProperty("Colliding Link Color", QColor(255, 0, 0), "The highlight color for colliding links",
+      new rviz_common::properties::ColorProperty("Colliding Link Color", QColor(255, 0, 0), "The highlight color for colliding links",
                               plan_category_, SLOT(changedQueryCollidingLinkColor()), this);
 
   query_outside_joint_limits_link_color_property_ =
-      new rviz::ColorProperty("Joint Violation Color", QColor(255, 0, 255),
+      new rviz_common::properties::ColorProperty("Joint Violation Color", QColor(255, 0, 255),
                               "The highlight color for child links of joints that are outside bounds", plan_category_,
                               SLOT(changedQueryJointViolationColor()), this);
 

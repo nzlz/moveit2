@@ -43,7 +43,7 @@
 namespace moveit_rviz_plugin
 {
 /** \brief Update the links of an rviz_default_plugins::robot::Robot using a robot_state::RobotState */
-class PlanningLinkUpdater : public rviz::LinkUpdater
+class PlanningLinkUpdater : public rviz_default_plugins::robot::LinkUpdater
 {
 public:
   PlanningLinkUpdater(const robot_state::RobotStateConstPtr& state) : kinematic_state_(state)

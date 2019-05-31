@@ -65,7 +65,7 @@ namespace moveit_rviz_plugin
 {
 class RobotStateVisualization;
 
-class RobotStateDisplay : public rviz::Display
+class RobotStateDisplay : public rviz_common::Display
 {
   Q_OBJECT
 
@@ -137,12 +137,12 @@ protected:
   rviz::StringProperty* robot_description_property_;
   rviz::StringProperty* root_link_name_property_;
   rviz::RosTopicProperty* robot_state_topic_property_;
-  rviz::FloatProperty* robot_alpha_property_;
-  rviz::ColorProperty* attached_body_color_property_;
-  rviz::BoolProperty* enable_link_highlight_;
-  rviz::BoolProperty* enable_visual_visible_;
-  rviz::BoolProperty* enable_collision_visible_;
-  rviz::BoolProperty* show_all_links_;
+  rviz_common::properties::FloatProperty* robot_alpha_property_;
+  rviz_common::properties::ColorProperty* attached_body_color_property_;
+  rviz_common::properties::BoolProperty* enable_link_highlight_;
+  rviz_common::properties::BoolProperty* enable_visual_visible_;
+  rviz_common::properties::BoolProperty* enable_collision_visible_;
+  rviz_common::properties::BoolProperty* show_all_links_;
 };
 
 }  // namespace moveit_rviz_plugin

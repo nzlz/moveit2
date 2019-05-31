@@ -79,11 +79,11 @@ class TrajectoryVisualization : public QObject
 public:
   /**
    * \brief Playback a trajectory from a planned path
-   * \param widget - either a rviz::Display or rviz_common::properties::Property
-   * \param display - the rviz::Display from the parent
+   * \param widget - either a rviz_common::Display or rviz_common::properties::Property
+   * \param display - the rviz_common::Display from the parent
    * \return true on success
    */
-  TrajectoryVisualization(rviz_common::properties::Property* widget, rviz::Display* display);
+  TrajectoryVisualization(rviz_common::properties::Property* widget, rviz_common::Display* display);
 
   ~TrajectoryVisualization() override;
 
@@ -148,7 +148,7 @@ protected:
   robot_state::RobotStatePtr robot_state_;
 
   // Pointers from parent display taht we save
-  rviz::Display* display_;  // the parent display that this class populates
+  rviz_common::Display* display_;  // the parent display that this class populates
   rviz_common::properties::Property* widget_;
   Ogre::SceneNode* scene_node_;
   rviz_common::DisplayContext* context_;
@@ -157,16 +157,16 @@ protected:
   rviz::PanelDockWidget* trajectory_slider_dock_panel_;
 
   // Properties
-  rviz::BoolProperty* display_path_visual_enabled_property_;
-  rviz::BoolProperty* display_path_collision_enabled_property_;
-  rviz::EditableEnumProperty* state_display_time_property_;
+  rviz_common::properties::BoolProperty* display_path_visual_enabled_property_;
+  rviz_common::properties::BoolProperty* display_path_collision_enabled_property_;
+  rviz_common::properties::EditableEnumProperty* state_display_time_property_;
   rviz::RosTopicProperty* trajectory_topic_property_;
-  rviz::FloatProperty* robot_path_alpha_property_;
-  rviz::BoolProperty* loop_display_property_;
-  rviz::BoolProperty* trail_display_property_;
-  rviz::BoolProperty* interrupt_display_property_;
-  rviz::ColorProperty* robot_color_property_;
-  rviz::BoolProperty* enable_robot_color_property_;
+  rviz_common::properties::FloatProperty* robot_path_alpha_property_;
+  rviz_common::properties::BoolProperty* loop_display_property_;
+  rviz_common::properties::BoolProperty* trail_display_property_;
+  rviz_common::properties::BoolProperty* interrupt_display_property_;
+  rviz_common::properties::ColorProperty* robot_color_property_;
+  rviz_common::properties::BoolProperty* enable_robot_color_property_;
   rviz::IntProperty* trail_step_size_property_;
 };
 

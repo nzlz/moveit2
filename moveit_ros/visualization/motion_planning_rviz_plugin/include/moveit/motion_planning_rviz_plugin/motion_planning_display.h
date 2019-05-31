@@ -278,26 +278,26 @@ protected:
   rviz_common::properties::Property* plan_category_;
   rviz_common::properties::Property* metrics_category_;
 
-  rviz::EditableEnumProperty* planning_group_property_;
-  rviz::BoolProperty* query_start_state_property_;
-  rviz::BoolProperty* query_goal_state_property_;
-  rviz::FloatProperty* query_marker_scale_property_;
-  rviz::ColorProperty* query_start_color_property_;
-  rviz::ColorProperty* query_goal_color_property_;
-  rviz::FloatProperty* query_start_alpha_property_;
-  rviz::FloatProperty* query_goal_alpha_property_;
-  rviz::ColorProperty* query_colliding_link_color_property_;
-  rviz::ColorProperty* query_outside_joint_limits_link_color_property_;
+  rviz_common::properties::EditableEnumProperty* planning_group_property_;
+  rviz_common::properties::BoolProperty* query_start_state_property_;
+  rviz_common::properties::BoolProperty* query_goal_state_property_;
+  rviz_common::properties::FloatProperty* query_marker_scale_property_;
+  rviz_common::properties::ColorProperty* query_start_color_property_;
+  rviz_common::properties::ColorProperty* query_goal_color_property_;
+  rviz_common::properties::FloatProperty* query_start_alpha_property_;
+  rviz_common::properties::FloatProperty* query_goal_alpha_property_;
+  rviz_common::properties::ColorProperty* query_colliding_link_color_property_;
+  rviz_common::properties::ColorProperty* query_outside_joint_limits_link_color_property_;
 
-  rviz::BoolProperty* compute_weight_limit_property_;
-  rviz::BoolProperty* show_manipulability_index_property_;
-  rviz::BoolProperty* show_manipulability_property_;
-  rviz::BoolProperty* show_joint_torques_property_;
-  rviz::FloatProperty* metrics_set_payload_property_;
-  rviz::FloatProperty* metrics_text_height_property_;
-  rviz::BoolProperty* show_workspace_property_;
+  rviz_common::properties::BoolProperty* compute_weight_limit_property_;
+  rviz_common::properties::BoolProperty* show_manipulability_index_property_;
+  rviz_common::properties::BoolProperty* show_manipulability_property_;
+  rviz_common::properties::BoolProperty* show_joint_torques_property_;
+  rviz_common::properties::FloatProperty* metrics_set_payload_property_;
+  rviz_common::properties::FloatProperty* metrics_text_height_property_;
+  rviz_common::properties::BoolProperty* show_workspace_property_;
 
-  rviz::Display* int_marker_display_;
+  rviz_common::Display* int_marker_display_;
 };
 
 }  // namespace moveit_rviz_plugin

@@ -89,15 +89,15 @@ PlanningSceneDisplay::PlanningSceneDisplay(bool listen_to_planning_scene, bool s
                                                   scene_category_, SLOT(changedSceneName()), this);
   scene_name_property_->setShouldBeSaved(false);
   scene_enabled_property_ =
-      new rviz::BoolProperty("Show Scene Geometry", true, "Indicates whether planning scenes should be displayed",
+      new rviz_common::properties::BoolProperty("Show Scene Geometry", true, "Indicates whether planning scenes should be displayed",
                              scene_category_, SLOT(changedSceneEnabled()), this);
 
-  scene_alpha_property_ = new rviz::FloatProperty("Scene Alpha", 0.9f, "Specifies the alpha for the scene geometry",
+  scene_alpha_property_ = new rviz_common::properties::FloatProperty("Scene Alpha", 0.9f, "Specifies the alpha for the scene geometry",
                                                   scene_category_, SLOT(changedSceneAlpha()), this);
   scene_alpha_property_->setMin(0.0);
   scene_alpha_property_->setMax(1.0);
 
-  scene_color_property_ = new rviz::ColorProperty(
+  scene_color_property_ = new rviz_common::properties::ColorProperty(
       "Scene Color", QColor(50, 230, 50), "The color for the planning scene obstacles (if a color is not defined)",
       scene_category_, SLOT(changedSceneColor()), this);
 
@@ -115,7 +115,7 @@ PlanningSceneDisplay::PlanningSceneDisplay(bool listen_to_planning_scene, bool s
   octree_coloring_property_->addOption("Cell Probability", OCTOMAP_PROBABLILTY_COLOR);
 
   scene_display_time_property_ =
-      new rviz::FloatProperty("Scene Display Time", 0.2f, "The amount of wall-time to wait in between rendering "
+      new rviz_common::properties::FloatProperty("Scene Display Time", 0.2f, "The amount of wall-time to wait in between rendering "
                                                           "updates to the planning scene (if any)",
                               scene_category_, SLOT(changedSceneDisplayTime()), this);
   scene_display_time_property_->setMin(0.0001);
@@ -124,23 +124,23 @@ PlanningSceneDisplay::PlanningSceneDisplay(bool listen_to_planning_scene, bool s
   {
     robot_category_ = new rviz_common::properties::Property("Scene Robot", QVariant(), "", this);
 
-    scene_robot_visual_enabled_property_ = new rviz::BoolProperty(
+    scene_robot_visual_enabled_property_ = new rviz_common::properties::BoolProperty(
         "Show Robot Visual", true, "Indicates whether the robot state specified by the planning scene should be "
                                    "displayed as defined for visualisation purposes.",
         robot_category_, SLOT(changedSceneRobotVisualEnabled()), this);
 
-    scene_robot_collision_enabled_property_ = new rviz::BoolProperty(
+    scene_robot_collision_enabled_property_ = new rviz_common::properties::BoolProperty(
         "Show Robot Collision", false, "Indicates whether the robot state specified by the planning scene should be "
                                        "displayed as defined for collision detection purposes.",
         robot_category_, SLOT(changedSceneRobotCollisionEnabled()), this);
 
-    robot_alpha_property_ = new rviz::FloatProperty("Robot Alpha", 1.0f, "Specifies the alpha for the robot links",
+    robot_alpha_property_ = new rviz_common::properties::FloatProperty("Robot Alpha", 1.0f, "Specifies the alpha for the robot links",
                                                     robot_category_, SLOT(changedRobotSceneAlpha()), this);
     robot_alpha_property_->setMin(0.0);
     robot_alpha_property_->setMax(1.0);
 
     attached_body_color_property_ =
-        new rviz::ColorProperty("Attached Body Color", QColor(150, 50, 150), "The color for the attached bodies",
+        new rviz_common::properties::ColorProperty("Attached Body Color", QColor(150, 50, 150), "The color for the attached bodies",
                                 robot_category_, SLOT(changedAttachedBodyColor()), this);
   }
   else

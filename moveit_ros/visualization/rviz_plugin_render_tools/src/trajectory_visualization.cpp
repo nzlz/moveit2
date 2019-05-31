@@ -59,7 +59,7 @@
 
 namespace moveit_rviz_plugin
 {
-TrajectoryVisualization::TrajectoryVisualization(rviz_common::properties::Property* widget, rviz::Display* display)
+TrajectoryVisualization::TrajectoryVisualization(rviz_common::properties::Property* widget, rviz_common::Display* display)
   : animating_path_(false)
   , drop_displaying_trajectory_(false)
   , current_state_(-1)
@@ -75,21 +75,21 @@ TrajectoryVisualization::TrajectoryVisualization(rviz_common::properties::Proper
                                  SLOT(changedTrajectoryTopic()), this);
 
   display_path_visual_enabled_property_ =
-      new rviz::BoolProperty("Show Robot Visual", true, "Indicates whether the geometry of the robot as defined for "
+      new rviz_common::properties::BoolProperty("Show Robot Visual", true, "Indicates whether the geometry of the robot as defined for "
                                                         "visualisation purposes should be displayed",
                              widget, SLOT(changedDisplayPathVisualEnabled()), this);
 
   display_path_collision_enabled_property_ =
-      new rviz::BoolProperty("Show Robot Collision", false, "Indicates whether the geometry of the robot as defined "
+      new rviz_common::properties::BoolProperty("Show Robot Collision", false, "Indicates whether the geometry of the robot as defined "
                                                             "for collision detection purposes should be displayed",
                              widget, SLOT(changedDisplayPathCollisionEnabled()), this);
 
-  robot_path_alpha_property_ = new rviz::FloatProperty("Robot Alpha", 0.5f, "Specifies the alpha for the robot links",
+  robot_path_alpha_property_ = new rviz_common::properties::FloatProperty("Robot Alpha", 0.5f, "Specifies the alpha for the robot links",
                                                        widget, SLOT(changedRobotPathAlpha()), this);
   robot_path_alpha_property_->setMin(0.0);
   robot_path_alpha_property_->setMax(1.0);
 
-  state_display_time_property_ = new rviz::EditableEnumProperty("State Display Time", "0.05 s",
+  state_display_time_property_ = new rviz_common::properties::EditableEnumProperty("State Display Time", "0.05 s",
                                                                 "The amount of wall-time to wait in between displaying "
                                                                 "states along a received trajectory path",
                                                                 widget, SLOT(changedStateDisplayTime()), this);
@@ -98,26 +98,26 @@ TrajectoryVisualization::TrajectoryVisualization(rviz_common::properties::Proper
   state_display_time_property_->addOptionStd("0.1 s");
   state_display_time_property_->addOptionStd("0.5 s");
 
-  loop_display_property_ = new rviz::BoolProperty("Loop Animation", false, "Indicates whether the last received path "
+  loop_display_property_ = new rviz_common::properties::BoolProperty("Loop Animation", false, "Indicates whether the last received path "
                                                                            "is to be animated in a loop",
                                                   widget, SLOT(changedLoopDisplay()), this);
 
   trail_display_property_ =
-      new rviz::BoolProperty("Show Trail", false, "Show a path trail", widget, SLOT(changedShowTrail()), this);
+      new rviz_common::properties::BoolProperty("Show Trail", false, "Show a path trail", widget, SLOT(changedShowTrail()), this);
 
   trail_step_size_property_ = new rviz::IntProperty("Trail Step Size", 1, "Specifies the step size of the samples "
                                                                           "shown in the trajectory trail.",
                                                     widget, SLOT(changedTrailStepSize()), this);
   trail_step_size_property_->setMin(1);
 
-  interrupt_display_property_ = new rviz::BoolProperty(
+  interrupt_display_property_ = new rviz_common::properties::BoolProperty(
       "Interrupt Display", false,
       "Immediately show newly planned trajectory, interrupting the currently displayed one.", widget);
 
-  robot_color_property_ = new rviz::ColorProperty(
+  robot_color_property_ = new rviz_common::properties::ColorProperty(
       "Robot Color", QColor(150, 50, 150), "The color of the animated robot", widget, SLOT(changedRobotColor()), this);
 
-  enable_robot_color_property_ = new rviz::BoolProperty(
+  enable_robot_color_property_ = new rviz_common::properties::BoolProperty(
       "Color Enabled", false, "Specifies whether robot coloring is enabled", widget, SLOT(enabledRobotColor()), this);
 }
 

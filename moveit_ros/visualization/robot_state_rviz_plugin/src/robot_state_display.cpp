@@ -75,26 +75,26 @@ RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false), load_r
                                SLOT(changedRootLinkName()), this);
   root_link_name_property_->setReadOnly(true);
 
-  robot_alpha_property_ = new rviz::FloatProperty("Robot Alpha", 1.0f, "Specifies the alpha for the robot links", this,
+  robot_alpha_property_ = new rviz_common::properties::FloatProperty("Robot Alpha", 1.0f, "Specifies the alpha for the robot links", this,
                                                   SLOT(changedRobotSceneAlpha()), this);
   robot_alpha_property_->setMin(0.0);
   robot_alpha_property_->setMax(1.0);
 
   attached_body_color_property_ =
-      new rviz::ColorProperty("Attached Body Color", QColor(150, 50, 150), "The color for the attached bodies", this,
+      new rviz_common::properties::ColorProperty("Attached Body Color", QColor(150, 50, 150), "The color for the attached bodies", this,
                               SLOT(changedAttachedBodyColor()), this);
 
   enable_link_highlight_ =
-      new rviz::BoolProperty("Show Highlights", true, "Specifies whether link highlighting is enabled", this,
+      new rviz_common::properties::BoolProperty("Show Highlights", true, "Specifies whether link highlighting is enabled", this,
                              SLOT(changedEnableLinkHighlight()), this);
   enable_visual_visible_ =
-      new rviz::BoolProperty("Visual Enabled", true, "Whether to display the visual representation of the robot.", this,
+      new rviz_common::properties::BoolProperty("Visual Enabled", true, "Whether to display the visual representation of the robot.", this,
                              SLOT(changedEnableVisualVisible()), this);
-  enable_collision_visible_ = new rviz::BoolProperty("Collision Enabled", false,
+  enable_collision_visible_ = new rviz_common::properties::BoolProperty("Collision Enabled", false,
                                                      "Whether to display the collision representation of the robot.",
                                                      this, SLOT(changedEnableCollisionVisible()), this);
 
-  show_all_links_ = new rviz::BoolProperty("Show All Links", true, "Toggle all links visibility on or off.", this,
+  show_all_links_ = new rviz_common::properties::BoolProperty("Show All Links", true, "Toggle all links visibility on or off.", this,
                                            SLOT(changedAllLinks()), this);
 }
 

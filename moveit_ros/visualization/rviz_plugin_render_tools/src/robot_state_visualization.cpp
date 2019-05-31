@@ -122,15 +122,15 @@ void RobotStateVisualization::updateHelper(const robot_state::RobotStateConstPtr
         alpha = color.a = it->second.a;
       }
     }
-    rviz::Color rcolor(color.r, color.g, color.b);
+    Ogre::ColourValue rcolor(color.r, color.g, color.b, alpha);
     const EigenSTL::vector_Isometry3d& ab_t = attached_bodies[i]->getGlobalCollisionBodyTransforms();
     const std::vector<shapes::ShapeConstPtr>& ab_shapes = attached_bodies[i]->getShapes();
     for (std::size_t j = 0; j < ab_shapes.size(); ++j)
     {
       render_shapes_->renderShape(robot_.getVisualNode(), ab_shapes[j].get(), ab_t[j], octree_voxel_render_mode_,
-                                  octree_voxel_color_mode_, rcolor, alpha);
+                                  octree_voxel_color_mode_, rcolor);
       render_shapes_->renderShape(robot_.getCollisionNode(), ab_shapes[j].get(), ab_t[j], octree_voxel_render_mode_,
-                                  octree_voxel_color_mode_, rcolor, alpha);
+                                  octree_voxel_color_mode_, rcolor);
     }
   }
   robot_.setVisualVisible(visual_visible_);

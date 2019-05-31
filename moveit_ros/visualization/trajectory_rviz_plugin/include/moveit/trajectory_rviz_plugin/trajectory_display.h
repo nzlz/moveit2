@@ -54,7 +54,7 @@ class StringProperty;
 
 namespace moveit_rviz_plugin
 {
-class TrajectoryDisplay : public rviz::Display
+class TrajectoryDisplay : public rviz_common::Display
 {
   Q_OBJECT
   // friend class TrajectoryVisualization; // allow the visualization class to access the display

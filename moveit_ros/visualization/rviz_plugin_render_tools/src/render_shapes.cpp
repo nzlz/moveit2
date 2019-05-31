@@ -115,6 +115,10 @@ void RenderShapes::renderShape(Ogre::SceneNode* node, const shapes::Shape* s, co
                                                      // as major axis (assuming z is upright);
     }
     break;
+    
+    /*
+    // TODO Use addVertex from rviz_rendering/mesh_loader_helpers/stl_loader
+    // TODO endTriangles alternative or wait for port
     case shapes::MESH:
     {
       const shapes::Mesh* mesh = static_cast<const shapes::Mesh*>(s);
@@ -152,7 +156,7 @@ void RenderShapes::renderShape(Ogre::SceneNode* node, const shapes::Shape* s, co
       }
     }
     break;
-
+    */
     case shapes::OCTREE:
     {
       OcTreeRenderPtr octree(new OcTreeRender(static_cast<const shapes::OcTree*>(s)->octree, octree_voxel_rendering,
