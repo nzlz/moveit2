@@ -37,25 +37,11 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
-#include <moveit/rviz_plugin_render_tools/trajectory_visualization.h>
-
+#include "moveit/rviz_plugin_render_tools/trajectory_visualization.hpp"
 #include "moveit/rviz_plugin_render_tools/planning_link_updater.hpp"
 #include "moveit/rviz_plugin_render_tools/robot_state_visualization.hpp"
-#include <rviz_default_plugins/robot/robot.hpp>
 
-#include <rviz_common/properties/property.hpp>
-#include <rviz_common/int_property.hpp>
-#include <rviz_common/string_property.hpp>
-#include <rviz_common/bool_property.hpp>
-#include <rviz_common/float_property.hpp>
-#include <rviz_common/ros_topic_property.hpp>
-#include <rviz_common/editable_enum_property.hpp>
-#include <rviz_common/color_property.hpp>
 #include <moveit/trajectory_processing/trajectory_tools.h>
-
-#include <rviz_default_plugins/robot/robot_link.hpp>
-#include <rviz_common/display_context.hpp>
-#include <rviz_common/window_manager_interface.hpp>
 
 namespace moveit_rviz_plugin
 {
@@ -105,7 +91,7 @@ TrajectoryVisualization::TrajectoryVisualization(rviz_common::properties::Proper
   trail_display_property_ =
       new rviz_common::properties::BoolProperty("Show Trail", false, "Show a path trail", widget, SLOT(changedShowTrail()), this);
 
-  trail_step_size_property_ = new rviz::IntProperty("Trail Step Size", 1, "Specifies the step size of the samples "
+  trail_step_size_property_ = new rviz_common::properties::IntProperty("Trail Step Size", 1, "Specifies the step size of the samples "
                                                                           "shown in the trajectory trail.",
                                                     widget, SLOT(changedTrailStepSize()), this);
   trail_step_size_property_->setMin(1);
@@ -172,7 +158,7 @@ void TrajectoryVisualization::onRobotModelLoaded(const robot_model::RobotModelCo
   // Error check
   if (!robot_model_)
   {
-    ROS_ERROR_STREAM_NAMED("trajectory_visualization", "No robot model found");
+    RCUTILS_LOG_ERROR_NAMED("trajectory_visualization", "No robot model found");
     return;
   }
 
@@ -467,12 +453,12 @@ void TrajectoryVisualization::incomingDisplayTrajectory(const moveit_msgs::msg::
   // Error check
   if (!robot_state_ || !robot_model_)
   {
-    ROS_ERROR_STREAM_NAMED("trajectory_visualization", "No robot state or robot model loaded");
+    RCUTILS_LOG_ERROR_NAMED("trajectory_visualization", "No robot state or robot model loaded");
     return;
   }
 
   if (!msg->model_id.empty() && msg->model_id != robot_model_->getName())
-    ROS_WARN("Received a trajectory to display for model '%s' but model '%s' was expected", msg->model_id.c_str(),
+    RCUTILS_LOG_WARN_NAMED("Received a trajectory to display for model '%s' but model '%s' was expected", msg->model_id.c_str(),
              robot_model_->getName().c_str());
 
   trajectory_message_to_display_.reset();
@@ -493,11 +479,11 @@ void TrajectoryVisualization::incomingDisplayTrajectory(const moveit_msgs::msg::
         t->append(tmp, 0.0);
       }
     }
-    display_->setStatus(rviz::StatusProperty::Ok, "Trajectory", "");
+    display_->setStatus(rviz_common::properties::StatusProperty::Ok, "Trajectory", "");
   }
   catch (const moveit::Exception& e)
   {
-    display_->setStatus(rviz::StatusProperty::Error, "Trajectory", e.what());
+    display_->setStatus(rviz_common::properties::StatusProperty::Error, "Trajectory", e.what());
     return;
   }
 

@@ -102,7 +102,7 @@ void MotionPlanningFrame::loadStoredStates(const std::string& pattern)
     }
     catch (std::exception& ex)
     {
-      ROS_ERROR("%s", ex.what());
+      RCLCPP_ERROR("%s", ex.what());
     }
     if (!got_state)
       continue;
@@ -156,7 +156,7 @@ void MotionPlanningFrame::saveRobotStateButtonClicked(const robot_state::RobotSt
           }
           catch (std::exception& ex)
           {
-            ROS_ERROR("Cannot save robot state on the database: %s", ex.what());
+            RCLCPP_ERROR("Cannot save robot state on the database: %s", ex.what());
           }
         }
         else
@@ -233,7 +233,7 @@ void MotionPlanningFrame::removeStateButtonClicked()
           }
           catch (std::exception& ex)
           {
-            ROS_ERROR("%s", ex.what());
+            RCLCPP_ERROR("%s", ex.what());
           }
         }
         break;

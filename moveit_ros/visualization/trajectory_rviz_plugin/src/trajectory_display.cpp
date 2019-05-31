@@ -68,11 +68,11 @@ void TrajectoryDisplay::loadRobotModel()
 
   if (!rdf_loader_->getURDF())
   {
-    this->setStatus(rviz::StatusProperty::Error, "Robot Model",
+    this->setStatus(rviz_common::properties::StatusProperty::Error, "Robot Model",
                     "Failed to load from parameter " + robot_description_property_->getString());
     return;
   }
-  this->setStatus(rviz::StatusProperty::Ok, "Robot Model", "Successfully loaded");
+  this->setStatus(rviz_common::properties::StatusProperty::Ok, "Robot Model", "Successfully loaded");
 
   const srdf::ModelSharedPtr& srdf =
       rdf_loader_->getSRDF() ? rdf_loader_->getSRDF() : srdf::ModelSharedPtr(new srdf::Model());

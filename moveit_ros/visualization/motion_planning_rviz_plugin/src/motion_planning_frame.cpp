@@ -164,7 +164,7 @@ MotionPlanningFrame::MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz_c
     }
     catch (std::exception& ex)
     {
-      // ROS_ERROR("Object recognition action: %s", ex.what());
+      // RCLCPP_ERROR("Object recognition action: %s", ex.what());
       object_recognition_client_.reset();
     }
   }
@@ -174,7 +174,7 @@ MotionPlanningFrame::MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz_c
   }
   catch (std::exception& ex)
   {
-    ROS_ERROR("%s", ex.what());
+    RCLCPP_ERROR("%s", ex.what());
   }
 
   try
@@ -193,7 +193,7 @@ MotionPlanningFrame::MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz_c
   }
   catch (std::exception& ex)
   {
-    ROS_ERROR("%s", ex.what());
+    RCLCPP_ERROR("%s", ex.what());
   }
 }
 
@@ -324,7 +324,7 @@ void MotionPlanningFrame::changePlanningGroupHelper()
   {
     if (move_group_ && move_group_->getName() == group)
       return;
-    ROS_INFO("Constructing new MoveGroup connection for group '%s' in namespace '%s'", group.c_str(),
+    RCLCPP_INFO("Constructing new MoveGroup connection for group '%s' in namespace '%s'", group.c_str(),
              planning_display_->getMoveGroupNS().c_str());
     moveit::planning_interface::MoveGroupInterface::Options opt(group);
     opt.robot_model_ = robot_model;
@@ -344,7 +344,7 @@ void MotionPlanningFrame::changePlanningGroupHelper()
     }
     catch (std::exception& ex)
     {
-      ROS_ERROR("%s", ex.what());
+      RCLCPP_ERROR("%s", ex.what());
     }
     planning_display_->addMainLoopJob(
         boost::bind(&MotionPlanningParamWidget::setMoveGroup, ui_->planner_param_treeview, move_group_));

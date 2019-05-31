@@ -94,7 +94,7 @@ void MotionPlanningFrame::selectedDetectedObjectChanged()
   QList<QListWidgetItem*> sel = ui_->detected_objects_list->selectedItems();
   if (sel.empty())
   {
-    ROS_INFO("No objects to select");
+    RCLCPP_INFO("No objects to select");
     return;
   }
   planning_scene_monitor::LockedPlanningSceneRW ps = planning_display_->getPlanningSceneRW();
@@ -130,7 +130,7 @@ void MotionPlanningFrame::triggerObjectDetection()
     }
     catch (std::exception& ex)
     {
-      ROS_ERROR("Object recognition action: %s", ex.what());
+      RCLCPP_ERROR("Object recognition action: %s", ex.what());
       return;
     }
   }
@@ -142,7 +142,7 @@ void MotionPlanningFrame::triggerObjectDetection()
   }
   if (object_recognition_client_->getState() != actionlib::SimpleClientGoalState::SUCCEEDED)
   {
-    ROS_WARN_STREAM("Fail: " << object_recognition_client_->getState().toString() << ": "
+    RCLCPP_WARN("Fail: " << object_recognition_client_->getState().toString() << ": "
                              << object_recognition_client_->getState().getText());
   }
 }
@@ -195,7 +195,7 @@ void MotionPlanningFrame::selectedSupportSurfaceChanged()
   QList<QListWidgetItem*> sel = ui_->support_surfaces_list->selectedItems();
   if (sel.empty())
   {
-    ROS_INFO("No tables to select");
+    RCLCPP_INFO("No tables to select");
     return;
   }
   planning_scene_monitor::LockedPlanningSceneRW ps = planning_display_->getPlanningSceneRW();
@@ -224,7 +224,7 @@ void MotionPlanningFrame::updateSupportSurfacesList()
   double max_y = ui_->roi_center_y->value() + ui_->roi_size_y->value() / 2.0;
   double max_z = ui_->roi_center_z->value() + ui_->roi_size_z->value() / 2.0;
   std::vector<std::string> support_ids = semantic_world_->getTableNamesInROI(min_x, min_y, min_z, max_x, max_y, max_z);
-  ROS_INFO("%d Tables in collision world", (int)support_ids.size());
+  RCLCPP_INFO("%d Tables in collision world", (int)support_ids.size());
 
   ui_->support_surfaces_list->setUpdatesEnabled(false);
   bool old_state = ui_->support_surfaces_list->blockSignals(true);
@@ -254,7 +254,7 @@ void MotionPlanningFrame::pickObjectButtonClicked()
   std::string group_name = planning_display_->getCurrentPlanningGroup();
   if (sel.empty())
   {
-    ROS_INFO("No objects to pick");
+    RCLCPP_INFO("No objects to pick");
     return;
   }
   pick_object_name_[group_name] = sel[0]->text().toStdString();
@@ -279,7 +279,7 @@ void MotionPlanningFrame::pickObjectButtonClicked()
     else
       support_surface_name_.clear();
   }
-  ROS_INFO("Trying to pick up object %s from support surface %s", pick_object_name_[group_name].c_str(),
+  RCLCPP_INFO("Trying to pick up object %s from support surface %s", pick_object_name_[group_name].c_str(),
            support_surface_name_.c_str());
   planning_display_->addBackgroundJob(boost::bind(&MotionPlanningFrame::pickObject, this), "pick");
 }
@@ -294,7 +294,7 @@ void MotionPlanningFrame::placeObjectButtonClicked()
   else
   {
     support_surface_name_.clear();
-    ROS_ERROR("Need to specify table to place object on");
+    RCLCPP_ERROR("Need to specify table to place object on");
     return;
   }
 
@@ -305,7 +305,7 @@ void MotionPlanningFrame::placeObjectButtonClicked()
   const planning_scene_monitor::LockedPlanningSceneRO& ps = planning_display_->getPlanningSceneRO();
   if (!ps)
   {
-    ROS_ERROR("No planning scene");
+    RCLCPP_ERROR("No planning scene");
     return;
   }
   const robot_model::JointModelGroup* jmg = ps->getCurrentState().getJointModelGroup(group_name);
@@ -314,7 +314,7 @@ void MotionPlanningFrame::placeObjectButtonClicked()
 
   if (attached_bodies.empty())
   {
-    ROS_ERROR("No bodies to place");
+    RCLCPP_ERROR("No bodies to place");
     return;
   }
 
@@ -336,7 +336,7 @@ void MotionPlanningFrame::pickObject()
   ui_->pick_button->setEnabled(false);
   if (pick_object_name_.find(group_name) == pick_object_name_.end())
   {
-    ROS_ERROR("No pick object set for this group");
+    RCLCPP_ERROR("No pick object set for this group");
     return;
   }
   if (!support_surface_name_.empty())

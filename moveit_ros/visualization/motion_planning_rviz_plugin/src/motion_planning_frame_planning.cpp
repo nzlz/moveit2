@@ -97,7 +97,7 @@ void MotionPlanningFrame::pathConstraintsIndexChanged(int index)
     {
       std::string c = ui_->path_constraints_combo_box->itemText(index).toStdString();
       if (!move_group_->setPathConstraints(c))
-        ROS_WARN_STREAM("Unable to set the path constraints: " << c);
+        RCLCPP_WARN("Unable to set the path constraints: " << c);
     }
     else
       move_group_->clearPathConstraints();
@@ -137,7 +137,7 @@ bool MotionPlanningFrame::computeCartesianPlan()
 
   if (fraction >= 1.0)
   {
-    ROS_INFO("Achieved %f %% of Cartesian path", fraction * 100.);
+    RCLCPP_INFO("Achieved %f %% of Cartesian path", fraction * 100.);
 
     // Compute time parameterization to also provide velocities
     // https://groups.google.com/forum/#!topic/moveit-users/MOoFxy2exT4
@@ -146,7 +146,7 @@ bool MotionPlanningFrame::computeCartesianPlan()
     trajectory_processing::IterativeParabolicTimeParameterization iptp;
     bool success =
         iptp.computeTimeStamps(rt, ui_->velocity_scaling_factor->value(), ui_->acceleration_scaling_factor->value());
-    ROS_INFO("Computing time stamps %s", success ? "SUCCEDED" : "FAILED");
+    RCLCPP_INFO("Computing time stamps %s", success ? "SUCCEDED" : "FAILED");
 
     // Store trajectory in current_plan_
     current_plan_.reset(new moveit::planning_interface::MoveGroupInterface::Plan());
@@ -314,11 +314,11 @@ void MotionPlanningFrame::updateQueryStateHelper(robot_state::RobotState& state,
       }
       // Explain if no valid rand state found
       if (attempt_count >= MAX_ATTEMPTS)
-        ROS_WARN("Unable to find a random collision free configuration after %d attempts", MAX_ATTEMPTS);
+        RCLCPP_WARN("Unable to find a random collision free configuration after %d attempts", MAX_ATTEMPTS);
     }
     else
     {
-      ROS_WARN_STREAM("Unable to get joint model group " << planning_display_->getCurrentPlanningGroup());
+      RCLCPP_WARN("Unable to get joint model group " << planning_display_->getCurrentPlanningGroup());
     }
     return;
   }

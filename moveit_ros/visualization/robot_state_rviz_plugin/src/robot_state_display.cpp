@@ -306,13 +306,13 @@ void RobotStateDisplay::newRobotStateCallback(const moveit_msgs::msg::DisplayRob
   {
     robot_state::robotStateMsgToRobotState(state_msg->state, *robot_state_);
     setRobotHighlights(state_msg->highlight_links);
-    setStatus(rviz::StatusProperty::Ok, "RobotState", "");
+    setStatus(rviz_common::properties::StatusProperty::Ok, "RobotState", "");
   }
   catch (const moveit::Exception& e)
   {
     robot_state_->setToDefaultValues();
     setRobotHighlights(moveit_msgs::msg::DisplayRobotState::_highlight_links_type());
-    setStatus(rviz::StatusProperty::Error, "RobotState", e.what());
+    setStatus(rviz_common::properties::StatusProperty::Error, "RobotState", e.what());
     return;
   }
   update_state_ = true;
@@ -367,14 +367,14 @@ void RobotStateDisplay::loadRobotModel()
     root_link_name_property_->setStdString(getRobotModel()->getRootLinkName());
     root_link_name_property_->blockSignals(old_state);
     update_state_ = true;
-    setStatus(rviz::StatusProperty::Ok, "RobotState", "Planning Model Loaded Successfully");
+    setStatus(rviz_common::properties::StatusProperty::Ok, "RobotState", "Planning Model Loaded Successfully");
 
     changedEnableVisualVisible();
     changedEnableCollisionVisible();
     robot_->setVisible(true);
   }
   else
-    setStatus(rviz::StatusProperty::Error, "RobotState", "No Planning Model Loaded");
+    setStatus(rviz_common::properties::StatusProperty::Error, "RobotState", "No Planning Model Loaded");
 
   highlights_.clear();
 }

@@ -425,7 +425,7 @@ void MotionPlanningFrame::computeSaveSceneButtonClicked()
     }
     catch (std::exception& ex)
     {
-      ROS_ERROR("%s", ex.what());
+      RCLCPP_ERROR("%s", ex.what());
     }
 
     planning_display_->addMainLoopJob(boost::bind(&MotionPlanningFrame::populatePlanningSceneTreeView, this));
@@ -446,7 +446,7 @@ void MotionPlanningFrame::computeSaveQueryButtonClicked(const std::string& scene
     }
     catch (std::exception& ex)
     {
-      ROS_ERROR("%s", ex.what());
+      RCLCPP_ERROR("%s", ex.what());
     }
 
     planning_display_->addMainLoopJob(boost::bind(&MotionPlanningFrame::populatePlanningSceneTreeView, this));
@@ -470,7 +470,7 @@ void MotionPlanningFrame::computeDeleteSceneButtonClicked()
         }
         catch (std::exception& ex)
         {
-          ROS_ERROR("%s", ex.what());
+          RCLCPP_ERROR("%s", ex.what());
         }
       }
       else
@@ -483,7 +483,7 @@ void MotionPlanningFrame::computeDeleteSceneButtonClicked()
         }
         catch (std::exception& ex)
         {
-          ROS_ERROR("%s", ex.what());
+          RCLCPP_ERROR("%s", ex.what());
         }
       }
       planning_display_->addMainLoopJob(boost::bind(&MotionPlanningFrame::populatePlanningSceneTreeView, this));
@@ -509,7 +509,7 @@ void MotionPlanningFrame::computeDeleteQueryButtonClicked()
         }
         catch (std::exception& ex)
         {
-          ROS_ERROR("%s", ex.what());
+          RCLCPP_ERROR("%s", ex.what());
         }
         planning_display_->addMainLoopJob(
             boost::bind(&MotionPlanningFrame::computeDeleteQueryButtonClickedHelper, this, s));
@@ -581,17 +581,17 @@ void MotionPlanningFrame::computeLoadSceneButtonClicked()
         }
         catch (std::exception& ex)
         {
-          ROS_ERROR("%s", ex.what());
+          RCLCPP_ERROR("%s", ex.what());
         }
 
         if (got_ps)
         {
-          ROS_INFO("Loaded scene '%s'", scene.c_str());
+          RCLCPP_INFO("Loaded scene '%s'", scene.c_str());
           if (planning_display_->getPlanningSceneMonitor())
           {
             if (scene_m->robot_model_name != planning_display_->getRobotModel()->getName())
             {
-              ROS_INFO("Scene '%s' was saved for robot '%s' but we are using robot '%s'. Using scene geometry only",
+              RCLCPP_INFO("Scene '%s' was saved for robot '%s' but we are using robot '%s'. Using scene geometry only",
                        scene.c_str(), scene_m->robot_model_name.c_str(),
                        planning_display_->getRobotModel()->getName().c_str());
               planning_scene_world_publisher_.publish(scene_m->world);
@@ -608,7 +608,7 @@ void MotionPlanningFrame::computeLoadSceneButtonClicked()
             planning_scene_publisher_.publish(static_cast<const moveit_msgs::msg::PlanningScene&>(*scene_m));
         }
         else
-          ROS_WARN("Failed to load scene '%s'. Has the message format changed since the scene was saved?",
+          RCLCPP_WARN("Failed to load scene '%s'. Has the message format changed since the scene was saved?",
                    scene.c_str());
       }
     }
@@ -635,7 +635,7 @@ void MotionPlanningFrame::computeLoadQueryButtonClicked()
         }
         catch (std::exception& ex)
         {
-          ROS_ERROR("%s", ex.what());
+          RCLCPP_ERROR("%s", ex.what());
         }
 
         if (got_q)
@@ -659,7 +659,7 @@ void MotionPlanningFrame::computeLoadQueryButtonClicked()
           planning_display_->setQueryGoalState(*goal_state);
         }
         else
-          ROS_ERROR("Failed to load planning query '%s'. Has the message format changed since the query was saved?",
+          RCLCPP_ERROR("Failed to load planning query '%s'. Has the message format changed since the query was saved?",
                     query_name.c_str());
       }
     }
@@ -920,10 +920,10 @@ void MotionPlanningFrame::computeExportAsText(const std::string& path)
     {
       ps->saveGeometryToStream(fout);
       fout.close();
-      ROS_INFO("Saved current scene geometry to '%s'", p.c_str());
+      RCLCPP_INFO("Saved current scene geometry to '%s'", p.c_str());
     }
     else
-      ROS_WARN("Unable to save current scene geometry to '%s'", p.c_str());
+      RCLCPP_WARN("Unable to save current scene geometry to '%s'", p.c_str());
   }
 }
 
@@ -935,7 +935,7 @@ void MotionPlanningFrame::computeImportFromText(const std::string& path)
     std::ifstream fin(path.c_str());
     if (ps->loadGeometryFromStream(fin))
     {
-      ROS_INFO("Loaded scene geometry from '%s'", path.c_str());
+      RCLCPP_INFO("Loaded scene geometry from '%s'", path.c_str());
       planning_display_->addMainLoopJob(boost::bind(&MotionPlanningFrame::populateCollisionObjectsList, this));
       planning_display_->queueRenderSceneGeometry();
     }

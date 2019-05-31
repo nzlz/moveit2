@@ -43,6 +43,20 @@
 #include <rviz_common/display.hpp>
 #include <rviz_common/panel_dock_widget.hpp>
 
+#include <rviz_default_plugins/robot/robot.hpp>
+#include <rviz_common/properties/property.hpp>
+#include <rviz_common/properties/int_property.hpp>
+#include <rviz_common/properties/string_property.hpp>
+#include <rviz_common/properties/bool_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/ros_topic_property.hpp>
+#include <rviz_common/properties/editable_enum_property.hpp>
+#include <rviz_common/properties/color_property.hpp>
+
+#include <rviz_default_plugins/robot/robot_link.hpp>
+#include <rviz_common/display_context.hpp>
+#include <rviz_common/window_manager_interface.hpp>
+
 #ifndef Q_MOC_RUN
 #include "moveit/rviz_plugin_render_tools/robot_state_visualization.hpp"
 #include "moveit/rviz_plugin_render_tools/trajectory_panel.hpp"
@@ -50,7 +64,7 @@
 #include <moveit/robot_model/robot_model.h>
 #include <moveit/robot_state/robot_state.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
-#include <moveit_msgs/msg/DisplayTrajectory.hpp>
+#include <moveit_msgs/msg/display_trajectory.hpp>
 #endif
 
 namespace rviz
@@ -167,7 +181,7 @@ protected:
   rviz_common::properties::BoolProperty* interrupt_display_property_;
   rviz_common::properties::ColorProperty* robot_color_property_;
   rviz_common::properties::BoolProperty* enable_robot_color_property_;
-  rviz::IntProperty* trail_step_size_property_;
+  rviz_common::properties::IntProperty* trail_step_size_property_;
 };
 
 }  // namespace moveit_rviz_plugin

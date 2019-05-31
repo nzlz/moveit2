@@ -142,7 +142,7 @@ void MotionPlanningFrame::computeDatabaseConnectButtonClicked()
     {
       planning_display_->addMainLoopJob(
           boost::bind(&MotionPlanningFrame::computeDatabaseConnectButtonClickedHelper, this, 3));
-      ROS_ERROR("%s", ex.what());
+      RCLCPP_ERROR("%s", ex.what());
       return;
     }
     planning_display_->addMainLoopJob(

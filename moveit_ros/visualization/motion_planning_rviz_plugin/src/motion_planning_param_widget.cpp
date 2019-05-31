@@ -101,7 +101,7 @@ rviz_common::properties::Property* MotionPlanningParamWidget::createPropertyTree
 
     if (try_lexical_convert(value, value_long))
     {
-      new rviz::IntProperty(key, value_long, QString(), root, SLOT(changedValue()), this);
+      new rviz_common::properties::IntProperty(key, value_long, QString(), root, SLOT(changedValue()), this);
     }
     else if (try_lexical_convert(value, value_double))
     {
