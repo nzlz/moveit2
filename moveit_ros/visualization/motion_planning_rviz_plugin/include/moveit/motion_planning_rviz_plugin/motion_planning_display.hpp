@@ -247,7 +247,7 @@ protected:
 
   // the planning frame
   MotionPlanningFrame* frame_;
-  rviz::PanelDockWidget* frame_dock_;
+  rviz_common::PanelDockWidget* frame_dock_;
 
   // robot interaction
   robot_interaction::RobotInteractionPtr robot_interaction_;

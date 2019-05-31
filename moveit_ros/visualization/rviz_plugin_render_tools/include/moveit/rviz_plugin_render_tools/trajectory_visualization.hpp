@@ -104,7 +104,7 @@ public:
   virtual void update(float wall_dt, float ros_dt);
   virtual void reset();
 
-  void onInitialize(Ogre::SceneNode* scene_node, rviz_common::DisplayContext* context, const ros::NodeHandle& update_nh);
+  void onInitialize(Ogre::SceneNode* scene_node, rviz_common::DisplayContext* context, const rclcpp::Node& ros_node);
   void onRobotModelLoaded(const robot_model::RobotModelConstPtr& robot_model);
   void onEnable();
   void onDisable();
@@ -166,9 +166,9 @@ protected:
   rviz_common::properties::Property* widget_;
   Ogre::SceneNode* scene_node_;
   rviz_common::DisplayContext* context_;
-  ros::NodeHandle update_nh_;
+  rclcpp::Node ros_node_;
   TrajectoryPanel* trajectory_slider_panel_;
-  rviz::PanelDockWidget* trajectory_slider_dock_panel_;
+  rviz_common::PanelDockWidget* trajectory_slider_dock_panel_;
 
   // Properties
   rviz_common::properties::BoolProperty* display_path_visual_enabled_property_;

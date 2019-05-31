@@ -246,7 +246,7 @@ void OcTreeRender::octreeDecoding(const std::shared_ptr<const octomap::OcTree>& 
     cloud_[i]->clear();
     cloud_[i]->setDimensions(size, size, size);
 
-    cloud_[i]->addPoints(&point_buf[i].front(), point_buf[i].size());
+    cloud_[i]->addPoints(point_buf[i].begins(), point_buf[i].end());
     point_buf[i].clear();
   }
 }

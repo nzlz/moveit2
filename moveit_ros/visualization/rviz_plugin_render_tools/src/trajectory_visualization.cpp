@@ -36,6 +36,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "moveit/rviz_plugin_render_tools/trajectory_visualization.hpp"
 #include "moveit/rviz_plugin_render_tools/planning_link_updater.hpp"
@@ -119,12 +120,12 @@ TrajectoryVisualization::~TrajectoryVisualization()
 }
 
 void TrajectoryVisualization::onInitialize(Ogre::SceneNode* scene_node, rviz_common::DisplayContext* context,
-                                           const ros::NodeHandle& update_nh)
+                                           const rclcpp::Node& ros_node)
 {
   // Save pointers for later use
   scene_node_ = scene_node;
   context_ = context;
-  update_nh_ = update_nh;
+  ros_node_ = ros_node;
 
   // Load trajectory robot
   display_path_robot_.reset(new RobotStateVisualization(scene_node_, context_, "Planned Path", widget_));
@@ -132,7 +133,7 @@ void TrajectoryVisualization::onInitialize(Ogre::SceneNode* scene_node, rviz_com
   display_path_robot_->setCollisionVisible(display_path_collision_enabled_property_->getBool());
   display_path_robot_->setVisible(false);
 
-  rviz::WindowManagerInterface* window_context = context_->getWindowManager();
+  rviz_common::WindowManagerInterface* window_context = context_->getWindowManager();
   if (window_context)
   {
     trajectory_slider_panel_ = new TrajectoryPanel(window_context->getParentWindow());
@@ -251,7 +252,7 @@ void TrajectoryVisualization::changedTrajectoryTopic()
   // post-pone subscription if robot_state_ is not yet defined, i.e. onRobotModelLoaded() not yet called
   if (!trajectory_topic_property_->getStdString().empty() && robot_state_)
   {
-    trajectory_topic_sub_ = update_nh_.subscribe(trajectory_topic_property_->getStdString(), 2,
+    trajectory_topic_sub_ = ros_node_.create_subscription<moveit_msgs::msg::DisplayTrajectory>(trajectory_topic_property_->getStdString(), 2,
                                                  &TrajectoryVisualization::incomingDisplayTrajectory, this);
   }
 }
@@ -333,7 +334,7 @@ float TrajectoryVisualization::getStateDisplayTime()
     {
       t = boost::lexical_cast<float>(tm);
     }
-    catch (const boost::bad_lexical_cast& ex)
+    catch (const boost::bad_lexical_cast)
     {
       state_display_time_property_->setStdString("0.05 s");
     }
