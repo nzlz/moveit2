@@ -59,7 +59,7 @@
 
 namespace moveit_rviz_plugin
 {
-TrajectoryVisualization::TrajectoryVisualization(rviz::Property* widget, rviz::Display* display)
+TrajectoryVisualization::TrajectoryVisualization(rviz_common::properties::Property* widget, rviz::Display* display)
   : animating_path_(false)
   , drop_displaying_trajectory_(false)
   , current_state_(-1)
@@ -132,7 +132,7 @@ TrajectoryVisualization::~TrajectoryVisualization()
     delete trajectory_slider_dock_panel_;
 }
 
-void TrajectoryVisualization::onInitialize(Ogre::SceneNode* scene_node, rviz::DisplayContext* context,
+void TrajectoryVisualization::onInitialize(Ogre::SceneNode* scene_node, rviz_common::DisplayContext* context,
                                            const ros::NodeHandle& update_nh)
 {
   // Save pointers for later use
@@ -232,8 +232,8 @@ void TrajectoryVisualization::changedShowTrail()
   for (std::size_t i = 0; i < trajectory_trail_.size(); i++)
   {
     int waypoint_i = std::min(i * stepsize, t->getWayPointCount() - 1);  // limit to last trajectory point
-    rviz::Robot* r =
-        new rviz::Robot(scene_node_, context_, "Trail Robot " + boost::lexical_cast<std::string>(i), nullptr);
+    rviz_default_plugins::robot::Robot* r =
+        new rviz_default_plugins::robot::Robot(scene_node_, context_, "Trail Robot " + boost::lexical_cast<std::string>(i), nullptr);
     r->load(*robot_model_->getURDF());
     r->setVisualVisible(display_path_visual_enabled_property_->getBool());
     r->setCollisionVisible(display_path_collision_enabled_property_->getBool());
@@ -524,7 +524,7 @@ void TrajectoryVisualization::enabledRobotColor()
     unsetRobotColor(&(display_path_robot_->getRobot()));
 }
 
-void TrajectoryVisualization::unsetRobotColor(rviz::Robot* robot)
+void TrajectoryVisualization::unsetRobotColor(rviz_default_plugins::robot::Robot* robot)
 {
   for (auto& link : robot->getLinks())
     link.second->unsetColor();
@@ -535,7 +535,7 @@ void TrajectoryVisualization::setDefaultAttachedObjectColor(const QColor& color)
   if (!display_path_robot_)
     return;
 
-  std_msgs::ColorRGBA color_msg;
+  std_msgs::msg::ColorRGBA color_msg;
   color_msg.r = color.redF();
   color_msg.g = color.greenF();
   color_msg.b = color.blueF();
@@ -543,7 +543,7 @@ void TrajectoryVisualization::setDefaultAttachedObjectColor(const QColor& color)
   display_path_robot_->setDefaultAttachedObjectColor(color_msg);
 }
 
-void TrajectoryVisualization::setRobotColor(rviz::Robot* robot, const QColor& color)
+void TrajectoryVisualization::setRobotColor(rviz_default_plugins::robot::Robot* robot, const QColor& color)
 {
   for (auto& link : robot->getLinks())
     robot->getLink(link.first)->setColor(color.redF(), color.greenF(), color.blueF());

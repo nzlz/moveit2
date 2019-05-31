@@ -88,9 +88,9 @@ MotionPlanningDisplay::MotionPlanningDisplay()
   , int_marker_display_(nullptr)
 {
   // Category Groups
-  plan_category_ = new rviz::Property("Planning Request", QVariant(), "", this);
-  metrics_category_ = new rviz::Property("Planning Metrics", QVariant(), "", this);
-  path_category_ = new rviz::Property("Planned Path", QVariant(), "", this);
+  plan_category_ = new rviz_common::properties::Property("Planning Request", QVariant(), "", this);
+  metrics_category_ = new rviz_common::properties::Property("Planning Metrics", QVariant(), "", this);
+  path_category_ = new rviz_common::properties::Property("Planned Path", QVariant(), "", this);
 
   // Metrics category -----------------------------------------------------------------------------------------
   compute_weight_limit_property_ = new rviz::BoolProperty(
@@ -204,7 +204,7 @@ void MotionPlanningDisplay::onInitialize()
   query_robot_start_->setCollisionVisible(false);
   query_robot_start_->setVisualVisible(true);
   query_robot_start_->setVisible(query_start_state_property_->getBool());
-  std_msgs::ColorRGBA color;
+  std_msgs::msg::ColorRGBA color;
   qcolor = query_start_color_property_->getColor();
   color.r = qcolor.redF();
   color.g = qcolor.greenF();
@@ -277,7 +277,7 @@ void MotionPlanningDisplay::toggleSelectPlanningGroupSubscription(bool enable)
   }
 }
 
-void MotionPlanningDisplay::selectPlanningGroupCallback(const std_msgs::StringConstPtr& msg)
+void MotionPlanningDisplay::selectPlanningGroupCallback(const std_msgs::msg::StringConstPtr& msg)
 {
   // synchronize ROS callback with main loop
   addMainLoopJob(boost::bind(&MotionPlanningDisplay::changePlanningGroup, this, msg->data));
@@ -463,7 +463,7 @@ void MotionPlanningDisplay::renderWorkspaceBox()
 
   if (!workspace_box_)
   {
-    workspace_box_.reset(new rviz::Shape(rviz::Shape::Cube, context_->getSceneManager(), planning_scene_node_));
+    workspace_box_.reset(new rviz_rendering::Shape(rviz_rendering::Shape::Cube, context_->getSceneManager(), planning_scene_node_));
     workspace_box_->setColor(0.0f, 0.0f, 0.6f, 0.3f);
   }
 
@@ -832,7 +832,7 @@ void MotionPlanningDisplay::publishInteractiveMarkers(bool pose_update)
 
 void MotionPlanningDisplay::changedQueryStartColor()
 {
-  std_msgs::ColorRGBA color;
+  std_msgs::msg::ColorRGBA color;
   QColor qcolor = query_start_color_property_->getColor();
   color.r = qcolor.redF();
   color.g = qcolor.greenF();
@@ -862,7 +862,7 @@ void MotionPlanningDisplay::changedQueryMarkerScale()
 
 void MotionPlanningDisplay::changedQueryGoalColor()
 {
-  std_msgs::ColorRGBA color;
+  std_msgs::msg::ColorRGBA color;
   QColor qcolor = query_goal_color_property_->getColor();
   color.r = qcolor.redF();
   color.g = qcolor.greenF();
@@ -1428,7 +1428,7 @@ void MotionPlanningDisplay::visualizePlaceLocations(const std::vector<geometry_m
   place_locations_display_.resize(place_poses.size());
   for (std::size_t i = 0; i < place_poses.size(); ++i)
   {
-    place_locations_display_[i].reset(new rviz::Shape(rviz::Shape::Sphere, context_->getSceneManager()));
+    place_locations_display_[i].reset(new rviz_rendering::Shape(rviz_rendering::Shape::Sphere, context_->getSceneManager()));
     place_locations_display_[i]->setColor(1.0f, 0.0f, 0.0f, 0.3f);
     Ogre::Vector3 center(place_poses[i].pose.position.x, place_poses[i].pose.position.y,
                          place_poses[i].pose.position.z);

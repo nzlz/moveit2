@@ -46,7 +46,7 @@
 
 namespace moveit_rviz_plugin
 {
-typedef std::vector<rviz::PointCloud::Point> VPoint;
+typedef std::vector<rviz_rendering::PointCloud::Point> VPoint;
 typedef std::vector<VPoint> VVPoint;
 
 OcTreeRender::OcTreeRender(const std::shared_ptr<const octomap::OcTree>& octree,
@@ -77,9 +77,9 @@ OcTreeRender::OcTreeRender(const std::shared_ptr<const octomap::OcTree>& octree,
   {
     std::stringstream sname;
     sname << "PointCloud Nr." << i;
-    cloud_[i] = new rviz::PointCloud();
+    cloud_[i] = new rviz_rendering::PointCloud();
     cloud_[i]->setName(sname.str());
-    cloud_[i]->setRenderMode(rviz::PointCloud::RM_BOXES);
+    cloud_[i]->setRenderMode(rviz_rendering::PointCloud::RM_BOXES);
     scene_node_->attachObject(cloud_[i]);
   }
 
@@ -108,7 +108,7 @@ void moveit_rviz_plugin::OcTreeRender::setOrientation(const Ogre::Quaternion& or
 
 // method taken from octomap_server package
 void OcTreeRender::setColor(double z_pos, double min_z, double max_z, double color_factor,
-                            rviz::PointCloud::Point* point)
+                            rviz_rendering::PointCloud::Point* point)
 {
   int i;
   double m, n, f;
@@ -209,7 +209,7 @@ void OcTreeRender::octreeDecoding(const std::shared_ptr<const octomap::OcTree>& 
 
       if (display_voxel)
       {
-        rviz::PointCloud::Point new_point;
+        rviz_rendering::PointCloud::Point new_point;
 
         new_point.position.x = it.getX();
         new_point.position.y = it.getY();

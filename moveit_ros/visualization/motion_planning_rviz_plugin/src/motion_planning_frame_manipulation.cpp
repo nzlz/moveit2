@@ -98,7 +98,7 @@ void MotionPlanningFrame::selectedDetectedObjectChanged()
     return;
   }
   planning_scene_monitor::LockedPlanningSceneRW ps = planning_display_->getPlanningSceneRW();
-  std_msgs::ColorRGBA pick_object_color;
+  std_msgs::msg::ColorRGBA pick_object_color;
   pick_object_color.r = 1.0;
   pick_object_color.g = 0.0;
   pick_object_color.b = 0.0;
@@ -199,7 +199,7 @@ void MotionPlanningFrame::selectedSupportSurfaceChanged()
     return;
   }
   planning_scene_monitor::LockedPlanningSceneRW ps = planning_display_->getPlanningSceneRW();
-  std_msgs::ColorRGBA selected_support_surface_color;
+  std_msgs::msg::ColorRGBA selected_support_surface_color;
   selected_support_surface_color.r = 0.0;
   selected_support_surface_color.g = 0.0;
   selected_support_surface_color.b = 1.0;

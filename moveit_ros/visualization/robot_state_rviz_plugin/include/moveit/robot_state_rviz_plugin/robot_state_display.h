@@ -107,13 +107,13 @@ protected:
    */
   void calculateOffsetPosition();
 
-  void setLinkColor(rviz::Robot* robot, const std::string& link_name, const QColor& color);
-  void unsetLinkColor(rviz::Robot* robot, const std::string& link_name);
+  void setLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name, const QColor& color);
+  void unsetLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name);
 
   void newRobotStateCallback(const moveit_msgs::msg::DisplayRobotState::ConstPtr& state);
 
   void setRobotHighlights(const moveit_msgs::msg::DisplayRobotState::_highlight_links_type& highlight_links);
-  void setHighlight(const std::string& link_name, const std_msgs::ColorRGBA& color);
+  void setHighlight(const std::string& link_name, const std_msgs::msg::ColorRGBA& color);
   void unsetHighlight(const std::string& link_name);
 
   // overrides from Display
@@ -130,7 +130,7 @@ protected:
   rdf_loader::RDFLoaderPtr rdf_loader_;
   robot_model::RobotModelConstPtr robot_model_;
   robot_state::RobotStatePtr robot_state_;
-  std::map<std::string, std_msgs::ColorRGBA> highlights_;
+  std::map<std::string, std_msgs::msg::ColorRGBA> highlights_;
   bool update_state_;
   bool load_robot_model_;  // for delayed robot initialization
 

@@ -79,18 +79,18 @@ class TrajectoryVisualization : public QObject
 public:
   /**
    * \brief Playback a trajectory from a planned path
-   * \param widget - either a rviz::Display or rviz::Property
+   * \param widget - either a rviz::Display or rviz_common::properties::Property
    * \param display - the rviz::Display from the parent
    * \return true on success
    */
-  TrajectoryVisualization(rviz::Property* widget, rviz::Display* display);
+  TrajectoryVisualization(rviz_common::properties::Property* widget, rviz::Display* display);
 
   ~TrajectoryVisualization() override;
 
   virtual void update(float wall_dt, float ros_dt);
   virtual void reset();
 
-  void onInitialize(Ogre::SceneNode* scene_node, rviz::DisplayContext* context, const ros::NodeHandle& update_nh);
+  void onInitialize(Ogre::SceneNode* scene_node, rviz_common::DisplayContext* context, const ros::NodeHandle& update_nh);
   void onRobotModelLoaded(const robot_model::RobotModelConstPtr& robot_model);
   void onEnable();
   void onDisable();
@@ -131,12 +131,12 @@ protected:
   RobotStateVisualizationPtr display_path_robot_;
 
   // Handle colouring of robot
-  void setRobotColor(rviz::Robot* robot, const QColor& color);
-  void unsetRobotColor(rviz::Robot* robot);
+  void setRobotColor(rviz_default_plugins::robot::Robot* robot, const QColor& color);
+  void unsetRobotColor(rviz_default_plugins::robot::Robot* robot);
 
   robot_trajectory::RobotTrajectoryPtr displaying_trajectory_message_;
   robot_trajectory::RobotTrajectoryPtr trajectory_message_to_display_;
-  std::vector<rviz::Robot*> trajectory_trail_;
+  std::vector<rviz_default_plugins::robot::Robot*> trajectory_trail_;
   ros::Subscriber trajectory_topic_sub_;
   bool animating_path_;
   bool drop_displaying_trajectory_;
@@ -149,9 +149,9 @@ protected:
 
   // Pointers from parent display taht we save
   rviz::Display* display_;  // the parent display that this class populates
-  rviz::Property* widget_;
+  rviz_common::properties::Property* widget_;
   Ogre::SceneNode* scene_node_;
-  rviz::DisplayContext* context_;
+  rviz_common::DisplayContext* context_;
   ros::NodeHandle update_nh_;
   TrajectoryPanel* trajectory_slider_panel_;
   rviz::PanelDockWidget* trajectory_slider_dock_panel_;

@@ -55,7 +55,7 @@
 
 namespace moveit_rviz_plugin
 {
-MotionPlanningFrame::MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz::DisplayContext* context,
+MotionPlanningFrame::MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz_common::DisplayContext* context,
                                          QWidget* parent)
   : QWidget(parent)
   , planning_display_(pdisplay)
@@ -150,7 +150,7 @@ MotionPlanningFrame::MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz::
   planning_scene_publisher_ = nh_.advertise<moveit_msgs::msg::PlanningScene>("planning_scene", 1);
   planning_scene_world_publisher_ = nh_.advertise<moveit_msgs::msg::PlanningSceneWorld>("planning_scene_world", 1);
 
-  // object_recognition_trigger_publisher_ = nh_.advertise<std_msgs::Bool>("recognize_objects_switch", 1);
+  // object_recognition_trigger_publisher_ = nh_.advertise<std_msgs::msg::Bool>("recognize_objects_switch", 1);
   object_recognition_client_.reset(new actionlib::SimpleActionClient<object_recognition_msgs::ObjectRecognitionAction>(
       OBJECT_RECOGNITION_ACTION, false));
   object_recognition_subscriber_ =

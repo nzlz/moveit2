@@ -133,9 +133,9 @@ void RobotStateDisplay::changedAllLinks()
   }
 }
 
-void RobotStateDisplay::setHighlight(const std::string& link_name, const std_msgs::ColorRGBA& color)
+void RobotStateDisplay::setHighlight(const std::string& link_name, const std_msgs::msg::ColorRGBA& color)
 {
-  rviz::RobotLink* link = robot_->getRobot().getLink(link_name);
+  rviz_default_plugins::robot::RobotLink* link = robot_->getRobot().getLink(link_name);
   if (link)
   {
     link->setColor(color.r, color.g, color.b);
@@ -145,7 +145,7 @@ void RobotStateDisplay::setHighlight(const std::string& link_name, const std_msg
 
 void RobotStateDisplay::unsetHighlight(const std::string& link_name)
 {
-  rviz::RobotLink* link = robot_->getRobot().getLink(link_name);
+  rviz_default_plugins::robot::RobotLink* link = robot_->getRobot().getLink(link_name);
   if (link)
   {
     link->unsetColor();
@@ -157,14 +157,14 @@ void RobotStateDisplay::changedEnableLinkHighlight()
 {
   if (enable_link_highlight_->getBool())
   {
-    for (std::map<std::string, std_msgs::ColorRGBA>::iterator it = highlights_.begin(); it != highlights_.end(); ++it)
+    for (std::map<std::string, std_msgs::msg::ColorRGBA>::iterator it = highlights_.begin(); it != highlights_.end(); ++it)
     {
       setHighlight(it->first, it->second);
     }
   }
   else
   {
-    for (std::map<std::string, std_msgs::ColorRGBA>::iterator it = highlights_.begin(); it != highlights_.end(); ++it)
+    for (std::map<std::string, std_msgs::msg::ColorRGBA>::iterator it = highlights_.begin(); it != highlights_.end(); ++it)
     {
       unsetHighlight(it->first);
     }
@@ -181,7 +181,7 @@ void RobotStateDisplay::changedEnableCollisionVisible()
   robot_->setCollisionVisible(enable_collision_visible_->getBool());
 }
 
-static bool operator!=(const std_msgs::ColorRGBA& a, const std_msgs::ColorRGBA& b)
+static bool operator!=(const std_msgs::msg::ColorRGBA& a, const std_msgs::msg::ColorRGBA& b)
 {
   return a.r != b.r || a.g != b.g || a.b != b.b || a.a != b.a;
 }
@@ -191,7 +191,7 @@ void RobotStateDisplay::setRobotHighlights(const moveit_msgs::msg::DisplayRobotS
   if (highlight_links.empty() && highlights_.empty())
     return;
 
-  std::map<std::string, std_msgs::ColorRGBA> highlights;
+  std::map<std::string, std_msgs::msg::ColorRGBA> highlights;
   for (moveit_msgs::msg::DisplayRobotState::_highlight_links_type::const_iterator it = highlight_links.begin();
        it != highlight_links.end(); ++it)
   {
@@ -200,8 +200,8 @@ void RobotStateDisplay::setRobotHighlights(const moveit_msgs::msg::DisplayRobotS
 
   if (enable_link_highlight_->getBool())
   {
-    std::map<std::string, std_msgs::ColorRGBA>::iterator ho = highlights_.begin();
-    std::map<std::string, std_msgs::ColorRGBA>::iterator hn = highlights.begin();
+    std::map<std::string, std_msgs::msg::ColorRGBA>::iterator ho = highlights_.begin();
+    std::map<std::string, std_msgs::msg::ColorRGBA>::iterator hn = highlights.begin();
     while (ho != highlights_.end() || hn != highlights.end())
     {
       if (ho == highlights_.end())
@@ -246,7 +246,7 @@ void RobotStateDisplay::changedAttachedBodyColor()
   if (robot_)
   {
     QColor color = attached_body_color_property_->getColor();
-    std_msgs::ColorRGBA color_msg;
+    std_msgs::msg::ColorRGBA color_msg;
     color_msg.r = color.redF();
     color_msg.g = color.greenF();
     color_msg.b = color.blueF();
@@ -272,7 +272,7 @@ void RobotStateDisplay::changedRobotSceneAlpha()
   {
     robot_->setAlpha(robot_alpha_property_->getFloat());
     QColor color = attached_body_color_property_->getColor();
-    std_msgs::ColorRGBA color_msg;
+    std_msgs::msg::ColorRGBA color_msg;
     color_msg.r = color.redF();
     color_msg.g = color.greenF();
     color_msg.b = color.blueF();
@@ -328,18 +328,18 @@ void RobotStateDisplay::unsetLinkColor(const std::string& link_name)
   unsetLinkColor(&robot_->getRobot(), link_name);
 }
 
-void RobotStateDisplay::setLinkColor(rviz::Robot* robot, const std::string& link_name, const QColor& color)
+void RobotStateDisplay::setLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name, const QColor& color)
 {
-  rviz::RobotLink* link = robot->getLink(link_name);
+  rviz_default_plugins::robot::RobotLink* link = robot->getLink(link_name);
 
   // Check if link exists
   if (link)
     link->setColor(color.redF(), color.greenF(), color.blueF());
 }
 
-void RobotStateDisplay::unsetLinkColor(rviz::Robot* robot, const std::string& link_name)
+void RobotStateDisplay::unsetLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name)
 {
-  rviz::RobotLink* link = robot->getLink(link_name);
+  rviz_default_plugins::robot::RobotLink* link = robot->getLink(link_name);
 
   // Check if link exists
   if (link)

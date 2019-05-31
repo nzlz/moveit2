@@ -101,7 +101,7 @@ class MotionPlanningFrame : public QWidget
 
 public:
   MotionPlanningFrame(const MotionPlanningFrame&) = delete;
-  MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz::DisplayContext* context, QWidget* parent = 0);
+  MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz_common::DisplayContext* context, QWidget* parent = 0);
   ~MotionPlanningFrame() override;
 
   void changePlanningGroup();
@@ -120,7 +120,7 @@ protected:
   void updateExternalCommunication();
 
   MotionPlanningDisplay* planning_display_;
-  rviz::DisplayContext* context_;
+  rviz_common::DisplayContext* context_;
   Ui::MotionPlanningUI* ui_;
 
   moveit::planning_interface::MoveGroupInterfacePtr move_group_;
@@ -300,11 +300,11 @@ private:
   void importResource(const std::string& path);
   void loadStoredStates(const std::string& pattern);
 
-  void remotePlanCallback(const std_msgs::EmptyConstPtr& msg);
-  void remoteExecuteCallback(const std_msgs::EmptyConstPtr& msg);
-  void remoteStopCallback(const std_msgs::EmptyConstPtr& msg);
-  void remoteUpdateStartStateCallback(const std_msgs::EmptyConstPtr& msg);
-  void remoteUpdateGoalStateCallback(const std_msgs::EmptyConstPtr& msg);
+  void remotePlanCallback(const std_msgs::msg::EmptyConstPtr& msg);
+  void remoteExecuteCallback(const std_msgs::msg::EmptyConstPtr& msg);
+  void remoteStopCallback(const std_msgs::msg::EmptyConstPtr& msg);
+  void remoteUpdateStartStateCallback(const std_msgs::msg::EmptyConstPtr& msg);
+  void remoteUpdateGoalStateCallback(const std_msgs::msg::EmptyConstPtr& msg);
   void remoteUpdateCustomStartStateCallback(const moveit_msgs::msg::RobotStateConstPtr& msg);
   void remoteUpdateCustomGoalStateCallback(const moveit_msgs::msg::RobotStateConstPtr& msg);
 

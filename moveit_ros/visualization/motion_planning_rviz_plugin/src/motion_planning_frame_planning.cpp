@@ -479,22 +479,22 @@ void MotionPlanningFrame::configureForPlanning()
     planning_display_->dropVisualizedTrajectory();
 }
 
-void MotionPlanningFrame::remotePlanCallback(const std_msgs::EmptyConstPtr& msg)
+void MotionPlanningFrame::remotePlanCallback(const std_msgs::msg::EmptyConstPtr& msg)
 {
   planButtonClicked();
 }
 
-void MotionPlanningFrame::remoteExecuteCallback(const std_msgs::EmptyConstPtr& msg)
+void MotionPlanningFrame::remoteExecuteCallback(const std_msgs::msg::EmptyConstPtr& msg)
 {
   executeButtonClicked();
 }
 
-void MotionPlanningFrame::remoteStopCallback(const std_msgs::EmptyConstPtr& msg)
+void MotionPlanningFrame::remoteStopCallback(const std_msgs::msg::EmptyConstPtr& msg)
 {
   stopButtonClicked();
 }
 
-void MotionPlanningFrame::remoteUpdateStartStateCallback(const std_msgs::EmptyConstPtr& msg)
+void MotionPlanningFrame::remoteUpdateStartStateCallback(const std_msgs::msg::EmptyConstPtr& msg)
 {
   if (move_group_ && planning_display_)
   {
@@ -508,7 +508,7 @@ void MotionPlanningFrame::remoteUpdateStartStateCallback(const std_msgs::EmptyCo
   }
 }
 
-void MotionPlanningFrame::remoteUpdateGoalStateCallback(const std_msgs::EmptyConstPtr& msg)
+void MotionPlanningFrame::remoteUpdateGoalStateCallback(const std_msgs::msg::EmptyConstPtr& msg)
 {
   if (move_group_ && planning_display_)
   {

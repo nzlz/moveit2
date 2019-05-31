@@ -45,6 +45,9 @@
 #include <string>
 #include <memory>
 
+#include "rviz_rendering/objects/shape.hpp"
+#include "rviz_common/display_context.hpp"
+
 namespace Ogre
 {
 class SceneNode;
@@ -69,13 +72,13 @@ public:
 
   void renderShape(Ogre::SceneNode* node, const shapes::Shape* s, const Eigen::Isometry3d& p,
                    OctreeVoxelRenderMode octree_voxel_rendering, OctreeVoxelColorMode octree_color_mode,
-                   const Ogre::ColourValue::ColourValue& color);
+                   const Ogre::ColourValue& color);
   void clear();
 
 private:
   rviz_common::DisplayContext* context_;
 
-  std::vector<std::unique_ptr<rviz::Shape> > scene_shapes_;
+  std::vector<std::unique_ptr<rviz_rendering::Shape> > scene_shapes_;
   std::vector<OcTreeRenderPtr> octree_voxel_grids_;
 };
 }

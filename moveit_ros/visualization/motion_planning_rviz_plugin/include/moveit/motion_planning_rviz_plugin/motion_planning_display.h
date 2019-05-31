@@ -139,7 +139,7 @@ public:
   // Pick Place
   void clearPlaceLocationsDisplay();
   void visualizePlaceLocations(const std::vector<geometry_msgs::PoseStamped>& place_poses);
-  std::vector<std::shared_ptr<rviz::Shape> > place_locations_display_;
+  std::vector<std::shared_ptr<rviz_rendering::Shape> > place_locations_display_;
 
   std::string getCurrentPlanningGroup() const;
 
@@ -221,7 +221,7 @@ protected:
   void setQueryStateHelper(bool use_start_state, const std::string& v);
   void populateMenuHandler(std::shared_ptr<interactive_markers::MenuHandler>& mh);
 
-  void selectPlanningGroupCallback(const std_msgs::StringConstPtr& msg);
+  void selectPlanningGroupCallback(const std_msgs::msg::StringConstPtr& msg);
 
   // overrides from Display
   void onInitialize() override;
@@ -240,7 +240,7 @@ protected:
   ros::NodeHandle private_handle_, node_handle_;
 
   // render the workspace box
-  std::unique_ptr<rviz::Shape> workspace_box_;
+  std::unique_ptr<rviz_rendering::Shape> workspace_box_;
 
   // the planning frame
   MotionPlanningFrame* frame_;
@@ -274,9 +274,9 @@ protected:
   TrajectoryVisualizationPtr trajectory_visual_;
 
   // properties to show on side panel
-  rviz::Property* path_category_;
-  rviz::Property* plan_category_;
-  rviz::Property* metrics_category_;
+  rviz_common::properties::Property* path_category_;
+  rviz_common::properties::Property* plan_category_;
+  rviz_common::properties::Property* metrics_category_;
 
   rviz::EditableEnumProperty* planning_group_property_;
   rviz::BoolProperty* query_start_state_property_;

@@ -63,7 +63,7 @@ MOVEIT_CLASS_FORWARD(PlanningSceneRender);
 class PlanningSceneRender
 {
 public:
-  PlanningSceneRender(Ogre::SceneNode* root_node, rviz::DisplayContext* context,
+  PlanningSceneRender(Ogre::SceneNode* root_node, rviz_common::DisplayContext* context,
                       const RobotStateVisualizationPtr& robot);
   ~PlanningSceneRender();
 
@@ -77,14 +77,14 @@ public:
     return scene_robot_;
   }
 
-  void renderPlanningScene(const planning_scene::PlanningSceneConstPtr& scene, const Ogre::ColourValue::ColourValue& default_scene_color,
-                           const Ogre::ColourValue::ColourValue& default_attached_color, OctreeVoxelRenderMode voxel_render_mode,
+  void renderPlanningScene(const planning_scene::PlanningSceneConstPtr& scene, const Ogre::ColourValue& default_scene_color,
+                           const Ogre::ColourValue& default_attached_color, OctreeVoxelRenderMode voxel_render_mode,
                            OctreeVoxelColorMode voxel_color_mode, float default_scene_alpha);
   void clear();
 
 private:
   Ogre::SceneNode* planning_scene_geometry_node_;
-  rviz::DisplayContext* context_;
+  rviz_common::DisplayContext* context_;
   RenderShapesPtr render_shapes_;
   RobotStateVisualizationPtr scene_robot_;
 };

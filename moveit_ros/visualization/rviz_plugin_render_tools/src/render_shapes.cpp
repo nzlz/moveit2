@@ -73,9 +73,9 @@ void RenderShapes::clear()
 
 void RenderShapes::renderShape(Ogre::SceneNode* node, const shapes::Shape* s, const Eigen::Isometry3d& p,
                                OctreeVoxelRenderMode octree_voxel_rendering, OctreeVoxelColorMode octree_color_mode,
-                               const Ogre::ColourValue::ColourValue& color)
+                               const Ogre::ColourValue& color)
 {
-  rviz::Shape* ogre_shape = nullptr;
+  rviz_rendering::Shape* ogre_shape = nullptr;
   Eigen::Vector3d translation = p.translation();
   Ogre::Vector3 position(translation.x(), translation.y(), translation.z());
   Eigen::Quaterniond q(p.rotation());
@@ -94,21 +94,21 @@ void RenderShapes::renderShape(Ogre::SceneNode* node, const shapes::Shape* s, co
   {
     case shapes::SPHERE:
     {
-      ogre_shape = new rviz::Shape(rviz::Shape::Sphere, context_->getSceneManager(), node);
+      ogre_shape = new rviz_rendering::Shape(rviz_rendering::Shape::Sphere, context_->getSceneManager(), node);
       double d = 2.0 * static_cast<const shapes::Sphere*>(s)->radius;
       ogre_shape->setScale(Ogre::Vector3(d, d, d));
     }
     break;
     case shapes::BOX:
     {
-      ogre_shape = new rviz::Shape(rviz::Shape::Cube, context_->getSceneManager(), node);
+      ogre_shape = new rviz_rendering::Shape(rviz_rendering::Shape::Cube, context_->getSceneManager(), node);
       const double* sz = static_cast<const shapes::Box*>(s)->size;
       ogre_shape->setScale(Ogre::Vector3(sz[0], sz[1], sz[2]));
     }
     break;
     case shapes::CYLINDER:
     {
-      ogre_shape = new rviz::Shape(rviz::Shape::Cylinder, context_->getSceneManager(), node);
+      ogre_shape = new rviz_rendering::Shape(rviz_rendering::Shape::Cylinder, context_->getSceneManager(), node);
       double d = 2.0 * static_cast<const shapes::Cylinder*>(s)->radius;
       double z = static_cast<const shapes::Cylinder*>(s)->length;
       ogre_shape->setScale(Ogre::Vector3(d, z, d));  // the shape has z as major axis, but the rendered cylinder has y
@@ -120,8 +120,7 @@ void RenderShapes::renderShape(Ogre::SceneNode* node, const shapes::Shape* s, co
       const shapes::Mesh* mesh = static_cast<const shapes::Mesh*>(s);
       if (mesh->triangle_count > 0)
       {
-        rviz::MeshShape* m = new rviz::MeshShape(context_->getSceneManager(), node);
-        ogre_shape = m;
+        ogre_shape = new rviz_rendering::Shape(rviz_rendering::Shape::Mesh, context_->getSceneManager(), node);
 
         Ogre::Vector3 normal(0.0, 0.0, 0.0);
         for (unsigned int i = 0; i < mesh->triangle_count; ++i)
@@ -141,15 +140,15 @@ void RenderShapes::renderShape(Ogre::SceneNode* node, const shapes::Shape* s, co
             if (mesh->vertex_normals)
             {
               Ogre::Vector3 n(mesh->vertex_normals[vi], mesh->vertex_normals[vi + 1], mesh->vertex_normals[vi + 2]);
-              m->addVertex(v, n);
+              ogre_shape->addVertex(v, n);
             }
             else if (mesh->triangle_normals)
-              m->addVertex(v, normal);
+              ogre_shape->addVertex(v, normal);
             else
-              m->addVertex(v);
+              ogre_shape->addVertex(v);
           }
         }
-        m->endTriangles();
+        ogre_shape->endTriangles();
       }
     }
     break;

@@ -159,11 +159,11 @@ protected:
   void executeMainLoopJobs();
   void sceneMonitorReceivedUpdate(planning_scene_monitor::PlanningSceneMonitor::SceneUpdateType update_type);
   void renderPlanningScene();
-  void setLinkColor(rviz::Robot* robot, const std::string& link_name, const QColor& color);
-  void unsetLinkColor(rviz::Robot* robot, const std::string& link_name);
-  void setGroupColor(rviz::Robot* robot, const std::string& group_name, const QColor& color);
-  void unsetGroupColor(rviz::Robot* robot, const std::string& group_name);
-  void unsetAllColors(rviz::Robot* robot);
+  void setLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name, const QColor& color);
+  void unsetLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name);
+  void setGroupColor(rviz_default_plugins::robot::Robot* robot, const std::string& group_name, const QColor& color);
+  void unsetGroupColor(rviz_default_plugins::robot::Robot* robot, const std::string& group_name);
+  void unsetAllColors(rviz_default_plugins::robot::Robot* robot);
 
   // overrides from Display
   void onInitialize() override;
@@ -193,8 +193,8 @@ protected:
   bool planning_scene_needs_render_;
   float current_scene_time_;
 
-  rviz::Property* scene_category_;
-  rviz::Property* robot_category_;
+  rviz_common::properties::Property* scene_category_;
+  rviz_common::properties::Property* robot_category_;
 
   rviz::StringProperty* move_group_ns_property_;
   rviz::StringProperty* robot_description_property_;

@@ -91,7 +91,7 @@ void MotionPlanningFrame::saveSceneButtonClicked()
           if (ok)
           {
             planning_display_->getPlanningSceneRW()->setName(new_name.toStdString());
-            rviz::Property* prop = planning_display_->subProp("Scene Geometry")->subProp("Scene Name");
+            rviz_common::properties::Property* prop = planning_display_->subProp("Scene Geometry")->subProp("Scene Name");
             if (prop)
             {
               bool old = prop->blockSignals(true);

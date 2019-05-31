@@ -44,7 +44,7 @@ namespace mpi = moveit::planning_interface;
 
 namespace moveit_rviz_plugin
 {
-MotionPlanningParamWidget::MotionPlanningParamWidget(QWidget* parent) : rviz::PropertyTreeWidget(parent)
+MotionPlanningParamWidget::MotionPlanningParamWidget(QWidget* parent) : rviz_common::properties::PropertyTreeWidget(parent)
 {
   property_tree_model_ = nullptr;
 }
@@ -85,13 +85,13 @@ bool try_lexical_convert(const QString& value, double& dvalue)
   return ok;
 }
 
-rviz::Property* MotionPlanningParamWidget::createPropertyTree()
+rviz_common::properties::Property* MotionPlanningParamWidget::createPropertyTree()
 {
   if (planner_id_.empty())
     return nullptr;
   const std::map<std::string, std::string>& params = move_group_->getPlannerParams(planner_id_, group_name_);
 
-  rviz::Property* root = new rviz::Property(QString::fromStdString(planner_id_ + " parameters"));
+  rviz_common::properties::Property* root = new rviz_common::properties::Property(QString::fromStdString(planner_id_ + " parameters"));
   for (std::map<std::string, std::string>::const_iterator it = params.begin(), end = params.end(); it != end; ++it)
   {
     const QString key = QString::fromStdString(it->first);
@@ -117,7 +117,7 @@ void MotionPlanningParamWidget::changedValue()
 {
   if (!move_group_)
     return;
-  rviz::Property* source = qobject_cast<rviz::Property*>(QObject::sender());
+  rviz_common::properties::Property* source = qobject_cast<rviz_common::properties::Property*>(QObject::sender());
   std::map<std::string, std::string> params;
   params[source->getName().toStdString()] = source->getValue().toString().toStdString();
   move_group_->setPlannerParams(planner_id_, group_name_, params);
@@ -129,9 +129,9 @@ void MotionPlanningParamWidget::setPlannerId(const std::string& planner_id)
   if (!move_group_)
     return;
 
-  rviz::PropertyTreeModel* old_model = property_tree_model_;
-  rviz::Property* root = createPropertyTree();
-  property_tree_model_ = root ? new rviz::PropertyTreeModel(root) : nullptr;
+  rviz_common::properties::PropertyTreeModel* old_model = property_tree_model_;
+  rviz_common::properties::Property* root = createPropertyTree();
+  property_tree_model_ = root ? new rviz_common::properties::PropertyTreeModel(root) : nullptr;
   this->setModel(property_tree_model_);
   if (old_model)
     delete old_model;

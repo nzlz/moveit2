@@ -42,7 +42,7 @@
 
 namespace moveit_rviz_plugin
 {
-/** \brief Update the links of an rviz::Robot using a robot_state::RobotState */
+/** \brief Update the links of an rviz_default_plugins::robot::Robot using a robot_state::RobotState */
 class PlanningLinkUpdater : public rviz::LinkUpdater
 {
 public:

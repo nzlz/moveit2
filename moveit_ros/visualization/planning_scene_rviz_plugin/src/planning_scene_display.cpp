@@ -83,7 +83,7 @@ PlanningSceneDisplay::PlanningSceneDisplay(bool listen_to_planning_scene, bool s
     planning_scene_topic_property_ = nullptr;
 
   // Planning scene category -------------------------------------------------------------------------------------------
-  scene_category_ = new rviz::Property("Scene Geometry", QVariant(), "", this);
+  scene_category_ = new rviz_common::properties::Property("Scene Geometry", QVariant(), "", this);
 
   scene_name_property_ = new rviz::StringProperty("Scene Name", "(noname)", "Shows the name of the planning scene",
                                                   scene_category_, SLOT(changedSceneName()), this);
@@ -122,7 +122,7 @@ PlanningSceneDisplay::PlanningSceneDisplay(bool listen_to_planning_scene, bool s
 
   if (show_scene_robot)
   {
-    robot_category_ = new rviz::Property("Scene Robot", QVariant(), "", this);
+    robot_category_ = new rviz_common::properties::Property("Scene Robot", QVariant(), "", this);
 
     scene_robot_visual_enabled_property_ = new rviz::BoolProperty(
         "Show Robot Visual", true, "Indicates whether the robot state specified by the planning scene should be "
@@ -412,7 +412,7 @@ void PlanningSceneDisplay::changedSceneEnabled()
     planning_scene_render_->getGeometryNode()->setVisible(scene_enabled_property_->getBool());
 }
 
-void PlanningSceneDisplay::setGroupColor(rviz::Robot* robot, const std::string& group_name, const QColor& color)
+void PlanningSceneDisplay::setGroupColor(rviz_default_plugins::robot::Robot* robot, const std::string& group_name, const QColor& color)
 {
   if (getRobotModel())
   {
@@ -426,7 +426,7 @@ void PlanningSceneDisplay::setGroupColor(rviz::Robot* robot, const std::string& 
   }
 }
 
-void PlanningSceneDisplay::unsetAllColors(rviz::Robot* robot)
+void PlanningSceneDisplay::unsetAllColors(rviz_default_plugins::robot::Robot* robot)
 {
   if (getRobotModel())
   {
@@ -436,7 +436,7 @@ void PlanningSceneDisplay::unsetAllColors(rviz::Robot* robot)
   }
 }
 
-void PlanningSceneDisplay::unsetGroupColor(rviz::Robot* robot, const std::string& group_name)
+void PlanningSceneDisplay::unsetGroupColor(rviz_default_plugins::robot::Robot* robot, const std::string& group_name)
 {
   if (getRobotModel())
   {
@@ -462,18 +462,18 @@ void PlanningSceneDisplay::unsetLinkColor(const std::string& link_name)
     unsetLinkColor(&planning_scene_robot_->getRobot(), link_name);
 }
 
-void PlanningSceneDisplay::setLinkColor(rviz::Robot* robot, const std::string& link_name, const QColor& color)
+void PlanningSceneDisplay::setLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name, const QColor& color)
 {
-  rviz::RobotLink* link = robot->getLink(link_name);
+  rviz_default_plugins::robot::RobotLink* link = robot->getLink(link_name);
 
   // Check if link exists
   if (link)
     link->setColor(color.redF(), color.greenF(), color.blueF());
 }
 
-void PlanningSceneDisplay::unsetLinkColor(rviz::Robot* robot, const std::string& link_name)
+void PlanningSceneDisplay::unsetLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name)
 {
-  rviz::RobotLink* link = robot->getLink(link_name);
+  rviz_default_plugins::robot::RobotLink* link = robot->getLink(link_name);
 
   // Check if link exists
   if (link)
