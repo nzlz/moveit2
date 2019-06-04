@@ -50,9 +50,10 @@ add_definitions(-DQT_NO_KEYWORDS)
 set(THIS_PACKAGE_INCLUDE_DIRS
   #motion_planning_rviz_plugin/include
   #planning_scene_rviz_plugin/include
-  #robot_state_rviz_plugin/include
+  robot_state_rviz_plugin/include
   rviz_plugin_render_tools/include
   #trajectory_rviz_plugin/include
+  rdf_loader/include
   ${rclcpp_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
@@ -62,8 +63,9 @@ set(THIS_PACKAGE_INCLUDE_DIRS
 set(THIS_PACKAGE_INCLUDE_LIBRARIES
   #moveit_motion_planning_rviz_plugin_core
   #moveit_planning_scene_rviz_plugin_core
-  #moveit_robot_state_rviz_plugin_core
+  moveit_robot_state_rviz_plugin_core
   moveit_rviz_plugin_render_tools
+  moveit_rdf_loader
   #moveit_trajectory_rviz_plugin_core
 )
 
@@ -81,7 +83,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
 )]]
 
 include_directories(rviz_plugin_render_tools/include
-                    # robot_state_rviz_plugin/include
+                    robot_state_rviz_plugin/include
                     # planning_scene_rviz_plugin/include
                     # motion_planning_rviz_plugin/include
                     # trajectory_rviz_plugin/include
@@ -94,7 +96,8 @@ include_directories(SYSTEM
                     ${OGRE_INCLUDE_DIRS})
 
 add_subdirectory(rviz_plugin_render_tools)
-#add_subdirectory(robot_state_rviz_plugin)
+add_subdirectory(robot_state_rviz_plugin)
+add_subdirectory(rdf_loader)
 #add_subdirectory(planning_scene_rviz_plugin)
 #add_subdirectory(motion_planning_rviz_plugin)
 #add_subdirectory(trajectory_rviz_plugin)
@@ -102,12 +105,13 @@ add_subdirectory(rviz_plugin_render_tools)
 # TODO Once other packages in visulization are ported.
 # The following .xml install helpers should be included via:
 # pluginlib_export_plugin_description_file(rviz_common plugins_description.xml)
-install(FILES
+
+pluginlib_export_plugin_description_file(rviz_common robot_state_rviz_plugin_description.xml)
+#[[install(FILES
   #motion_planning_rviz_plugin_description.xml
   #trajectory_rviz_plugin_description.xml
   #planning_scene_rviz_plugin_description.xml
-  #robot_state_rviz_plugin_description.xml
-  DESTINATION share/${PROJECT_NAME})
+  DESTINATION share/${PROJECT_NAME})]]
 
 install(DIRECTORY icons DESTINATION share/${PROJECT_NAME})
 

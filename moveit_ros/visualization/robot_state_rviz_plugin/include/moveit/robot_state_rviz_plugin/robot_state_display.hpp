@@ -37,13 +37,13 @@
 #ifndef MOVEIT_VISUALIZATION_ROBOT_STATE_DISPLAY_RVIZ_ROBOT_STATE_DISPLAY_
 #define MOVEIT_VISUALIZATION_ROBOT_STATE_DISPLAY_RVIZ_ROBOT_STATE_DISPLAY_
 
-#include <rviz/display.h>
+#include <rviz_common/display.hpp>
 
 #ifndef Q_MOC_RUN
-#include <moveit/rdf_loader/rdf_loader.h>
-#include <moveit/rviz_plugin_render_tools/robot_state_visualization.h>
-#include <moveit_msgs/DisplayRobotState.h>
-#include <ros/ros.h>
+#include <rdf_loader/rdf_loader.h>
+#include <moveit/rviz_plugin_render_tools/robot_state_visualization.hpp>
+#include <moveit_msgs/msg/DisplayRobotState.hpp>
+#include <rclcpp/rclcpp.hpp>
 #endif
 
 namespace Ogre
@@ -110,7 +110,7 @@ protected:
   void setLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name, const QColor& color);
   void unsetLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name);
 
-  void newRobotStateCallback(const moveit_msgs::msg::DisplayRobotState::ConstPtr& state);
+  void newRobotStateCallback(const moveit_msgs::msg::DisplayRobotState::SharedPtr state);
 
   void setRobotHighlights(const moveit_msgs::msg::DisplayRobotState::_highlight_links_type& highlight_links);
   void setHighlight(const std::string& link_name, const std_msgs::msg::ColorRGBA& color);
@@ -123,8 +123,9 @@ protected:
   void fixedFrameChanged() override;
 
   // render the robot
-  ros::NodeHandle root_nh_;
-  ros::Subscriber robot_state_subscriber_;
+  rclcpp::Node root_node_;
+  rclcpp::Subscription<moveit_msgs::msg::DisplayRobotState>::SharedPtr robot_state_subscriber_;
+
 
   RobotStateVisualizationPtr robot_;
   rdf_loader::RDFLoaderPtr rdf_loader_;

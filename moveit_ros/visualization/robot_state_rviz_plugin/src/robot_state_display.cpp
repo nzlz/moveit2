@@ -34,21 +34,21 @@
 
 /* Author: Ioan Sucan */
 
-#include <moveit/robot_state_rviz_plugin/robot_state_display.h>
+#include <moveit/robot_state_rviz_plugin/robot_state_display.hpp>
 #include <moveit/robot_state/conversions.h>
 
-#include <rviz/visualization_manager.h>
-#include <rviz/robot/robot.h>
-#include <rviz/robot/robot_link.h>
+#include <rviz_common/visualization_manager.hpp>
+#include <rviz_default_plugins/robot/robot.hpp>
+#include <rviz_default_plugins/robot/robot_link.hpp>
 
-#include <rviz/properties/property.h>
-#include <rviz/properties/string_property.h>
-#include <rviz/properties/bool_property.h>
-#include <rviz/properties/float_property.h>
-#include <rviz/properties/ros_topic_property.h>
-#include <rviz/properties/color_property.h>
-#include <rviz/display_context.h>
-#include <rviz/frame_manager.h>
+#include <rviz_common/properties/property.hpp>
+#include <rviz_common/properties/string_property.hpp>
+#include <rviz_common/properties/bool_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/ros_topic_property.hpp>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/display_context.hpp>
+#include <rviz_common/frame_manager.hpp>
 
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
@@ -284,18 +284,21 @@ void RobotStateDisplay::changedRobotSceneAlpha()
 
 void RobotStateDisplay::changedRobotStateTopic()
 {
-  robot_state_subscriber_.shutdown();
+  robot_state_subscriber_.reset();
 
   // reset model to default state, we don't want to show previous messages
   if (static_cast<bool>(robot_state_))
     robot_state_->setToDefaultValues();
   update_state_ = true;
 
-  robot_state_subscriber_ = root_nh_.subscribe(robot_state_topic_property_->getStdString(), 10,
-                                               &RobotStateDisplay::newRobotStateCallback, this);
+  robot_state_subscriber_ = root_node_->create_subscription<moveit_msgs::msg::DisplayRobotState>(
+    robot_state_topic_property_->getStdString(), 10,
+    std::bind(&RobotStateDisplay::newRobotStateCallback, this, std::placeholders::_1));
+
 }
 
-void RobotStateDisplay::newRobotStateCallback(const moveit_msgs::msg::DisplayRobotStateConstPtr& state_msg)
+
+void RobotStateDisplay::newRobotStateCallback(const moveit_msgs::msg::DisplayRobotState::SharedPtr state_msg)
 {
   if (!robot_model_)
     return;
@@ -391,7 +394,7 @@ void RobotStateDisplay::onEnable()
 // ******************************************************************************************
 void RobotStateDisplay::onDisable()
 {
-  robot_state_subscriber_.shutdown();
+  robot_state_subscriber_.reset();
   if (robot_)
     robot_->setVisible(false);
   Display::onDisable();
