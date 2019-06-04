@@ -57,7 +57,7 @@ TrajectoryVisualization::TrajectoryVisualization(rviz_common::properties::Proper
 {
   trajectory_topic_property_ =
       new rviz_common::properties::RosTopicProperty("Trajectory Topic", "/move_group/display_planned_path",
-                                 ros::message_traits::datatype<moveit_msgs::msg::DisplayTrajectory>(),
+                                 rosidl_generator_traits::data_type<moveit_msgs::msg::DisplayTrajectory>(),
                                  "The topic on which the moveit_msgs::msg::DisplayTrajectory messages are received", widget,
                                  SLOT(changedTrajectoryTopic()), this);
 
@@ -120,7 +120,7 @@ TrajectoryVisualization::~TrajectoryVisualization()
 }
 
 void TrajectoryVisualization::onInitialize(Ogre::SceneNode* scene_node, rviz_common::DisplayContext* context,
-                                           const rclcpp::Node& ros_node)
+                                           rclcpp::Node::SharedPtr ros_node)
 {
   // Save pointers for later use
   scene_node_ = scene_node;
@@ -171,7 +171,7 @@ void TrajectoryVisualization::onRobotModelLoaded(const robot_model::RobotModelCo
   display_path_robot_->load(*robot_model_->getURDF());
   enabledRobotColor();  // force-refresh to account for saved display configuration
   // perform post-poned subscription to trajectory topic
-  if (trajectory_topic_sub_.getTopic().empty())
+  if (*trajectory_topic_sub_->get_topic_name() == 0)
     changedTrajectoryTopic();
 }
 
@@ -248,12 +248,13 @@ void TrajectoryVisualization::changedRobotPathAlpha()
 
 void TrajectoryVisualization::changedTrajectoryTopic()
 {
-  trajectory_topic_sub_.shutdown();
+  trajectory_topic_sub_.reset();
   // post-pone subscription if robot_state_ is not yet defined, i.e. onRobotModelLoaded() not yet called
   if (!trajectory_topic_property_->getStdString().empty() && robot_state_)
   {
-    trajectory_topic_sub_ = ros_node_.create_subscription<moveit_msgs::msg::DisplayTrajectory>(trajectory_topic_property_->getStdString(), 2,
-                                                 &TrajectoryVisualization::incomingDisplayTrajectory, this);
+    trajectory_topic_sub_ = ros_node_->create_subscription<moveit_msgs::msg::DisplayTrajectory>(
+      trajectory_topic_property_->getStdString(), 2,
+      std::bind(&TrajectoryVisualization::incomingDisplayTrajectory, this, std::placeholders::_1));
   }
 }
 
@@ -449,7 +450,7 @@ void TrajectoryVisualization::update(float wall_dt, float ros_dt)
                                    (trajectory_slider_panel_ && trajectory_slider_panel_->isVisible())));
 }
 
-void TrajectoryVisualization::incomingDisplayTrajectory(const moveit_msgs::msg::DisplayTrajectory::ConstPtr& msg)
+void TrajectoryVisualization::incomingDisplayTrajectory(const moveit_msgs::msg::DisplayTrajectory::SharedPtr msg)
 {
   // Error check
   if (!robot_state_ || !robot_model_)

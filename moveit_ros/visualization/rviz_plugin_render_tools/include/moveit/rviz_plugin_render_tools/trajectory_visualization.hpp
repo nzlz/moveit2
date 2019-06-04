@@ -104,7 +104,7 @@ public:
   virtual void update(float wall_dt, float ros_dt);
   virtual void reset();
 
-  void onInitialize(Ogre::SceneNode* scene_node, rviz_common::DisplayContext* context, const rclcpp::Node& ros_node);
+  void onInitialize(Ogre::SceneNode* scene_node, rviz_common::DisplayContext* context, rclcpp::Node::SharedPtr ros_node);
   void onRobotModelLoaded(const robot_model::RobotModelConstPtr& robot_model);
   void onEnable();
   void onDisable();
@@ -137,7 +137,7 @@ protected:
   /**
    * \brief ROS callback for an incoming path message
    */
-  void incomingDisplayTrajectory(const moveit_msgs::msg::DisplayTrajectory::ConstPtr& msg);
+  void incomingDisplayTrajectory(const moveit_msgs::msg::DisplayTrajectory::SharedPtr msg);
   float getStateDisplayTime();
   void clearTrajectoryTrail();
 
@@ -151,7 +151,8 @@ protected:
   robot_trajectory::RobotTrajectoryPtr displaying_trajectory_message_;
   robot_trajectory::RobotTrajectoryPtr trajectory_message_to_display_;
   std::vector<rviz_default_plugins::robot::Robot*> trajectory_trail_;
-  ros::Subscriber trajectory_topic_sub_;
+  rclcpp::Subscription<moveit_msgs::msg::DisplayTrajectory>::SharedPtr trajectory_topic_sub_;
+
   bool animating_path_;
   bool drop_displaying_trajectory_;
   int current_state_;
@@ -166,7 +167,7 @@ protected:
   rviz_common::properties::Property* widget_;
   Ogre::SceneNode* scene_node_;
   rviz_common::DisplayContext* context_;
-  rclcpp::Node ros_node_;
+  rclcpp::Node::SharedPtr ros_node_;
   TrajectoryPanel* trajectory_slider_panel_;
   rviz_common::PanelDockWidget* trajectory_slider_dock_panel_;
 
