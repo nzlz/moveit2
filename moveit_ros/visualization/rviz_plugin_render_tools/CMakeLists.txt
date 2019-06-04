@@ -39,7 +39,6 @@ ament_target_dependencies(${MOVEIT_LIB_NAME}
 )
 
 target_link_libraries(${MOVEIT_LIB_NAME}
-  ${OGRE_LIBRARIES}
   ${QT_LIBRARIES}
   Qt5::Widgets
 )
