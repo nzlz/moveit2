@@ -99,6 +99,9 @@ add_subdirectory(rviz_plugin_render_tools)
 #add_subdirectory(motion_planning_rviz_plugin)
 #add_subdirectory(trajectory_rviz_plugin)
 
+# TODO Once other packages in visulization are ported.
+# The following .xml install helpers should be included via:
+# pluginlib_export_plugin_description_file(rviz_common plugins_description.xml)
 install(FILES
   #motion_planning_rviz_plugin_description.xml
   #trajectory_rviz_plugin_description.xml
