@@ -104,7 +104,7 @@ public:
   virtual void update(float wall_dt, float ros_dt);
   virtual void reset();
 
-  void onInitialize(Ogre::SceneNode* scene_node, rviz_common::DisplayContext* context, rclcpp::Node::SharedPtr ros_node);
+  void onInitialize(Ogre::SceneNode* scene_node, rviz_common::DisplayContext* context, const rclcpp::Node::SharedPtr ros_node);
   void onRobotModelLoaded(const robot_model::RobotModelConstPtr& robot_model);
   void onEnable();
   void onDisable();

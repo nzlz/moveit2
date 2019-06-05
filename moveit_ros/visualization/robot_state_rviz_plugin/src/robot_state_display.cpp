@@ -418,7 +418,7 @@ void RobotStateDisplay::calculateOffsetPosition()
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
 
-  context_->getFrameManager()->getTransform(getRobotModel()->getModelFrame(), rclcpp::Clock().now(), position, orientation);
+  context_->getFrameManager()->getTransform(getRobotModel()->getModelFrame(), rclcpp::Time(0);, position, orientation);
 
   scene_node_->setPosition(position);
   scene_node_->setOrientation(orientation);

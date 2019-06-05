@@ -331,7 +331,7 @@ void MotionPlanningFrame::waitForAction(const T& action, const ros::NodeHandle& 
   ROS_DEBUG("Waiting for MoveGroup action server (%s)...", name.c_str());
 
   // in case ROS time is published, wait for the time data to arrive
-  rclcpp::Clock start_time = rclcpp::Clock().now();
+  rclcpp::Time start_time = rclcpp::Clock().now();
   while (start_time == rclcpp::Clock().now())
   {
     ros::WallDuration(0.01).sleep();

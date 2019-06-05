@@ -120,7 +120,7 @@ TrajectoryVisualization::~TrajectoryVisualization()
 }
 
 void TrajectoryVisualization::onInitialize(Ogre::SceneNode* scene_node, rviz_common::DisplayContext* context,
-                                           rclcpp::Node::SharedPtr ros_node)
+                                           const rclcpp::Node::SharedPtr ros_node)
 {
   // Save pointers for later use
   scene_node_ = scene_node;
