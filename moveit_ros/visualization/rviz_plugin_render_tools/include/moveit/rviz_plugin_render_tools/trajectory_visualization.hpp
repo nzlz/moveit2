@@ -137,7 +137,7 @@ protected:
   /**
    * \brief ROS callback for an incoming path message
    */
-  void incomingDisplayTrajectory(const moveit_msgs::msg::DisplayTrajectory::SharedPtr msg);
+  void incomingDisplayTrajectory(const moveit_msgs::msg::DisplayTrajectory::ConstSharedPtr msg);
   float getStateDisplayTime();
   void clearTrajectoryTrail();
 
