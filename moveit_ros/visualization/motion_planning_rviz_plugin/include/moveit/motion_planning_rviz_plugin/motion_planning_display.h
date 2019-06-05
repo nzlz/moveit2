@@ -40,7 +40,7 @@
 #include <rviz/display.h>
 #include <rviz/selection/selection_manager.h>
 #include <rviz/panel_dock_widget.h>
-#include <moveit/planning_scene_rviz_plugin/planning_scene_display.h>
+#include <moveit/planning_scene_rviz_plugin/planning_scene_display.hpp>
 #include <moveit/rviz_plugin_render_tools/trajectory_visualization.h>
 
 #ifndef Q_MOC_RUN

@@ -37,13 +37,26 @@
 #ifndef MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_PLUGIN_SCENE_DISPLAY_
 #define MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_PLUGIN_SCENE_DISPLAY_
 
-#include <rviz/display.h>
+#include <rviz_common/display.hpp>
+//#include <rviz/visualization_manager.h>
+#include <rviz_default_plugins/robot/robot.hpp>
+#include <rviz_default_plugins/robot/robot_link.hpp>
+
+#include <rviz_common/properties/property.hpp>
+#include <rviz_common/properties/string_property.hpp>
+#include <rviz_common/properties/bool_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/ros_topic_property.hpp>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/properties/enum_property.hpp>
+#include <rviz_common/display_context.hpp>
+#include <rviz_common/frame_manager_iface.hpp>
 
 #ifndef Q_MOC_RUN
-#include <moveit/rviz_plugin_render_tools/planning_scene_render.h>
+#include <moveit/rviz_plugin_render_tools/planning_scene_render.hpp>
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 #include <moveit/background_processing/background_processing.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #endif
 
 namespace Ogre
@@ -208,8 +221,8 @@ protected:
   rviz_common::properties::ColorProperty* scene_color_property_;
   rviz_common::properties::ColorProperty* attached_body_color_property_;
   rviz_common::properties::FloatProperty* scene_display_time_property_;
-  rviz::EnumProperty* octree_render_property_;
-  rviz::EnumProperty* octree_coloring_property_;
+  rviz_common::properties::EnumProperty* octree_render_property_;
+  rviz_common::properties::EnumProperty* octree_coloring_property_;
 };
 
 }  // namespace moveit_rviz_plugin

@@ -36,23 +36,10 @@
 /* Author: Ioan Sucan */
 
 #include <moveit/common_planning_interface_objects/common_objects.h>
-#include <moveit/planning_scene_rviz_plugin/planning_scene_display.h>
+#include <moveit/planning_scene_rviz_plugin/planning_scene_display.hpp>
 #include <moveit/rviz_plugin_render_tools/robot_state_visualization.h>
 #include <moveit/rviz_plugin_render_tools/octomap_render.h>
 
-#include <rviz/visualization_manager.h>
-#include <rviz/robot/robot.h>
-#include <rviz/robot/robot_link.h>
-
-#include <rviz/properties/property.h>
-#include <rviz/properties/string_property.h>
-#include <rviz/properties/bool_property.h>
-#include <rviz/properties/float_property.h>
-#include <rviz/properties/ros_topic_property.h>
-#include <rviz/properties/color_property.h>
-#include <rviz/properties/enum_property.h>
-#include <rviz/display_context.h>
-#include <rviz/frame_manager.h>
 #include <tf2_ros/buffer.h>
 
 #include <OgreSceneManager.h>
@@ -101,14 +88,14 @@ PlanningSceneDisplay::PlanningSceneDisplay(bool listen_to_planning_scene, bool s
       "Scene Color", QColor(50, 230, 50), "The color for the planning scene obstacles (if a color is not defined)",
       scene_category_, SLOT(changedSceneColor()), this);
 
-  octree_render_property_ = new rviz::EnumProperty("Voxel Rendering", "Occupied Voxels", "Select voxel type.",
+  octree_render_property_ = new rviz_common::properties::EnumProperty("Voxel Rendering", "Occupied Voxels", "Select voxel type.",
                                                    scene_category_, SLOT(changedOctreeRenderMode()), this);
 
   octree_render_property_->addOption("Occupied Voxels", OCTOMAP_OCCUPIED_VOXELS);
   octree_render_property_->addOption("Free Voxels", OCTOMAP_FREE_VOXELS);
   octree_render_property_->addOption("All Voxels", OCTOMAP_FREE_VOXELS | OCTOMAP_OCCUPIED_VOXELS);
 
-  octree_coloring_property_ = new rviz::EnumProperty("Voxel Coloring", "Z-Axis", "Select voxel coloring mode",
+  octree_coloring_property_ = new rviz_common::properties::EnumProperty("Voxel Coloring", "Z-Axis", "Select voxel coloring mode",
                                                      scene_category_, SLOT(changedOctreeColorMode()), this);
 
   octree_coloring_property_->addOption("Z-Axis", OCTOMAP_Z_AXIS_COLOR);
@@ -328,10 +315,10 @@ void PlanningSceneDisplay::changedSceneName()
 void PlanningSceneDisplay::renderPlanningScene()
 {
   QColor color = scene_color_property_->getColor();
-  rviz::Color env_color(color.redF(), color.greenF(), color.blueF());
+  Ogre::ColourValue env_color(color.redF(), color.greenF(), color.blueF());
   if (attached_body_color_property_)
     color = attached_body_color_property_->getColor();
-  rviz::Color attached_color(color.redF(), color.greenF(), color.blueF());
+  Ogre::ColourValue attached_color(color.redF(), color.greenF(), color.blueF());
 
   try
   {
