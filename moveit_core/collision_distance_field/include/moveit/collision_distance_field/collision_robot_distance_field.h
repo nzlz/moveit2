@@ -55,7 +55,7 @@ static const double DEFAULT_RESOLUTION = .02;
 static const double DEFAULT_COLLISION_TOLERANCE = 0.0;
 static const double DEFAULT_MAX_PROPOGATION_DISTANCE = .25;
 
-MOVEIT_CLASS_FORWARD(CollisionRobotDistanceField);
+MOVEIT_CLASS_FORWARD(CollisionRobotDistanceField)
 
 class CollisionRobotDistanceField : public CollisionRobot
 {

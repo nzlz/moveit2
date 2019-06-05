@@ -3,7 +3,7 @@ FROM ubuntu:bionic
 LABEL maintainer="Lander Usategui lander@erlerobotics.com"
 
 ENV TERM xterm
-ENV ROS_DISTRO crystal
+ENV ROS_DISTRO dashing
 ENV ROS_WS=/opt/ws_moveit
 WORKDIR $ROS_WS
 
@@ -83,8 +83,8 @@ ENV IN_DOCKER 1
 ENV DOCKER 1 # old version, keep for now
 
 # setup entrypoint https://github.com/docker/hub-feedback/issues/811
-RUN echo '#!/bin/bash\nset -e\nsource "/opt/ros/$ROS_DISTRO/setup.bash"\nexec "$@"' > /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
-
-#ENTRYPOINT ["/docker-entrypoint.sh"]
+#RUN echo '#!/bin/bash\nset -e\nsource "/opt/ros/$ROS_DISTRO/setup.bash"\nexec "$@"' > /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
+COPY ./docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 CMD ["bash"]

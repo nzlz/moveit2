@@ -44,7 +44,7 @@
 
 namespace rdf_loader
 {
-MOVEIT_CLASS_FORWARD(RDFLoader);
+MOVEIT_CLASS_FORWARD(RDFLoader)
 
 /** @class RDFLoader
  *  @brief Default constructor

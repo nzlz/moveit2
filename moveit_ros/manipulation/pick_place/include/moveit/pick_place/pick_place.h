@@ -49,7 +49,7 @@
 
 namespace pick_place
 {
-MOVEIT_CLASS_FORWARD(PickPlace);
+MOVEIT_CLASS_FORWARD(PickPlace)
 
 class PickPlacePlanBase
 {
@@ -95,7 +95,7 @@ protected:
   rclcpp::Node::SharedPtr node_;
 };
 
-MOVEIT_CLASS_FORWARD(PickPlan);
+MOVEIT_CLASS_FORWARD(PickPlan)
 
 class PickPlan : public PickPlacePlanBase
 {
@@ -104,7 +104,7 @@ public:
   bool plan(const planning_scene::PlanningSceneConstPtr& planning_scene, const moveit_msgs::action::Pickup::Goal& goal);
 };
 
-MOVEIT_CLASS_FORWARD(PlacePlan);
+MOVEIT_CLASS_FORWARD(PlacePlan)
 
 class PlacePlan : public PickPlacePlanBase
 {

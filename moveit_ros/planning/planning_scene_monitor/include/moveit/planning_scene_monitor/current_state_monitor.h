@@ -218,7 +218,7 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_subscriber_;
 };
 
-MOVEIT_CLASS_FORWARD(CurrentStateMonitor);
+MOVEIT_CLASS_FORWARD(CurrentStateMonitor)
 }
 
 #endif

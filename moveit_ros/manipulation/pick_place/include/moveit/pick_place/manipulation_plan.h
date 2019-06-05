@@ -51,7 +51,7 @@
 
 namespace pick_place
 {
-MOVEIT_STRUCT_FORWARD(ManipulationPlanSharedData);
+MOVEIT_STRUCT_FORWARD(ManipulationPlanSharedData)
 
 struct ManipulationPlanSharedData
 {
@@ -81,7 +81,7 @@ struct ManipulationPlanSharedData
   std::chrono::time_point<std::chrono::system_clock, std::chrono::duration<double>> timeout_;
 };
 
-MOVEIT_STRUCT_FORWARD(ManipulationPlan);
+MOVEIT_STRUCT_FORWARD(ManipulationPlan)
 
 struct ManipulationPlan
 {

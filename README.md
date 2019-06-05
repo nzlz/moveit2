@@ -5,8 +5,6 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
 - [Milestones](#milestones)
 - [Overview of MoveIt!](http://moveit.ros.org)
 - [Installation instructions for MoveIt 2](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install)
-  - [Ubuntu 18.04](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/ubuntu)
-  - [OS X 10.14](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/osx)
 - [Documentation](http://moveit.ros.org/documentation/)
 - [Get Involved](http://moveit.ros.org/documentation/contributing/)
 
@@ -14,12 +12,12 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
 
 0. [Official announcement, commitment from Acutronic Robotics to allocate PMs and fund PickNik](https://acutronicrobotics.com/news/ros-2-moveit-robotic-motion-planning/)
 1. [Why MoveIt 2 and approach](https://acutronicrobotics.com/news/moveit-2-planning-framework-why/)
+2. [Porting and understanding moveit_core](https://acutronicrobotics.com/news/moveit-2-planning-framework-why/)
+3. [First demonstrator in ROS 2, planning to a joint-space goal](https://acutronicrobotics.com/news/moveit-2-journey-first-demonstrator/)
+4. [Sensorless collision detection with ROS 2](https://acutronicrobotics.com/news/ros2-sensorless-collision-detection/)
+5. [Announcing MoveIt 2 alpha release](https://acutronicrobotics.com/news/moveit-2-journey-moveit-2-alpha-release/)
 
 ### Progress
-
-- [x] Install instructions
-  - [x] [Ubuntu 18.04](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/ubuntu)
-  - [x] [OS X 10.14](https://acutronicrobotics.com/docs/products/robots/mara/moveit2/install/osx)
 
 <details><summary>Update/setup infrastructure for development</summary>
 
@@ -141,13 +139,19 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
     - [x] moveit_simple_controller_manager
 </details>
 
-<details><summary>New features in ROS 2.0</summary>
+<details><summary>New features in ROS 2.0 (<b>not started</b>)</summary>
 
-- [ ] New features in ROS 2.0
-  - [ ] Migrate plugin architecture to ROS2 nodelets
+- [ ] New features in ROS 2.0 (see [last survey for more insights](https://moveit.ros.org/assets/pdfs/2019/moveit_2019_survey.pdf))
+  - [ ] Realtime support
+  - [ ] Lifecycle management of the ROS nodes%
+  - [ ] Replacing plugins with ROS 2 components
+  - [ ] Security support
+  - [ ] Improved namespace handling
+  - [ ] Windows support
 </details>
 
-<details><summary>Documentation</summary>
+<details><summary>Documentation (<b>not started</b>)</summary>
+
 - [ ] Documentation
   - [ ] Tutorials for MoveIt2
   - [ ] Create tutorial on using ros1/ros2 bridge to support ros1 hardware drivers
@@ -181,37 +185,44 @@ The MoveIt! Motion Planning Framework **for ROS 2.0**
   - [ ] Add gitlfs?
 </details>
 
-## Install and test MoveIt 2
+## Install and Test MoveIt 2
 
-Note that moveit2 is a work in progress. Limited effort has been allocated to provide instructions on how to reproduce the available work.
+Note that MoveIt 2 is a work in progress. Limited effort has been allocated to provide instructions on how to reproduce the available work.
 
 <details><summary>Install and test options</summary>
 
-### From sources
+### Build From Source
 
 #### Ubuntu 18.04
 
 ##### Install  ros2 dashing pre-release
 
-Follow [this](https://discourse.ros.org/t/ros-2-dashing-diademata-call-for-testing-and-package-releases/8819) to install ros2 dashing pre-release
+Follow [this](https://discourse.ros.org/t/ros-2-dashing-diademata-call-for-testing-and-package-releases/8819) to install ROS 2 Dashing pre-release
 
-**NOTE**: Remove tf2 if you installed it from sources
+##### Temporary Build Steps
+
+Remove tf2 if you installed it from sources
 ```
 sudo apt-get purge ros-dashing-tf2*
 ```
-
-Install additional dependencies
-```bash
-sudo apt-get install python-vcstool python3-colcon-*
+Manually install OMPL:
+```
+sudo apt-get install libompl-dev
 ```
 
-##### Compile moveit2 and dependencies:
+##### Compile MoveIt 2 and Dependencies:
 
+Install additional build dependencies:
+```bash
+sudo apt-get install python-vcstool python3-colcon-common-extensions
+```
+
+Download and build MoveIt:
 ```bash
 mkdir -p ~/moveit2_ws/src
 cd ~/moveit2_ws/src
-git clone https://github.com/AcutronicRobotics/moveit2 -b master_compile
-cd ~/moveit2_ws
+git clone https://github.com/AcutronicRobotics/moveit2 -b master
+cd ..
 vcs import src < src/moveit2/moveit2.repos
 colcon build --merge-install --cmake-args -DBUILD_TESTING=FALSE
 ```

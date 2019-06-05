@@ -1,13 +1,8 @@
 #!/bin/bash
-
 set -e
 
-# /bin/bash -c "find /opt/ros/crystal/ -name tf2_eigen | xargs rm -rf && source /opt/ros/crystal/setup.bash \
-# 	       && touch /root/ws_moveit/src/image_common/camera_calibration_parsers/COLCON_IGNORE \
-#               && touch /root/ws_moveit/src/image_common/camera_info_manager/COLCON_IGNORE \
-#               && colcon build --merge-install"
 
-
+find /opt/ros/$ROS_DISTRO -name tf2* | xargs rm -rf && find /opt/ros/$ROS_DISTRO/ -name class_loader | xargs rm -rf && find /opt/ros/$ROS_DISTRO -name pluginlib | xargs rm -rf
 # setup ros2 environment
 source "/opt/ros/$ROS_DISTRO/setup.bash"
 exec "$@"

@@ -59,3 +59,16 @@ repositories:
     type: git
     url: https://github.com/ros/resource_retriever
     version: ros2
+  image_common:
+    type: git
+    url: https://github.com/ros-perception/image_common
+    version: ros2
+  class_loader:
+     type: git
+     url: https://github.com/ros/class_loader
+     version: dashing
+  pluginlib:
+     type: git
+     url: https://github.com/ros/pluginlib
+     version: dashing
+  
