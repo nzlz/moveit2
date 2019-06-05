@@ -37,19 +37,6 @@
 #include <moveit/robot_state_rviz_plugin/robot_state_display.hpp>
 #include <moveit/robot_state/conversions.h>
 
-#include <rviz_common/visualization_manager.hpp>
-#include <rviz_default_plugins/robot/robot.hpp>
-#include <rviz_default_plugins/robot/robot_link.hpp>
-
-#include <rviz_common/properties/property.hpp>
-#include <rviz_common/properties/string_property.hpp>
-#include <rviz_common/properties/bool_property.hpp>
-#include <rviz_common/properties/float_property.hpp>
-#include <rviz_common/properties/ros_topic_property.hpp>
-#include <rviz_common/properties/color_property.hpp>
-#include <rviz_common/display_context.hpp>
-#include <rviz_common/frame_manager.hpp>
-
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 
@@ -65,7 +52,7 @@ RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false), load_r
       this, SLOT(changedRobotDescription()), this);
 
   robot_state_topic_property_ = new rviz_common::properties::RosTopicProperty(
-      "Robot State Topic", "display_robot_state", ros::message_traits::datatype<moveit_msgs::msg::DisplayRobotState>(),
+      "Robot State Topic", "display_robot_state", rosidl_generator_traits::data_type<moveit_msgs::msg::DisplayRobotState>(),
       "The topic on which the moveit_msgs::msg::DisplayRobotState messages are received", this,
       SLOT(changedRobotStateTopic()), this);
 
@@ -96,6 +83,7 @@ RobotStateDisplay::RobotStateDisplay() : Display(), update_state_(false), load_r
 
   show_all_links_ = new rviz_common::properties::BoolProperty("Show All Links", true, "Toggle all links visibility on or off.", this,
                                            SLOT(changedAllLinks()), this);
+  root_node_ = std::make_shared<rclcpp::Node>("RobotStateDisplay_root_node");
 }
 
 // ******************************************************************************************
@@ -356,7 +344,7 @@ void RobotStateDisplay::loadRobotModel()
 {
   load_robot_model_ = false;
   if (!rdf_loader_)
-    rdf_loader_.reset(new rdf_loader::RDFLoader(robot_description_property_->getStdString()));
+    rdf_loader_.reset(new rdf_loader::RDFLoader(root_node_, robot_description_property_->getStdString()));
 
   if (rdf_loader_->getURDF())
   {
@@ -430,7 +418,7 @@ void RobotStateDisplay::calculateOffsetPosition()
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
 
-  context_->getFrameManager()->getTransform(getRobotModel()->getModelFrame(), ros::Time(0), position, orientation);
+  context_->getFrameManager()->getTransform(getRobotModel()->getModelFrame(), rclcpp::Clock().now(), position, orientation);
 
   scene_node_->setPosition(position);
   scene_node_->setOrientation(orientation);

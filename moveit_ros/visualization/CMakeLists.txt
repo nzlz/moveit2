@@ -32,6 +32,7 @@ find_package(moveit_ros_perception REQUIRED)
 #find_package(moveit_ros_robot_interaction REQUIRED)
 #find_package(moveit_ros_warehouse REQUIRED)
 find_package(moveit_core REQUIRED)
+find_package(moveit_ros_planning REQUIRED)
 find_package(object_recognition_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -53,7 +54,6 @@ set(THIS_PACKAGE_INCLUDE_DIRS
   robot_state_rviz_plugin/include
   rviz_plugin_render_tools/include
   #trajectory_rviz_plugin/include
-  rdf_loader/include
   ${rclcpp_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
@@ -65,7 +65,6 @@ set(THIS_PACKAGE_INCLUDE_LIBRARIES
   #moveit_planning_scene_rviz_plugin_core
   moveit_robot_state_rviz_plugin_core
   moveit_rviz_plugin_render_tools
-  moveit_rdf_loader
   #moveit_trajectory_rviz_plugin_core
 )
 
@@ -97,7 +96,6 @@ include_directories(SYSTEM
 
 add_subdirectory(rviz_plugin_render_tools)
 add_subdirectory(robot_state_rviz_plugin)
-add_subdirectory(rdf_loader)
 #add_subdirectory(planning_scene_rviz_plugin)
 #add_subdirectory(motion_planning_rviz_plugin)
 #add_subdirectory(trajectory_rviz_plugin)

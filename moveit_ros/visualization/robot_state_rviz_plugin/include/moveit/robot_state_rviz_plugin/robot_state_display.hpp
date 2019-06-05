@@ -37,12 +37,24 @@
 #ifndef MOVEIT_VISUALIZATION_ROBOT_STATE_DISPLAY_RVIZ_ROBOT_STATE_DISPLAY_
 #define MOVEIT_VISUALIZATION_ROBOT_STATE_DISPLAY_RVIZ_ROBOT_STATE_DISPLAY_
 
-#include <rviz_common/display.hpp>
+#include <rviz_default_plugins/robot/robot.hpp>
+#include <rviz_default_plugins/robot/robot_link.hpp>
 
+#include <rviz_common/display.hpp>
+#include <rviz_common/properties/property.hpp>
+#include <rviz_common/properties/string_property.hpp>
+#include <rviz_common/properties/bool_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/ros_topic_property.hpp>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/display_context.hpp>
+#include <rviz_common/frame_manager_iface.hpp>
+/*#include <rviz_common/visualization_manager.hpp>
+*/
 #ifndef Q_MOC_RUN
-#include <rdf_loader/rdf_loader.h>
+#include <moveit/rdf_loader/rdf_loader.h>
 #include <moveit/rviz_plugin_render_tools/robot_state_visualization.hpp>
-#include <moveit_msgs/msg/DisplayRobotState.hpp>
+#include <moveit_msgs/msg/display_robot_state.hpp>
 #include <rclcpp/rclcpp.hpp>
 #endif
 
@@ -123,7 +135,7 @@ protected:
   void fixedFrameChanged() override;
 
   // render the robot
-  rclcpp::Node root_node_;
+  rclcpp::Node::SharedPtr root_node_;
   rclcpp::Subscription<moveit_msgs::msg::DisplayRobotState>::SharedPtr robot_state_subscriber_;
 
 

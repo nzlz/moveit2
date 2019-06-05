@@ -76,7 +76,7 @@ PlanningSceneDisplay::PlanningSceneDisplay(bool listen_to_planning_scene, bool s
   if (listen_to_planning_scene)
     planning_scene_topic_property_ =
         new rviz_common::properties::RosTopicProperty("Planning Scene Topic", "move_group/monitored_planning_scene",
-                                   ros::message_traits::datatype<moveit_msgs::msg::PlanningScene>(),
+                                   rosidl_generator_traits::data_type<moveit_msgs::msg::PlanningScene>(),
                                    "The topic on which the moveit_msgs::msg::PlanningScene messages are received", this,
                                    SLOT(changedPlanningSceneTopic()), this);
   else
@@ -279,7 +279,7 @@ const robot_model::RobotModelConstPtr& PlanningSceneDisplay::getRobotModel() con
   }
 }
 
-bool PlanningSceneDisplay::waitForCurrentRobotState(const ros::Time& t)
+bool PlanningSceneDisplay::waitForCurrentRobotState(const rclcpp::Clock& t)
 {
   if (planning_scene_monitor_)
     return planning_scene_monitor_->waitForCurrentRobotState(t);
@@ -655,7 +655,7 @@ void PlanningSceneDisplay::calculateOffsetPosition()
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
 
-  context_->getFrameManager()->getTransform(getRobotModel()->getModelFrame(), ros::Time(0), position, orientation);
+  context_->getFrameManager()->getTransform(getRobotModel()->getModelFrame(), rclcpp::Clock(0), position, orientation);
 
   planning_scene_node_->setPosition(position);
   planning_scene_node_->setOrientation(orientation);

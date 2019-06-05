@@ -106,7 +106,7 @@ public:
   const robot_model::RobotModelConstPtr& getRobotModel() const;
 
   /// wait for robot state more recent than t
-  bool waitForCurrentRobotState(const ros::Time& t = ros::Time::now());
+  bool waitForCurrentRobotState(const rclcpp::Clock& t = rclcpp::Clock().now());
   /// get read-only access to planning scene
   planning_scene_monitor::LockedPlanningSceneRO getPlanningSceneRO() const;
   /// get write access to planning scene

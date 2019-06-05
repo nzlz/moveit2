@@ -77,8 +77,8 @@ void MotionPlanningFrame::processDetectedObjects()
   double max_y = ui_->roi_center_y->value() + ui_->roi_size_y->value() / 2.0;
   double max_z = ui_->roi_center_z->value() + ui_->roi_size_z->value() / 2.0;
 
-  ros::Time start_time = ros::Time::now();
-  while (object_ids.empty() && ros::Time::now() - start_time <= ros::Duration(3.0))
+  rclcpp::Clock start_time = rclcpp::Clock().now();
+  while (object_ids.empty() && rclcpp::Clock().now() - start_time <= ros::Duration(3.0))
   {
     object_ids =
         planning_scene_interface_->getKnownObjectNamesInROI(min_x, min_y, min_z, max_x, max_y, max_z, true, objects);
