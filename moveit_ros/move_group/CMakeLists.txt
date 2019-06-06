@@ -19,12 +19,12 @@ find_package(moveit_ros_planning REQUIRED)
 
 include_directories(include)
 
-set_target_properties(moveit_move_group_capabilities_base PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
-
 add_library(moveit_move_group_capabilities_base SHARED
   src/move_group_context.cpp
   src/move_group_capability.cpp
 )
+
+set_target_properties(moveit_move_group_capabilities_base PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 
 ament_target_dependencies(moveit_move_group_capabilities_base
   rclcpp
