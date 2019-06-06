@@ -19,6 +19,8 @@
   <url type="repository">https://github.com/ros-planning/moveit</url>
   <url type="bugtracker">https://github.com/ros-planning/moveit/issues</url>
 
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
+
   <depend>moveit_core</depend>
   <depend>pluginlib</depend>
   <depend>eigen</depend>
@@ -33,6 +35,7 @@
   <test_depend>moveit_resources</test_depend>
 
   <export>
+    <build_type>ament_cmake</build_type>
     <moveit_core plugin="${prefix}/kdl_kinematics_plugin_description.xml"/>
   </export>
 
