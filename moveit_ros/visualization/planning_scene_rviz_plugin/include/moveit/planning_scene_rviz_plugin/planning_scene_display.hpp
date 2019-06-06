@@ -86,8 +86,8 @@ public:
   PlanningSceneDisplay(bool listen_to_planning_scene = true, bool show_scene_robot = true);
   ~PlanningSceneDisplay() override;
 
-  void load(const rviz::Config& config) override;
-  void save(rviz::Config config) const override;
+  void load(const rviz_common::Config& config) override;
+  void save(rviz_common::Config config) const override;
 
   void update(float wall_dt, float ros_dt) override;
   void reset() override;
@@ -119,12 +119,15 @@ public:
   const robot_model::RobotModelConstPtr& getRobotModel() const;
 
   /// wait for robot state more recent than t
-  bool waitForCurrentRobotState(const rclcpp::Clock& t = rclcpp::Clock().now());
+  bool waitForCurrentRobotState(const rclcpp::Time& t = rclcpp::Clock().now());
   /// get read-only access to planning scene
   planning_scene_monitor::LockedPlanningSceneRO getPlanningSceneRO() const;
   /// get write access to planning scene
   planning_scene_monitor::LockedPlanningSceneRW getPlanningSceneRW();
   const planning_scene_monitor::PlanningSceneMonitorPtr& getPlanningSceneMonitor();
+
+  rclcpp::Node::SharedPtr node_;
+  const std::string NODE_NAME = "planning_scene_display";  // name of node
 
 private Q_SLOTS:
 

@@ -1290,7 +1290,7 @@ void MotionPlanningDisplay::updateInternal(float wall_dt, float ros_dt)
   renderWorkspaceBox();
 }
 
-void MotionPlanningDisplay::load(const rviz::Config& config)
+void MotionPlanningDisplay::load(const rviz_common::Config& config)
 {
   PlanningSceneDisplay::load(config);
   if (frame_)
@@ -1336,8 +1336,8 @@ void MotionPlanningDisplay::load(const rviz::Config& config)
     if (config.mapGetFloat("Acceleration_Scaling_Factor", &v))
       frame_->ui_->acceleration_scaling_factor->setValue(v);
 
-    rviz::Config workspace = config.mapGetChild("MoveIt_Workspace");
-    rviz::Config ws_center = workspace.mapGetChild("Center");
+    rviz_common::Config workspace = config.mapGetChild("MoveIt_Workspace");
+    rviz_common::Config ws_center = workspace.mapGetChild("Center");
     float val;
     if (ws_center.mapGetFloat("X", &val))
       frame_->ui_->wcenter_x->setValue(val);
@@ -1346,7 +1346,7 @@ void MotionPlanningDisplay::load(const rviz::Config& config)
     if (ws_center.mapGetFloat("Z", &val))
       frame_->ui_->wcenter_z->setValue(val);
 
-    rviz::Config ws_size = workspace.mapGetChild("Size");
+    rviz_common::Config ws_size = workspace.mapGetChild("Size");
     if (ws_size.isValid())
     {
       if (ws_size.mapGetFloat("X", &val))
@@ -1371,7 +1371,7 @@ void MotionPlanningDisplay::load(const rviz::Config& config)
   }
 }
 
-void MotionPlanningDisplay::save(rviz::Config config) const
+void MotionPlanningDisplay::save(rviz_common::Config config) const
 {
   PlanningSceneDisplay::save(config);
   if (frame_)
@@ -1394,12 +1394,12 @@ void MotionPlanningDisplay::save(rviz::Config config) const
     config.mapSetValue("MoveIt_Use_Constraint_Aware_IK", frame_->ui_->collision_aware_ik->isChecked());
     config.mapSetValue("MoveIt_Allow_Approximate_IK", frame_->ui_->approximate_ik->isChecked());
 
-    rviz::Config workspace = config.mapMakeChild("MoveIt_Workspace");
-    rviz::Config ws_center = workspace.mapMakeChild("Center");
+    rviz_common::Config workspace = config.mapMakeChild("MoveIt_Workspace");
+    rviz_common::Config ws_center = workspace.mapMakeChild("Center");
     ws_center.mapSetValue("X", frame_->ui_->wcenter_x->value());
     ws_center.mapSetValue("Y", frame_->ui_->wcenter_y->value());
     ws_center.mapSetValue("Z", frame_->ui_->wcenter_z->value());
-    rviz::Config ws_size = workspace.mapMakeChild("Size");
+    rviz_common::Config ws_size = workspace.mapMakeChild("Size");
     ws_size.mapSetValue("X", frame_->ui_->wsize_x->value());
     ws_size.mapSetValue("Y", frame_->ui_->wsize_y->value());
     ws_size.mapSetValue("Z", frame_->ui_->wsize_z->value());

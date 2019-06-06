@@ -35,10 +35,9 @@
 
 /* Author: Ioan Sucan */
 
-#include <moveit/common_planning_interface_objects/common_objects.h>
 #include <moveit/planning_scene_rviz_plugin/planning_scene_display.hpp>
-#include <moveit/rviz_plugin_render_tools/robot_state_visualization.h>
-#include <moveit/rviz_plugin_render_tools/octomap_render.h>
+#include <moveit/rviz_plugin_render_tools/robot_state_visualization.hpp>
+#include <moveit/rviz_plugin_render_tools/octomap_render.hpp>
 
 #include <tf2_ros/buffer.h>
 
@@ -53,6 +52,7 @@ namespace moveit_rviz_plugin
 PlanningSceneDisplay::PlanningSceneDisplay(bool listen_to_planning_scene, bool show_scene_robot)
   : Display(), model_is_loading_(false), planning_scene_needs_render_(true), current_scene_time_(0.0f)
 {
+  node_ = rclcpp::Node::make_shared(PlanningSceneDisplay::NODE_NAME);
   move_group_ns_property_ = new rviz_common::properties::StringProperty("Move Group Namespace", "", "The name of the ROS namespace in "
                                                                                  "which the move_group node is running",
                                                      this, SLOT(changedMoveGroupNS()), this);
@@ -237,7 +237,7 @@ void PlanningSceneDisplay::executeMainLoopJobs()
     }
     catch (std::exception& ex)
     {
-      RCLCPP_ERROR("Exception caught executing main loop job: %s", ex.what());
+      RCLCPP_ERROR(node_->get_logger(), "Exception caught executing main loop job: %s", ex.what());
     }
     main_loop_jobs_lock_.lock();
   }
@@ -266,7 +266,7 @@ const robot_model::RobotModelConstPtr& PlanningSceneDisplay::getRobotModel() con
   }
 }
 
-bool PlanningSceneDisplay::waitForCurrentRobotState(const rclcpp::Clock& t)
+bool PlanningSceneDisplay::waitForCurrentRobotState(const rclcpp::Time& t)
 {
   if (planning_scene_monitor_)
     return planning_scene_monitor_->waitForCurrentRobotState(t);
@@ -330,7 +330,7 @@ void PlanningSceneDisplay::renderPlanningScene()
   }
   catch (std::exception& ex)
   {
-    RCLCPP_ERROR("Caught %s while rendering planning scene", ex.what());
+    RCLCPP_ERROR(node_->get_logger(), "Caught %s while rendering planning scene", ex.what());
   }
   planning_scene_render_->getGeometryNode()->setVisible(scene_enabled_property_->getBool());
 }
@@ -356,7 +356,19 @@ void PlanningSceneDisplay::changedPlanningSceneTopic()
     planning_scene_monitor_->startSceneMonitor(planning_scene_topic_property_->getStdString());
     std::string service_name = planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_SERVICE;
     if (!getMoveGroupNS().empty())
-      service_name = ros::names::append(getMoveGroupNS(), service_name);
+      // Replicate ROS1 function ros::names::append(getMoveGroupNS(), service_name)
+      service_name = getMoveGroupNS() + "/" + service_name;
+
+      size_t pos = service_name.find("//");
+      while (pos != std::string::npos){
+        service_name.erase(pos, 1);
+        pos = service_name.find("//", pos);
+      }
+
+      if (*service_name.rbegin() == '/'){
+        service_name.erase(service_name.size() - 1, 1);
+      }
+
     planning_scene_monitor_->requestPlanningSceneState(service_name);
   }
 }
@@ -472,13 +484,13 @@ void PlanningSceneDisplay::unsetLinkColor(rviz_default_plugins::robot::Robot* ro
 // ******************************************************************************************
 planning_scene_monitor::PlanningSceneMonitorPtr PlanningSceneDisplay::createPlanningSceneMonitor()
 {
-#ifdef RVIZ_TF1
-  std::shared_ptr<tf2_ros::Buffer> tf_buffer = moveit::planning_interface::getSharedTF();
-#else
-  std::shared_ptr<tf2_ros::Buffer> tf_buffer = context_->getFrameManager()->getTF2BufferPtr();
-#endif
+  rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>(RCL_SYSTEM_TIME);
+  // On ROS2 the passed value is a shared Clock
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer = std::make_shared<tf2_ros::Buffer>(clock);
+  std::shared_ptr<tf2_ros::TransformListener> tfl = std::make_shared<tf2_ros::TransformListener>(*tf_buffer);
+
   return planning_scene_monitor::PlanningSceneMonitorPtr(new planning_scene_monitor::PlanningSceneMonitor(
-      robot_description_property_->getStdString(), tf_buffer, getNameStd() + "_planning_scene_monitor"));
+      robot_description_property_->getStdString(), node_, tf_buffer, getNameStd() + "_planning_scene_monitor"));
 }
 
 void PlanningSceneDisplay::clearRobotModel()
@@ -621,12 +633,12 @@ void PlanningSceneDisplay::updateInternal(float wall_dt, float ros_dt)
   }
 }
 
-void PlanningSceneDisplay::load(const rviz::Config& config)
+void PlanningSceneDisplay::load(const rviz_common::Config& config)
 {
   Display::load(config);
 }
 
-void PlanningSceneDisplay::save(rviz::Config config) const
+void PlanningSceneDisplay::save(rviz_common::Config config) const
 {
   Display::save(config);
 }
@@ -642,7 +654,7 @@ void PlanningSceneDisplay::calculateOffsetPosition()
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
 
-  context_->getFrameManager()->getTransform(getRobotModel()->getModelFrame(), rclcpp::Clock(0), position, orientation);
+  context_->getFrameManager()->getTransform(getRobotModel()->getModelFrame(), rclcpp::Time(0), position, orientation);
 
   planning_scene_node_->setPosition(position);
   planning_scene_node_->setOrientation(orientation);
