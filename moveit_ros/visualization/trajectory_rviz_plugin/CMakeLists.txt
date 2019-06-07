@@ -2,7 +2,7 @@ set(MOVEIT_LIB_NAME moveit_trajectory_rviz_plugin)
 
 # Header files that need Qt Moc pre-processing for use with Qt signals, etc:
 set(HEADERS
-  include/moveit/trajectory_rviz_plugin/trajectory_display.h
+  include/moveit/trajectory_rviz_plugin/trajectory_display.hpp
 )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -16,16 +16,16 @@ set_target_properties(${MOVEIT_LIB_NAME}_core PROPERTIES VERSION "${${PROJECT_NA
 target_link_libraries(${MOVEIT_LIB_NAME}_core
   moveit_rviz_plugin_render_tools
   moveit_planning_scene_rviz_plugin_core
-  ${catkin_LIBRARIES} ${OGRE_LIBRARIES} ${QT_LIBRARIES} ${Boost_LIBRARIES}
+  ${QT_LIBRARIES} ${Boost_LIBRARIES}
 )
 
 # Plugin Initializer
 add_library(${MOVEIT_LIB_NAME} SHARED src/plugin_init.cpp)
 set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
-target_link_libraries(${MOVEIT_LIB_NAME} ${MOVEIT_LIB_NAME}_core ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(${MOVEIT_LIB_NAME} ${MOVEIT_LIB_NAME}_core ${Boost_LIBRARIES})
 
-install(DIRECTORY include/ DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
+install(DIRECTORY include/ DESTINATION include)
 
-install(TARGETS ${MOVEIT_LIB_NAME} ${MOVEIT_LIB_NAME}_core
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+install(TARGETS ${MOVEIT_LIB_NAME}_core ${MOVEIT_LIB_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib)

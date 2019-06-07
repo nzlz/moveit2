@@ -39,11 +39,10 @@
 #ifndef MOVEIT_TRAJECTORY_RVIZ_PLUGIN__TRAJECTORY_DISPLAY
 #define MOVEIT_TRAJECTORY_RVIZ_PLUGIN__TRAJECTORY_DISPLAY
 
-#include <rviz/display.h>
+#include <rviz_common/display.hpp>
 
-#include <moveit/rviz_plugin_render_tools/trajectory_visualization.h>
+#include <moveit/rviz_plugin_render_tools/trajectory_visualization.hpp>
 #ifndef Q_MOC_RUN
-#include <ros/ros.h>
 #include <moveit/rdf_loader/rdf_loader.h>
 #endif
 
@@ -73,7 +72,10 @@ public:
   void onInitialize() override;
   void onEnable() override;
   void onDisable() override;
-  void setName(const QString& name) override;
+  //void setName(const QString& name) override;
+
+  rclcpp::Node::SharedPtr node_;
+  const std::string NODE_NAME = "trajectory_display";  // name of node
 
 private Q_SLOTS:
   /**

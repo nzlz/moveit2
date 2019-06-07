@@ -667,3 +667,6 @@ void PlanningSceneDisplay::fixedFrameChanged()
 }
 
 }  // namespace moveit_rviz_plugin
+
+#include <pluginlib/class_list_macros.hpp>
+PLUGINLIB_EXPORT_CLASS(moveit_rviz_plugin::PlanningSceneDisplay, rviz_common::Display)

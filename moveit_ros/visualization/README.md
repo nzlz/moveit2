@@ -4,6 +4,7 @@
  - robot_state_rviz_plugin [Not Tested]
  - rviz_plugin_render_tools [Not Tested]
  - planning_scene_rviz_plugin [Not Tested]
+ - trajectory_rviz_plugin [Not Tested]
 
 ## Unported
  - Joy

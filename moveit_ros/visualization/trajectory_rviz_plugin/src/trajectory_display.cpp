@@ -36,8 +36,8 @@
    Desc:   Wraps a trajectory_visualization playback class for Rviz into a stand alone display
 */
 
-#include <moveit/trajectory_rviz_plugin/trajectory_display.h>
-#include <rviz/properties/string_property.h>
+#include <moveit/trajectory_rviz_plugin/trajectory_display.hpp>
+#include <rviz_common/properties/string_property.hpp>
 
 namespace moveit_rviz_plugin
 {
@@ -50,6 +50,7 @@ TrajectoryDisplay::TrajectoryDisplay() : Display(), load_robot_model_(false)
       this, SLOT(changedRobotDescription()), this);
 
   trajectory_visual_.reset(new TrajectoryVisualization(this, this));
+  node_ = rclcpp::Node::make_shared(TrajectoryDisplay::NODE_NAME);
 }
 
 TrajectoryDisplay::~TrajectoryDisplay() = default;
@@ -58,13 +59,15 @@ void TrajectoryDisplay::onInitialize()
 {
   Display::onInitialize();
 
-  trajectory_visual_->onInitialize(scene_node_, context_, update_nh_);
+  /* TODO, migrate the following line
+  trajectory_visual_->onInitialize(scene_node, context, const ros_node);
+  */
 }
 
 void TrajectoryDisplay::loadRobotModel()
 {
   load_robot_model_ = false;
-  rdf_loader_.reset(new rdf_loader::RDFLoader(robot_description_property_->getStdString()));
+  rdf_loader_.reset(new rdf_loader::RDFLoader(node_, robot_description_property_->getStdString()));
 
   if (!rdf_loader_->getURDF())
   {
@@ -112,11 +115,11 @@ void TrajectoryDisplay::update(float wall_dt, float ros_dt)
   trajectory_visual_->update(wall_dt, ros_dt);
 }
 
-void TrajectoryDisplay::setName(const QString& name)
+/*void TrajectoryDisplay::setName(const QString& name)
 {
   BoolProperty::setName(name);
   trajectory_visual_->setName(name);
-}
+}*/
 
 void TrajectoryDisplay::changedRobotDescription()
 {
@@ -127,3 +130,6 @@ void TrajectoryDisplay::changedRobotDescription()
 }
 
 }  // namespace moveit_rviz_plugin
+
+#include <pluginlib/class_list_macros.hpp>
+PLUGINLIB_EXPORT_CLASS(moveit_rviz_plugin::TrajectoryDisplay, rviz_common::Display)
