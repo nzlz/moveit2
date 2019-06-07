@@ -34,9 +34,11 @@
 
 /* Author: Mario Prats, Ioan Sucan */
 
+// TODO, port moveit_ros warehouse
 #include <moveit/warehouse/state_storage.h>
-#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.h>
-#include <moveit/motion_planning_rviz_plugin/motion_planning_display.h>
+
+#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.hpp>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_display.hpp>
 #include <moveit/robot_state/conversions.h>
 
 #include <QMessageBox>

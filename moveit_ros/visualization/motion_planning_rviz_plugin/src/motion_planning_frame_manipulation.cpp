@@ -34,12 +34,12 @@
 
 /* Author: Sachin Chitta */
 
-#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.h>
-#include <moveit/motion_planning_rviz_plugin/motion_planning_display.h>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.hpp>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_display.hpp>
 
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit/robot_state/conversions.h>
-#include <object_recognition_msgs/ObjectRecognitionGoal.h>
+#include <object_recognition_msgs/msg/object_recognition_goal.hpp>
 
 #include "ui_motion_planning_rviz_plugin_frame.h"
 

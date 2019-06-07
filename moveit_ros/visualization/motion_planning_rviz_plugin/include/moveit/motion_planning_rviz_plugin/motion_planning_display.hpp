@@ -37,14 +37,16 @@
 #ifndef MOVEIT_MOTION_PLANNING_RVIZ_PLUGIN_MOTION_PLANNING_DISPLAY_
 #define MOVEIT_MOTION_PLANNING_RVIZ_PLUGIN_MOTION_PLANNING_DISPLAY_
 
-#include <rviz/display.h>
-#include <rviz/selection/selection_manager.h>
-#include <rviz/panel_dock_widget.h>
+#include <rviz_common/display.hpp>
+#include <rviz_common/interaction/selection_manager.hpp>
+#include <rviz_common/panel_dock_widget.hpp>
 #include <moveit/planning_scene_rviz_plugin/planning_scene_display.hpp>
-#include <moveit/rviz_plugin_render_tools/trajectory_visualization.h>
+#include <moveit/rviz_plugin_render_tools/trajectory_visualization.hpp>
 
 #ifndef Q_MOC_RUN
-#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.h>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.hpp>
+
+// TODO, migrate moveit_ros robot_interaction
 #include <moveit/robot_interaction/robot_interaction.h>
 #include <moveit/robot_interaction/interaction_handler.h>
 
@@ -54,8 +56,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include <std_msgs/String.h>
-#include <moveit_msgs/DisplayTrajectory.h>
+#include <std_msgs/msg/string.hpp>
+#include <moveit_msgs/msgs/display_trajectory.hpp>
 #endif
 
 #include <memory>

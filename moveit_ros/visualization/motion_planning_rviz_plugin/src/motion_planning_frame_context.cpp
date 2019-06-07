@@ -34,15 +34,16 @@
 
 /* Author: Ioan Sucan */
 
+// TODO, port moveit_ros warehouse
 #include <moveit/warehouse/planning_scene_storage.h>
 #include <moveit/warehouse/constraints_storage.h>
 #include <moveit/warehouse/state_storage.h>
 
-#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.h>
-#include <moveit/motion_planning_rviz_plugin/motion_planning_display.h>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.hpp>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_display.hpp>
 
-#include <rviz/display_context.h>
-#include <rviz/window_manager_interface.h>
+#include <rviz_common/display_context.hpp>
+#include <rviz_common/window_manager_interface.hpp>
 
 #include <QMessageBox>
 #include <QInputDialog>

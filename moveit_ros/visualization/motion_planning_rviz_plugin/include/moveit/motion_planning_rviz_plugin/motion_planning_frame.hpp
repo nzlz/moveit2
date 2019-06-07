@@ -46,17 +46,28 @@
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
+
+// TODO, migrate moveit_ros robot_interaction
 #include <moveit/robot_interaction/robot_interaction.h>
 #include <moveit/robot_interaction/interaction_handler.h>
+
 #include <moveit/semantic_world/semantic_world.h>
+
+// TODO, migrate interactive_markers. Also rviz side.
 #include <interactive_markers/interactive_marker_server.h>
 #include <rviz/default_plugin/interactive_markers/interactive_marker.h>
-#include <moveit_msgs/MotionPlanRequest.h>
-#include <actionlib/client/simple_action_client.h>
-#include <object_recognition_msgs/ObjectRecognitionAction.h>
 
-#include <std_msgs/Bool.h>
-#include <std_msgs/Empty.h>
+#include <moveit_msgs/msg/motion_plan_request.hpp>
+
+// Requires PORT
+// #include <actionlib/client/simple_action_client.h>
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
+
+#include <object_recognition_msgs/msg/object_recognition_action.hpp>
+
+#include <std_msgs/msg/bool.hpp>
+#include <std_msgs/msg/empty.hpp>
 #endif
 
 #include <map>

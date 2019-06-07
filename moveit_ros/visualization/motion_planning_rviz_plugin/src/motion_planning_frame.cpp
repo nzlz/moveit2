@@ -35,17 +35,17 @@
 /* Author: Ioan Sucan */
 
 #include <moveit/common_planning_interface_objects/common_objects.h>
-#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.h>
-#include <moveit/motion_planning_rviz_plugin/motion_planning_display.h>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.hpp>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_display.hpp>
 #include <moveit/move_group/capability_names.h>
 
 #include <geometric_shapes/shape_operations.h>
 
-#include <rviz/display_context.h>
-#include <rviz/frame_manager.h>
+#include <rviz_common/display_context.hpp>
+#include <rviz_common/frame_manager.hpp>
 #include <tf2_ros/buffer.h>
 
-#include <std_srvs/Empty.h>
+#include <std_srvs/srv/empty.hpp>
 
 #include <QMessageBox>
 #include <QInputDialog>

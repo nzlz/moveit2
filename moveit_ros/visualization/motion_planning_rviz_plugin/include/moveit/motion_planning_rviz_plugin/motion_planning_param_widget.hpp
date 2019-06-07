@@ -37,7 +37,7 @@
 #ifndef MOVEIT_MOTION_PLANNING_RVIZ_PLUGIN_MOTION_PLANNING_PARAM_WIDGET_
 #define MOVEIT_MOTION_PLANNING_RVIZ_PLUGIN_MOTION_PLANNING_PARAM_WIDGET_
 
-#include <rviz/properties/property_tree_widget.h>
+#include <rviz_common/properties/property_tree_widget.hpp>
 #include <moveit/macros/class_forward.h>
 namespace moveit
 {
