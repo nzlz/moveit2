@@ -74,7 +74,7 @@
 #include <string>
 #include <memory>
 
-namespace rviz
+namespace rviz_common
 {
 class DisplayContext;
 }

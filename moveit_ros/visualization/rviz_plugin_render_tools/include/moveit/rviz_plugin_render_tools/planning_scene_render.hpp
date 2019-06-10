@@ -49,7 +49,7 @@ namespace Ogre
 class SceneNode;
 }
 
-namespace rviz
+namespace rviz_common
 {
 class DisplayContext;
 }

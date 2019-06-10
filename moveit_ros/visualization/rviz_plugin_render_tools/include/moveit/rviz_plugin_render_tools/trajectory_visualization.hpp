@@ -67,7 +67,7 @@
 #include <moveit_msgs/msg/display_trajectory.hpp>
 #endif
 
-namespace rviz
+namespace rviz_common
 {
 class Robot;
 class Shape;

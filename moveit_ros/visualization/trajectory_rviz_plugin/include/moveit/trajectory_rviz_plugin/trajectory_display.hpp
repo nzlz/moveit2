@@ -46,7 +46,7 @@
 #include <moveit/rdf_loader/rdf_loader.h>
 #endif
 
-namespace rviz
+namespace rviz_common
 {
 class StringProperty;
 }

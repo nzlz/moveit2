@@ -62,10 +62,10 @@ set(THIS_PACKAGE_INCLUDE_DIRS
 
 set(THIS_PACKAGE_INCLUDE_LIBRARIES
   #moveit_motion_planning_rviz_plugin_core
-  moveit_planning_scene_rviz_plugin_core
-  moveit_robot_state_rviz_plugin_core
+  moveit_planning_scene_rviz_plugin
+  moveit_robot_state_rviz_plugin
   moveit_rviz_plugin_render_tools
-  moveit_trajectory_rviz_plugin_core
+  moveit_trajectory_rviz_plugin
 )
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
