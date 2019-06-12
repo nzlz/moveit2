@@ -23,7 +23,7 @@ add_library(${MOVEIT_LIB_NAME} SHARED
   src/trajectory_panel.cpp
   ${HEADERS}
 )
-#set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
+set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 
 target_include_directories(${MOVEIT_LIB_NAME} PUBLIC
   ${rclcpp_INCLUDE_DIRS}
