@@ -455,12 +455,12 @@ void TrajectoryVisualization::incomingDisplayTrajectory(const moveit_msgs::msg::
   // Error check
   if (!robot_state_ || !robot_model_)
   {
-    RCUTILS_LOG_ERROR_NAMED("trajectory_visualization", "No robot state or robot model loaded");
+    RCLCPP_ERROR(ros_node_->get_logger(), "No robot state or robot model loaded");
     return;
   }
 
   if (!msg->model_id.empty() && msg->model_id != robot_model_->getName())
-    RCUTILS_LOG_WARN_NAMED("Received a trajectory to display for model '%s' but model '%s' was expected", msg->model_id.c_str(),
+    RCLCPP_WARN(ros_node_->get_logger(),"Received a trajectory to display for model '%s' but model '%s' was expected", msg->model_id.c_str(),
              robot_model_->getName().c_str());
 
   trajectory_message_to_display_.reset();
