@@ -24,6 +24,7 @@ target_link_libraries(${MOVEIT_LIB_NAME}
 set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 target_link_libraries(${MOVEIT_LIB_NAME} ${MOVEIT_LIB_NAME}_core ${Boost_LIBRARIES})
 ]]
+install(DIRECTORY include/ DESTINATION include)
 
 install(
   TARGETS ${MOVEIT_LIB_NAME}
