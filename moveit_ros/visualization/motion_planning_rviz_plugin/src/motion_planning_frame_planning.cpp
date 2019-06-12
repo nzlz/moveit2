@@ -34,14 +34,15 @@
 
 /* Author: Ioan Sucan */
 
-#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.hpp>
-#include <moveit/motion_planning_rviz_plugin/motion_planning_display.hpp>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.h>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_display.h>
 #include <moveit/robot_state/robot_state.h>
-#include <moveit/robot_state/conversions.h>
-#include <moveit/kinematic_constraints/utils.h>
 
-#include <std_srvs/srv/empty.hpp>
-#include <moveit_msgs/msg/robot_state.hpp>
+#include <moveit/kinematic_constraints/utils.h>
+#include <moveit/robot_state/conversions.h>
+
+#include <std_srvs/Empty.h>
+#include <moveit_msgs/RobotState.h>
 #include <tf2_eigen/tf2_eigen.h>
 #include <moveit/trajectory_processing/iterative_time_parameterization.h>
 
@@ -96,7 +97,7 @@ void MotionPlanningFrame::pathConstraintsIndexChanged(int index)
     {
       std::string c = ui_->path_constraints_combo_box->itemText(index).toStdString();
       if (!move_group_->setPathConstraints(c))
-        RCLCPP_WARN("Unable to set the path constraints: " << c);
+        ROS_WARN_STREAM("Unable to set the path constraints: " << c);
     }
     else
       move_group_->clearPathConstraints();
@@ -136,7 +137,7 @@ bool MotionPlanningFrame::computeCartesianPlan()
 
   if (fraction >= 1.0)
   {
-    RCLCPP_INFO("Achieved %f %% of Cartesian path", fraction * 100.);
+    ROS_INFO("Achieved %f %% of Cartesian path", fraction * 100.);
 
     // Compute time parameterization to also provide velocities
     // https://groups.google.com/forum/#!topic/moveit-users/MOoFxy2exT4
@@ -145,7 +146,7 @@ bool MotionPlanningFrame::computeCartesianPlan()
     trajectory_processing::IterativeParabolicTimeParameterization iptp;
     bool success =
         iptp.computeTimeStamps(rt, ui_->velocity_scaling_factor->value(), ui_->acceleration_scaling_factor->value());
-    RCLCPP_INFO("Computing time stamps %s", success ? "SUCCEDED" : "FAILED");
+    ROS_INFO("Computing time stamps %s", success ? "SUCCEDED" : "FAILED");
 
     // Store trajectory in current_plan_
     current_plan_.reset(new moveit::planning_interface::MoveGroupInterface::Plan());
@@ -313,11 +314,11 @@ void MotionPlanningFrame::updateQueryStateHelper(robot_state::RobotState& state,
       }
       // Explain if no valid rand state found
       if (attempt_count >= MAX_ATTEMPTS)
-        RCLCPP_WARN("Unable to find a random collision free configuration after %d attempts", MAX_ATTEMPTS);
+        ROS_WARN("Unable to find a random collision free configuration after %d attempts", MAX_ATTEMPTS);
     }
     else
     {
-      RCLCPP_WARN("Unable to get joint model group " << planning_display_->getCurrentPlanningGroup());
+      ROS_WARN_STREAM("Unable to get joint model group " << planning_display_->getCurrentPlanningGroup());
     }
     return;
   }
@@ -478,22 +479,22 @@ void MotionPlanningFrame::configureForPlanning()
     planning_display_->dropVisualizedTrajectory();
 }
 
-void MotionPlanningFrame::remotePlanCallback(const std_msgs::msg::EmptyConstPtr& msg)
+void MotionPlanningFrame::remotePlanCallback(const std_msgs::EmptyConstPtr& msg)
 {
   planButtonClicked();
 }
 
-void MotionPlanningFrame::remoteExecuteCallback(const std_msgs::msg::EmptyConstPtr& msg)
+void MotionPlanningFrame::remoteExecuteCallback(const std_msgs::EmptyConstPtr& msg)
 {
   executeButtonClicked();
 }
 
-void MotionPlanningFrame::remoteStopCallback(const std_msgs::msg::EmptyConstPtr& msg)
+void MotionPlanningFrame::remoteStopCallback(const std_msgs::EmptyConstPtr& msg)
 {
   stopButtonClicked();
 }
 
-void MotionPlanningFrame::remoteUpdateStartStateCallback(const std_msgs::msg::EmptyConstPtr& msg)
+void MotionPlanningFrame::remoteUpdateStartStateCallback(const std_msgs::EmptyConstPtr& msg)
 {
   if (move_group_ && planning_display_)
   {
@@ -507,7 +508,7 @@ void MotionPlanningFrame::remoteUpdateStartStateCallback(const std_msgs::msg::Em
   }
 }
 
-void MotionPlanningFrame::remoteUpdateGoalStateCallback(const std_msgs::msg::EmptyConstPtr& msg)
+void MotionPlanningFrame::remoteUpdateGoalStateCallback(const std_msgs::EmptyConstPtr& msg)
 {
   if (move_group_ && planning_display_)
   {

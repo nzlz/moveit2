@@ -1,3 +1,5 @@
+set(MOVEIT_LIB_NAME moveit_motion_planning_rviz_plugin)
+
 set(HEADERS
   include/moveit/motion_planning_rviz_plugin/motion_planning_display.hpp
   include/moveit/motion_planning_rviz_plugin/motion_planning_frame.hpp
@@ -20,7 +22,6 @@ set(SOURCE_FILES
   src/motion_planning_param_widget.cpp
 )
 
-set(MOVEIT_LIB_NAME moveit_motion_planning_rviz_plugin)
 add_library(${MOVEIT_LIB_NAME}_core SHARED ${SOURCE_FILES} ${HEADERS} ${UIC_FILES})
 set_target_properties(${MOVEIT_LIB_NAME}_core PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 target_link_libraries(${MOVEIT_LIB_NAME}_core

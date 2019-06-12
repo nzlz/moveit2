@@ -34,37 +34,31 @@
 
 /* Author: Ioan Sucan, Dave Coleman, Adam Leeper, Sachin Chitta */
 
-#include <moveit/motion_planning_rviz_plugin/motion_planning_display.hpp>
-
-// TODO, port moveit_ros robot_interaction
+#include <moveit/motion_planning_rviz_plugin/motion_planning_display.h>
 #include <moveit/robot_interaction/kinematic_options_map.h>
+#include <moveit/rviz_plugin_render_tools/planning_link_updater.h>
+#include <moveit/rviz_plugin_render_tools/robot_state_visualization.h>
+#include <rviz/visualization_manager.h>
+#include <rviz/robot/robot.h>
+#include <rviz/robot/robot_link.h>
 
-#include <moveit/rviz_plugin_render_tools/planning_link_updater.hpp>
-#include <moveit/rviz_plugin_render_tools/robot_state_visualization.hpp>
-#include <rviz_common/visualization_manager.hpp>
-#include <rviz_default_plugins/robot/robot.hpp>
-#include <rviz_default_plugins/robot/robot_link.hpp>
-
-#include <rviz_common/properties/property.hpp>
-#include <rviz_common/properties/string_property.hpp>
-#include <rviz_common/properties/bool_property.hpp>
-#include <rviz_common/properties/float_property.hpp>
-#include <rviz_common/properties/ros_topic_property.hpp>
-#include <rviz_common/properties/editable_enum_property.hpp>
-#include <rviz_common/properties/color_property.hpp>
-#include <rviz_common/display_context.hpp>
-#include <rviz_common/frame_manager.hpp>
-#include <rviz_common/panel_dock_widget.hpp>
-#include <rviz_common/window_manager_interface.hpp>
-
-// TODO, from RViz, display_factory is accessible only locally
-#include <rviz_common/display_factory.h>
-
-#include <rviz_rendering/objects/movable_text.hpp>
+#include <rviz/properties/property.h>
+#include <rviz/properties/string_property.h>
+#include <rviz/properties/bool_property.h>
+#include <rviz/properties/float_property.h>
+#include <rviz/properties/ros_topic_property.h>
+#include <rviz/properties/editable_enum_property.h>
+#include <rviz/properties/color_property.h>
+#include <rviz/display_context.h>
+#include <rviz/frame_manager.h>
+#include <rviz/panel_dock_widget.h>
+#include <rviz/window_manager_interface.h>
+#include <rviz/display_factory.h>
+#include <rviz/ogre_helpers/movable_text.h>
 
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
-#include <rviz_rendering/objects/shape.hpp>
+#include <rviz/ogre_helpers/shape.h>
 
 #include <moveit/robot_state/conversions.h>
 #include <moveit/trajectory_processing/trajectory_tools.h>
@@ -94,81 +88,81 @@ MotionPlanningDisplay::MotionPlanningDisplay()
   , int_marker_display_(nullptr)
 {
   // Category Groups
-  plan_category_ = new rviz_common::properties::Property("Planning Request", QVariant(), "", this);
-  metrics_category_ = new rviz_common::properties::Property("Planning Metrics", QVariant(), "", this);
-  path_category_ = new rviz_common::properties::Property("Planned Path", QVariant(), "", this);
+  plan_category_ = new rviz::Property("Planning Request", QVariant(), "", this);
+  metrics_category_ = new rviz::Property("Planning Metrics", QVariant(), "", this);
+  path_category_ = new rviz::Property("Planned Path", QVariant(), "", this);
 
   // Metrics category -----------------------------------------------------------------------------------------
-  compute_weight_limit_property_ = new rviz_common::properties::BoolProperty(
+  compute_weight_limit_property_ = new rviz::BoolProperty(
       "Show Weight Limit", false, "Shows the weight limit at a particular pose for an end-effector", metrics_category_,
       SLOT(changedShowWeightLimit()), this);
 
   show_manipulability_index_property_ =
-      new rviz_common::properties::BoolProperty("Show Manipulability Index", false, "Shows the manipulability index for an end-effector",
+      new rviz::BoolProperty("Show Manipulability Index", false, "Shows the manipulability index for an end-effector",
                              metrics_category_, SLOT(changedShowManipulabilityIndex()), this);
 
   show_manipulability_property_ =
-      new rviz_common::properties::BoolProperty("Show Manipulability", false, "Shows the manipulability for an end-effector",
+      new rviz::BoolProperty("Show Manipulability", false, "Shows the manipulability for an end-effector",
                              metrics_category_, SLOT(changedShowManipulability()), this);
 
-  show_joint_torques_property_ = new rviz_common::properties::BoolProperty("Show Joint Torques", false,
+  show_joint_torques_property_ = new rviz::BoolProperty("Show Joint Torques", false,
                                                         "Shows the joint torques for a given configuration and payload",
                                                         metrics_category_, SLOT(changedShowJointTorques()), this);
 
   metrics_set_payload_property_ =
-      new rviz_common::properties::FloatProperty("Payload", 1.0f, "Specify the payload at the end effector (kg)", metrics_category_,
+      new rviz::FloatProperty("Payload", 1.0f, "Specify the payload at the end effector (kg)", metrics_category_,
                               SLOT(changedMetricsSetPayload()), this);
   metrics_set_payload_property_->setMin(0.0);
 
-  metrics_text_height_property_ = new rviz_common::properties::FloatProperty("TextHeight", 0.08f, "Text height", metrics_category_,
+  metrics_text_height_property_ = new rviz::FloatProperty("TextHeight", 0.08f, "Text height", metrics_category_,
                                                           SLOT(changedMetricsTextHeight()), this);
   metrics_text_height_property_->setMin(0.001);
 
   // Planning request category -----------------------------------------------------------------------------------------
 
-  planning_group_property_ = new rviz_common::properties::EditableEnumProperty(
+  planning_group_property_ = new rviz::EditableEnumProperty(
       "Planning Group", "", "The name of the group of links to plan for (from the ones defined in the SRDF)",
       plan_category_, SLOT(changedPlanningGroup()), this);
-  show_workspace_property_ = new rviz_common::properties::BoolProperty("Show Workspace", false, "Shows the axis-aligned bounding box for "
+  show_workspace_property_ = new rviz::BoolProperty("Show Workspace", false, "Shows the axis-aligned bounding box for "
                                                                              "the workspace allowed for planning",
                                                     plan_category_, SLOT(changedWorkspace()), this);
   query_start_state_property_ =
-      new rviz_common::properties::BoolProperty("Query Start State", false, "Set a custom start state for the motion planning query",
+      new rviz::BoolProperty("Query Start State", false, "Set a custom start state for the motion planning query",
                              plan_category_, SLOT(changedQueryStartState()), this);
   query_goal_state_property_ =
-      new rviz_common::properties::BoolProperty("Query Goal State", true, "Shows the goal state for the motion planning query",
+      new rviz::BoolProperty("Query Goal State", true, "Shows the goal state for the motion planning query",
                              plan_category_, SLOT(changedQueryGoalState()), this);
   query_marker_scale_property_ =
-      new rviz_common::properties::FloatProperty("Interactive Marker Size", 0.0f,
+      new rviz::FloatProperty("Interactive Marker Size", 0.0f,
                               "Specifies scale of the interactive marker overlayed on the robot. 0 is auto scale.",
                               plan_category_, SLOT(changedQueryMarkerScale()), this);
   query_marker_scale_property_->setMin(0.0f);
 
   query_start_color_property_ =
-      new rviz_common::properties::ColorProperty("Start State Color", QColor(0, 255, 0), "The highlight color for the start state",
+      new rviz::ColorProperty("Start State Color", QColor(0, 255, 0), "The highlight color for the start state",
                               plan_category_, SLOT(changedQueryStartColor()), this);
   query_start_alpha_property_ =
-      new rviz_common::properties::FloatProperty("Start State Alpha", 1.0f, "Specifies the alpha for the robot links", plan_category_,
+      new rviz::FloatProperty("Start State Alpha", 1.0f, "Specifies the alpha for the robot links", plan_category_,
                               SLOT(changedQueryStartAlpha()), this);
   query_start_alpha_property_->setMin(0.0);
   query_start_alpha_property_->setMax(1.0);
 
   query_goal_color_property_ =
-      new rviz_common::properties::ColorProperty("Goal State Color", QColor(250, 128, 0), "The highlight color for the goal state",
+      new rviz::ColorProperty("Goal State Color", QColor(250, 128, 0), "The highlight color for the goal state",
                               plan_category_, SLOT(changedQueryGoalColor()), this);
 
   query_goal_alpha_property_ =
-      new rviz_common::properties::FloatProperty("Goal State Alpha", 1.0f, "Specifies the alpha for the robot links", plan_category_,
+      new rviz::FloatProperty("Goal State Alpha", 1.0f, "Specifies the alpha for the robot links", plan_category_,
                               SLOT(changedQueryGoalAlpha()), this);
   query_goal_alpha_property_->setMin(0.0);
   query_goal_alpha_property_->setMax(1.0);
 
   query_colliding_link_color_property_ =
-      new rviz_common::properties::ColorProperty("Colliding Link Color", QColor(255, 0, 0), "The highlight color for colliding links",
+      new rviz::ColorProperty("Colliding Link Color", QColor(255, 0, 0), "The highlight color for colliding links",
                               plan_category_, SLOT(changedQueryCollidingLinkColor()), this);
 
   query_outside_joint_limits_link_color_property_ =
-      new rviz_common::properties::ColorProperty("Joint Violation Color", QColor(255, 0, 255),
+      new rviz::ColorProperty("Joint Violation Color", QColor(255, 0, 255),
                               "The highlight color for child links of joints that are outside bounds", plan_category_,
                               SLOT(changedQueryJointViolationColor()), this);
 
@@ -210,7 +204,7 @@ void MotionPlanningDisplay::onInitialize()
   query_robot_start_->setCollisionVisible(false);
   query_robot_start_->setVisualVisible(true);
   query_robot_start_->setVisible(query_start_state_property_->getBool());
-  std_msgs::msg::ColorRGBA color;
+  std_msgs::ColorRGBA color;
   qcolor = query_start_color_property_->getColor();
   color.r = qcolor.redF();
   color.g = qcolor.greenF();
@@ -283,7 +277,7 @@ void MotionPlanningDisplay::toggleSelectPlanningGroupSubscription(bool enable)
   }
 }
 
-void MotionPlanningDisplay::selectPlanningGroupCallback(const std_msgs::msg::StringConstPtr& msg)
+void MotionPlanningDisplay::selectPlanningGroupCallback(const std_msgs::StringConstPtr& msg)
 {
   // synchronize ROS callback with main loop
   addMainLoopJob(boost::bind(&MotionPlanningDisplay::changePlanningGroup, this, msg->data));
@@ -469,7 +463,7 @@ void MotionPlanningDisplay::renderWorkspaceBox()
 
   if (!workspace_box_)
   {
-    workspace_box_.reset(new rviz_rendering::Shape(rviz_rendering::Shape::Cube, context_->getSceneManager(), planning_scene_node_));
+    workspace_box_.reset(new rviz::Shape(rviz::Shape::Cube, context_->getSceneManager(), planning_scene_node_));
     workspace_box_->setColor(0.0f, 0.0f, 0.6f, 0.3f);
   }
 
@@ -838,7 +832,7 @@ void MotionPlanningDisplay::publishInteractiveMarkers(bool pose_update)
 
 void MotionPlanningDisplay::changedQueryStartColor()
 {
-  std_msgs::msg::ColorRGBA color;
+  std_msgs::ColorRGBA color;
   QColor qcolor = query_start_color_property_->getColor();
   color.r = qcolor.redF();
   color.g = qcolor.greenF();
@@ -868,7 +862,7 @@ void MotionPlanningDisplay::changedQueryMarkerScale()
 
 void MotionPlanningDisplay::changedQueryGoalColor()
 {
-  std_msgs::msg::ColorRGBA color;
+  std_msgs::ColorRGBA color;
   QColor qcolor = query_goal_color_property_->getColor();
   color.r = qcolor.redF();
   color.g = qcolor.greenF();
@@ -1019,7 +1013,7 @@ void MotionPlanningDisplay::changePlanningGroup(const std::string& group)
     planning_group_property_->setStdString(group);
   }
   else
-    RCLCPP_ERROR("Group [%s] not found in the robot model.", group.c_str());
+    ROS_ERROR("Group [%s] not found in the robot model.", group.c_str());
 }
 
 void MotionPlanningDisplay::changedPlanningGroup()
@@ -1296,7 +1290,7 @@ void MotionPlanningDisplay::updateInternal(float wall_dt, float ros_dt)
   renderWorkspaceBox();
 }
 
-void MotionPlanningDisplay::load(const rviz_common::Config& config)
+void MotionPlanningDisplay::load(const rviz::Config& config)
 {
   PlanningSceneDisplay::load(config);
   if (frame_)
@@ -1342,8 +1336,8 @@ void MotionPlanningDisplay::load(const rviz_common::Config& config)
     if (config.mapGetFloat("Acceleration_Scaling_Factor", &v))
       frame_->ui_->acceleration_scaling_factor->setValue(v);
 
-    rviz_common::Config workspace = config.mapGetChild("MoveIt_Workspace");
-    rviz_common::Config ws_center = workspace.mapGetChild("Center");
+    rviz::Config workspace = config.mapGetChild("MoveIt_Workspace");
+    rviz::Config ws_center = workspace.mapGetChild("Center");
     float val;
     if (ws_center.mapGetFloat("X", &val))
       frame_->ui_->wcenter_x->setValue(val);
@@ -1352,7 +1346,7 @@ void MotionPlanningDisplay::load(const rviz_common::Config& config)
     if (ws_center.mapGetFloat("Z", &val))
       frame_->ui_->wcenter_z->setValue(val);
 
-    rviz_common::Config ws_size = workspace.mapGetChild("Size");
+    rviz::Config ws_size = workspace.mapGetChild("Size");
     if (ws_size.isValid())
     {
       if (ws_size.mapGetFloat("X", &val))
@@ -1377,7 +1371,7 @@ void MotionPlanningDisplay::load(const rviz_common::Config& config)
   }
 }
 
-void MotionPlanningDisplay::save(rviz_common::Config config) const
+void MotionPlanningDisplay::save(rviz::Config config) const
 {
   PlanningSceneDisplay::save(config);
   if (frame_)
@@ -1400,12 +1394,12 @@ void MotionPlanningDisplay::save(rviz_common::Config config) const
     config.mapSetValue("MoveIt_Use_Constraint_Aware_IK", frame_->ui_->collision_aware_ik->isChecked());
     config.mapSetValue("MoveIt_Allow_Approximate_IK", frame_->ui_->approximate_ik->isChecked());
 
-    rviz_common::Config workspace = config.mapMakeChild("MoveIt_Workspace");
-    rviz_common::Config ws_center = workspace.mapMakeChild("Center");
+    rviz::Config workspace = config.mapMakeChild("MoveIt_Workspace");
+    rviz::Config ws_center = workspace.mapMakeChild("Center");
     ws_center.mapSetValue("X", frame_->ui_->wcenter_x->value());
     ws_center.mapSetValue("Y", frame_->ui_->wcenter_y->value());
     ws_center.mapSetValue("Z", frame_->ui_->wcenter_z->value());
-    rviz_common::Config ws_size = workspace.mapMakeChild("Size");
+    rviz::Config ws_size = workspace.mapMakeChild("Size");
     ws_size.mapSetValue("X", frame_->ui_->wsize_x->value());
     ws_size.mapSetValue("Y", frame_->ui_->wsize_y->value());
     ws_size.mapSetValue("Z", frame_->ui_->wsize_z->value());
@@ -1434,7 +1428,7 @@ void MotionPlanningDisplay::visualizePlaceLocations(const std::vector<geometry_m
   place_locations_display_.resize(place_poses.size());
   for (std::size_t i = 0; i < place_poses.size(); ++i)
   {
-    place_locations_display_[i].reset(new rviz_rendering::Shape(rviz_rendering::Shape::Sphere, context_->getSceneManager()));
+    place_locations_display_[i].reset(new rviz::Shape(rviz::Shape::Sphere, context_->getSceneManager()));
     place_locations_display_[i]->setColor(1.0f, 0.0f, 0.0f, 0.3f);
     Ogre::Vector3 center(place_poses[i].pose.position.x, place_poses[i].pose.position.y,
                          place_poses[i].pose.position.z);

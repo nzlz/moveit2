@@ -34,24 +34,20 @@
 
 /* Author: Ioan Sucan */
 
-// TODO, port moveit_ros_warehouse
 #include <moveit/warehouse/planning_scene_storage.h>
 #include <moveit/warehouse/constraints_storage.h>
 #include <moveit/warehouse/state_storage.h>
 
-#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.hpp>
-#include <moveit/motion_planning_rviz_plugin/motion_planning_display.hpp>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.h>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_display.h>
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit/robot_state/conversions.h>
-
-// TODO, port moveit_ros robot_interaction
 #include <moveit/robot_interaction/interactive_marker_helpers.h>
 
-// TODO, port interactive_markers
 #include <interactive_markers/tools.h>
 
-#include <rviz_common/display_context.hpp>
-#include <rviz_common/window_manager_interface.hpp>
+#include <rviz/display_context.h>
+#include <rviz/window_manager_interface.h>
 
 #include <QMessageBox>
 #include <QInputDialog>
@@ -95,7 +91,7 @@ void MotionPlanningFrame::saveSceneButtonClicked()
           if (ok)
           {
             planning_display_->getPlanningSceneRW()->setName(new_name.toStdString());
-            rviz_common::properties::Property* prop = planning_display_->subProp("Scene Geometry")->subProp("Scene Name");
+            rviz::Property* prop = planning_display_->subProp("Scene Geometry")->subProp("Scene Name");
             if (prop)
             {
               bool old = prop->blockSignals(true);

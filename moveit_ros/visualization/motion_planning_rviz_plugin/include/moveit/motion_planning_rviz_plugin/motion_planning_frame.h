@@ -46,35 +46,24 @@
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
-
-// TODO, migrate moveit_ros robot_interaction
 #include <moveit/robot_interaction/robot_interaction.h>
 #include <moveit/robot_interaction/interaction_handler.h>
-
 #include <moveit/semantic_world/semantic_world.h>
-
-// TODO, migrate interactive_markers. Also rviz side.
 #include <interactive_markers/interactive_marker_server.h>
 #include <rviz/default_plugin/interactive_markers/interactive_marker.h>
+#include <moveit_msgs/MotionPlanRequest.h>
+#include <actionlib/client/simple_action_client.h>
+#include <object_recognition_msgs/ObjectRecognitionAction.h>
 
-#include <moveit_msgs/msg/motion_plan_request.hpp>
-
-// Requires PORT
-// #include <actionlib/client/simple_action_client.h>
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
-
-#include <object_recognition_msgs/msg/object_recognition_action.hpp>
-
-#include <std_msgs/msg/bool.hpp>
-#include <std_msgs/msg/empty.hpp>
+#include <std_msgs/Bool.h>
+#include <std_msgs/Empty.h>
 #endif
 
 #include <map>
 #include <string>
 #include <memory>
 
-namespace rviz_common
+namespace rviz
 {
 class DisplayContext;
 }
@@ -86,9 +75,9 @@ class MotionPlanningUI;
 
 namespace moveit_warehouse
 {
-MOVEIT_CLASS_FORWARD(PlanningSceneStorage);
-MOVEIT_CLASS_FORWARD(ConstraintsStorage);
-MOVEIT_CLASS_FORWARD(RobotStateStorage);
+MOVEIT_CLASS_FORWARD(PlanningSceneStorage)
+MOVEIT_CLASS_FORWARD(ConstraintsStorage)
+MOVEIT_CLASS_FORWARD(RobotStateStorage)
 }
 
 namespace moveit_rviz_plugin
@@ -112,7 +101,7 @@ class MotionPlanningFrame : public QWidget
 
 public:
   MotionPlanningFrame(const MotionPlanningFrame&) = delete;
-  MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz_common::DisplayContext* context, QWidget* parent = 0);
+  MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz::DisplayContext* context, QWidget* parent = 0);
   ~MotionPlanningFrame() override;
 
   void changePlanningGroup();
@@ -131,7 +120,7 @@ protected:
   void updateExternalCommunication();
 
   MotionPlanningDisplay* planning_display_;
-  rviz_common::DisplayContext* context_;
+  rviz::DisplayContext* context_;
   Ui::MotionPlanningUI* ui_;
 
   moveit::planning_interface::MoveGroupInterfacePtr move_group_;
@@ -311,11 +300,11 @@ private:
   void importResource(const std::string& path);
   void loadStoredStates(const std::string& pattern);
 
-  void remotePlanCallback(const std_msgs::msg::EmptyConstPtr& msg);
-  void remoteExecuteCallback(const std_msgs::msg::EmptyConstPtr& msg);
-  void remoteStopCallback(const std_msgs::msg::EmptyConstPtr& msg);
-  void remoteUpdateStartStateCallback(const std_msgs::msg::EmptyConstPtr& msg);
-  void remoteUpdateGoalStateCallback(const std_msgs::msg::EmptyConstPtr& msg);
+  void remotePlanCallback(const std_msgs::EmptyConstPtr& msg);
+  void remoteExecuteCallback(const std_msgs::EmptyConstPtr& msg);
+  void remoteStopCallback(const std_msgs::EmptyConstPtr& msg);
+  void remoteUpdateStartStateCallback(const std_msgs::EmptyConstPtr& msg);
+  void remoteUpdateGoalStateCallback(const std_msgs::EmptyConstPtr& msg);
   void remoteUpdateCustomStartStateCallback(const moveit_msgs::msg::RobotStateConstPtr& msg);
   void remoteUpdateCustomGoalStateCallback(const moveit_msgs::msg::RobotStateConstPtr& msg);
 
@@ -342,8 +331,8 @@ void MotionPlanningFrame::waitForAction(const T& action, const ros::NodeHandle& 
   ROS_DEBUG("Waiting for MoveGroup action server (%s)...", name.c_str());
 
   // in case ROS time is published, wait for the time data to arrive
-  rclcpp::Time start_time = rclcpp::Clock().now();
-  while (start_time == rclcpp::Clock().now())
+  ros::Time start_time = ros::Time::now();
+  while (start_time == ros::Time::now())
   {
     ros::WallDuration(0.01).sleep();
     ros::spinOnce();

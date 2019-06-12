@@ -35,17 +35,17 @@
 /* Author: Ioan Sucan */
 
 #include <moveit/common_planning_interface_objects/common_objects.h>
-#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.hpp>
-#include <moveit/motion_planning_rviz_plugin/motion_planning_display.hpp>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.h>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_display.h>
 #include <moveit/move_group/capability_names.h>
 
 #include <geometric_shapes/shape_operations.h>
 
-#include <rviz_common/display_context.hpp>
-#include <rviz_common/frame_manager.hpp>
+#include <rviz/display_context.h>
+#include <rviz/frame_manager.h>
 #include <tf2_ros/buffer.h>
 
-#include <std_srvs/srv/empty.hpp>
+#include <std_srvs/Empty.h>
 
 #include <QMessageBox>
 #include <QInputDialog>
@@ -55,7 +55,7 @@
 
 namespace moveit_rviz_plugin
 {
-MotionPlanningFrame::MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz_common::DisplayContext* context,
+MotionPlanningFrame::MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz::DisplayContext* context,
                                          QWidget* parent)
   : QWidget(parent)
   , planning_display_(pdisplay)
@@ -150,7 +150,7 @@ MotionPlanningFrame::MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz_c
   planning_scene_publisher_ = nh_.advertise<moveit_msgs::msg::PlanningScene>("planning_scene", 1);
   planning_scene_world_publisher_ = nh_.advertise<moveit_msgs::msg::PlanningSceneWorld>("planning_scene_world", 1);
 
-  // object_recognition_trigger_publisher_ = nh_.advertise<std_msgs::msg::Bool>("recognize_objects_switch", 1);
+  // object_recognition_trigger_publisher_ = nh_.advertise<std_msgs::Bool>("recognize_objects_switch", 1);
   object_recognition_client_.reset(new actionlib::SimpleActionClient<object_recognition_msgs::ObjectRecognitionAction>(
       OBJECT_RECOGNITION_ACTION, false));
   object_recognition_subscriber_ =
@@ -164,7 +164,7 @@ MotionPlanningFrame::MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz_c
     }
     catch (std::exception& ex)
     {
-      // RCLCPP_ERROR("Object recognition action: %s", ex.what());
+      // ROS_ERROR("Object recognition action: %s", ex.what());
       object_recognition_client_.reset();
     }
   }
@@ -174,7 +174,7 @@ MotionPlanningFrame::MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz_c
   }
   catch (std::exception& ex)
   {
-    RCLCPP_ERROR("%s", ex.what());
+    ROS_ERROR("%s", ex.what());
   }
 
   try
@@ -193,7 +193,7 @@ MotionPlanningFrame::MotionPlanningFrame(MotionPlanningDisplay* pdisplay, rviz_c
   }
   catch (std::exception& ex)
   {
-    RCLCPP_ERROR("%s", ex.what());
+    ROS_ERROR("%s", ex.what());
   }
 }
 
@@ -324,7 +324,7 @@ void MotionPlanningFrame::changePlanningGroupHelper()
   {
     if (move_group_ && move_group_->getName() == group)
       return;
-    RCLCPP_INFO("Constructing new MoveGroup connection for group '%s' in namespace '%s'", group.c_str(),
+    ROS_INFO("Constructing new MoveGroup connection for group '%s' in namespace '%s'", group.c_str(),
              planning_display_->getMoveGroupNS().c_str());
     moveit::planning_interface::MoveGroupInterface::Options opt(group);
     opt.robot_model_ = robot_model;
@@ -344,7 +344,7 @@ void MotionPlanningFrame::changePlanningGroupHelper()
     }
     catch (std::exception& ex)
     {
-      RCLCPP_ERROR("%s", ex.what());
+      ROS_ERROR("%s", ex.what());
     }
     planning_display_->addMainLoopJob(
         boost::bind(&MotionPlanningParamWidget::setMoveGroup, ui_->planner_param_treeview, move_group_));

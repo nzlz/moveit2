@@ -34,11 +34,9 @@
 
 /* Author: Mario Prats, Ioan Sucan */
 
-// TODO, port moveit_ros warehouse
 #include <moveit/warehouse/state_storage.h>
-
-#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.hpp>
-#include <moveit/motion_planning_rviz_plugin/motion_planning_display.hpp>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_frame.h>
+#include <moveit/motion_planning_rviz_plugin/motion_planning_display.h>
 #include <moveit/robot_state/conversions.h>
 
 #include <QMessageBox>
@@ -104,7 +102,7 @@ void MotionPlanningFrame::loadStoredStates(const std::string& pattern)
     }
     catch (std::exception& ex)
     {
-      RCLCPP_ERROR("%s", ex.what());
+      ROS_ERROR("%s", ex.what());
     }
     if (!got_state)
       continue;
@@ -158,7 +156,7 @@ void MotionPlanningFrame::saveRobotStateButtonClicked(const robot_state::RobotSt
           }
           catch (std::exception& ex)
           {
-            RCLCPP_ERROR("Cannot save robot state on the database: %s", ex.what());
+            ROS_ERROR("Cannot save robot state on the database: %s", ex.what());
           }
         }
         else
@@ -235,7 +233,7 @@ void MotionPlanningFrame::removeStateButtonClicked()
           }
           catch (std::exception& ex)
           {
-            RCLCPP_ERROR("%s", ex.what());
+            ROS_ERROR("%s", ex.what());
           }
         }
         break;
