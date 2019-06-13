@@ -100,17 +100,10 @@ add_subdirectory(planning_scene_rviz_plugin)
 add_subdirectory(trajectory_rviz_plugin)
 #add_subdirectory(motion_planning_rviz_plugin)
 
-# TODO Once other packages in visulization are ported.
-# The following .xml install helpers should be included via:
-# pluginlib_export_plugin_description_file(rviz_common plugins_description.xml)
-
-pluginlib_export_plugin_description_file(moveit_robot_state_rviz_plugin robot_state_rviz_plugin_description.xml)
-pluginlib_export_plugin_description_file(moveit_planning_scene_rviz_plugin planning_scene_rviz_plugin_description.xml)
-pluginlib_export_plugin_description_file(moveit_trajectory_rviz_plugin trajectory_rviz_plugin_description.xml)
-
-#[[install(FILES
-  #motion_planning_rviz_plugin_description.xml
-  DESTINATION share/${PROJECT_NAME})]]
+pluginlib_export_plugin_description_file(rviz_common robot_state_rviz_plugin_description.xml)
+pluginlib_export_plugin_description_file(rviz_common planning_scene_rviz_plugin_description.xml)
+pluginlib_export_plugin_description_file(rviz_common trajectory_rviz_plugin_description.xml)
+#pluginlib_export_plugin_description_file(rviz_common motion_planning_rviz_plugin_description.xml)
 
 install(DIRECTORY icons DESTINATION share/${PROJECT_NAME})
 

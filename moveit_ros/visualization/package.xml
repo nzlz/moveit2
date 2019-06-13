@@ -39,15 +39,10 @@
   <exec_depend>pluginlib</exec_depend>
   <exec_depend>rclcpp</exec_depend>
   <exec_depend>rclpy</exec_depend>
-  <!--<exec_depend>rviz2</exec_depend> Must specify package-->
   <exec_depend>tf2_eigen</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
-    <!--<rviz plugin="${prefix}/robot_state_rviz_plugin_description.xml"/>-->
-    <!--<rviz plugin="${prefix}/planning_scene_rviz_plugin_description.xml"/>-->
-    <!--<rviz plugin="${prefix}/motion_planning_rviz_plugin_description.xml"/>-->
-    <!--<rviz plugin="${prefix}/trajectory_rviz_plugin_description.xml"/>-->
   </export>
 
 </package>
