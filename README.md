@@ -243,13 +243,8 @@ Using the CI infrastructure, one can get access to MoveIt 2 current status and t
 ```bash
 cd ~ && git clone https://github.com/AcutronicRobotics/moveit2
 cd ~/moveit2
-git clone -q -b ros2 --depth=1 https://github.com/acutronicrobotics/moveit_ci.git .moveit_ci
-export MOVEIT_CI_TRAVIS_TIMEOUT=85  # Travis grants us 90 min, but we add a safety margin of 5 min
-export ROS_DISTRO=crystal
-export ROS_REPO=acutronicrobotics
-export UPSTREAM_WORKSPACE=moveit.rosinstall
-export TEST_BLACKLIST="moveit_ros_perception tf2_ros"  # mesh_filter_test fails due to broken Mesa OpenGL
-export CXXFLAGS="-Wall -Wextra -Wwrite-strings -Wunreachable-code -Wpointer-arith -Wredundant-decls -Wno-unused-parameter -Wno-unused-but-set-parameter -Wno-unused-function"
+git clone -q -b ros2 --depth=1 https://github.com/acutronicrobotics/moveit2_ci.git .moveit2_ci
+source .travis.linux.env
 .moveit_ci/travis.sh
 ```
 
