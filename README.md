@@ -243,7 +243,7 @@ Using the CI infrastructure, one can get access to MoveIt 2 current status and t
 ```bash
 cd ~ && git clone https://github.com/AcutronicRobotics/moveit2
 cd ~/moveit2
-git clone -q -b ros2 --depth=1 https://github.com/acutronicrobotics/moveit2_ci.git .moveit2_ci
+git clone -q -b dashing --depth=1 https://github.com/acutronicrobotics/moveit2_ci.git .moveit2_ci
 source .travis.linux.env
 .moveit_ci/travis.sh
 ```
