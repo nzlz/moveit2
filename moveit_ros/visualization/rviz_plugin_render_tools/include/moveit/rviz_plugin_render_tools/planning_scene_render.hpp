@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2008, Willow Garage, Inc.
+ *  Copyright (c) 2012, Willow Garage, Inc.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,60 @@
 
 /* Author: Ioan Sucan */
 
-#include <class_loader/class_loader.hpp>
-#include <moveit/robot_state_rviz_plugin/robot_state_display.h>
+#ifndef MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_PLUGIN_PLANNING_SCENE_RENDER_
+#define MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_PLUGIN_PLANNING_SCENE_RENDER_
 
-CLASS_LOADER_REGISTER_CLASS(moveit_rviz_plugin::RobotStateDisplay, rviz::Display)
+#include <moveit/macros/class_forward.h>
+#include <moveit/planning_scene/planning_scene.h>
+#include "moveit/rviz_plugin_render_tools/render_shapes.hpp"
+
+#include <OgreColourValue.h>
+#include <OgreMaterial.h>
+
+namespace Ogre
+{
+class SceneNode;
+}
+
+namespace rviz_common
+{
+class DisplayContext;
+}
+
+namespace moveit_rviz_plugin
+{
+MOVEIT_CLASS_FORWARD(RobotStateVisualization)
+MOVEIT_CLASS_FORWARD(RenderShapes)
+MOVEIT_CLASS_FORWARD(PlanningSceneRender)
+
+class PlanningSceneRender
+{
+public:
+  PlanningSceneRender(Ogre::SceneNode* root_node, rviz_common::DisplayContext* context,
+                      const RobotStateVisualizationPtr& robot);
+  ~PlanningSceneRender();
+
+  Ogre::SceneNode* getGeometryNode()
+  {
+    return planning_scene_geometry_node_;
+  }
+
+  const RobotStateVisualizationPtr& getRobotVisualization()
+  {
+    return scene_robot_;
+  }
+
+  void renderPlanningScene(const planning_scene::PlanningSceneConstPtr& scene, const Ogre::ColourValue& default_scene_color,
+                           const Ogre::ColourValue& default_attached_color, OctreeVoxelRenderMode voxel_render_mode,
+                           OctreeVoxelColorMode voxel_color_mode, float default_scene_alpha);
+  void clear();
+
+private:
+  Ogre::SceneNode* planning_scene_geometry_node_;
+  rviz_common::DisplayContext* context_;
+  RenderShapesPtr render_shapes_;
+  RobotStateVisualizationPtr scene_robot_;
+};
+}
+
+#endif

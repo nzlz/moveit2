@@ -37,13 +37,26 @@
 #ifndef MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_PLUGIN_SCENE_DISPLAY_
 #define MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_PLUGIN_SCENE_DISPLAY_
 
-#include <rviz/display.h>
+#include <rviz_common/display.hpp>
+//#include <rviz/visualization_manager.h>
+#include <rviz_default_plugins/robot/robot.hpp>
+#include <rviz_default_plugins/robot/robot_link.hpp>
+
+#include <rviz_common/properties/property.hpp>
+#include <rviz_common/properties/string_property.hpp>
+#include <rviz_common/properties/bool_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/ros_topic_property.hpp>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/properties/enum_property.hpp>
+#include <rviz_common/display_context.hpp>
+#include <rviz_common/frame_manager_iface.hpp>
 
 #ifndef Q_MOC_RUN
-#include <moveit/rviz_plugin_render_tools/planning_scene_render.h>
+#include <moveit/rviz_plugin_render_tools/planning_scene_render.hpp>
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 #include <moveit/background_processing/background_processing.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #endif
 
 namespace Ogre
@@ -51,7 +64,7 @@ namespace Ogre
 class SceneNode;
 }
 
-namespace rviz
+namespace rviz_common
 {
 class Robot;
 class Property;
@@ -65,7 +78,7 @@ class EnumProperty;
 
 namespace moveit_rviz_plugin
 {
-class PlanningSceneDisplay : public rviz::Display
+class PlanningSceneDisplay : public rviz_common::Display
 {
   Q_OBJECT
 
@@ -73,8 +86,8 @@ public:
   PlanningSceneDisplay(bool listen_to_planning_scene = true, bool show_scene_robot = true);
   ~PlanningSceneDisplay() override;
 
-  void load(const rviz::Config& config) override;
-  void save(rviz::Config config) const override;
+  void load(const rviz_common::Config& config) override;
+  void save(rviz_common::Config config) const override;
 
   void update(float wall_dt, float ros_dt) override;
   void reset() override;
@@ -106,12 +119,15 @@ public:
   const robot_model::RobotModelConstPtr& getRobotModel() const;
 
   /// wait for robot state more recent than t
-  bool waitForCurrentRobotState(const ros::Time& t = ros::Time::now());
+  bool waitForCurrentRobotState(const rclcpp::Time& t = rclcpp::Clock().now());
   /// get read-only access to planning scene
   planning_scene_monitor::LockedPlanningSceneRO getPlanningSceneRO() const;
   /// get write access to planning scene
   planning_scene_monitor::LockedPlanningSceneRW getPlanningSceneRW();
   const planning_scene_monitor::PlanningSceneMonitorPtr& getPlanningSceneMonitor();
+
+  rclcpp::Node::SharedPtr node_;
+  const std::string NODE_NAME = "planning_scene_display";  // name of node
 
 private Q_SLOTS:
 
@@ -159,11 +175,11 @@ protected:
   void executeMainLoopJobs();
   void sceneMonitorReceivedUpdate(planning_scene_monitor::PlanningSceneMonitor::SceneUpdateType update_type);
   void renderPlanningScene();
-  void setLinkColor(rviz::Robot* robot, const std::string& link_name, const QColor& color);
-  void unsetLinkColor(rviz::Robot* robot, const std::string& link_name);
-  void setGroupColor(rviz::Robot* robot, const std::string& group_name, const QColor& color);
-  void unsetGroupColor(rviz::Robot* robot, const std::string& group_name);
-  void unsetAllColors(rviz::Robot* robot);
+  void setLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name, const QColor& color);
+  void unsetLinkColor(rviz_default_plugins::robot::Robot* robot, const std::string& link_name);
+  void setGroupColor(rviz_default_plugins::robot::Robot* robot, const std::string& group_name, const QColor& color);
+  void unsetGroupColor(rviz_default_plugins::robot::Robot* robot, const std::string& group_name);
+  void unsetAllColors(rviz_default_plugins::robot::Robot* robot);
 
   // overrides from Display
   void onInitialize() override;
@@ -193,23 +209,23 @@ protected:
   bool planning_scene_needs_render_;
   float current_scene_time_;
 
-  rviz::Property* scene_category_;
-  rviz::Property* robot_category_;
+  rviz_common::properties::Property* scene_category_;
+  rviz_common::properties::Property* robot_category_;
 
-  rviz::StringProperty* move_group_ns_property_;
-  rviz::StringProperty* robot_description_property_;
-  rviz::StringProperty* scene_name_property_;
-  rviz::BoolProperty* scene_enabled_property_;
-  rviz::BoolProperty* scene_robot_visual_enabled_property_;
-  rviz::BoolProperty* scene_robot_collision_enabled_property_;
-  rviz::RosTopicProperty* planning_scene_topic_property_;
-  rviz::FloatProperty* robot_alpha_property_;
-  rviz::FloatProperty* scene_alpha_property_;
-  rviz::ColorProperty* scene_color_property_;
-  rviz::ColorProperty* attached_body_color_property_;
-  rviz::FloatProperty* scene_display_time_property_;
-  rviz::EnumProperty* octree_render_property_;
-  rviz::EnumProperty* octree_coloring_property_;
+  rviz_common::properties::StringProperty* move_group_ns_property_;
+  rviz_common::properties::StringProperty* robot_description_property_;
+  rviz_common::properties::StringProperty* scene_name_property_;
+  rviz_common::properties::BoolProperty* scene_enabled_property_;
+  rviz_common::properties::BoolProperty* scene_robot_visual_enabled_property_;
+  rviz_common::properties::BoolProperty* scene_robot_collision_enabled_property_;
+  rviz_common::properties::RosTopicProperty* planning_scene_topic_property_;
+  rviz_common::properties::FloatProperty* robot_alpha_property_;
+  rviz_common::properties::FloatProperty* scene_alpha_property_;
+  rviz_common::properties::ColorProperty* scene_color_property_;
+  rviz_common::properties::ColorProperty* attached_body_color_property_;
+  rviz_common::properties::FloatProperty* scene_display_time_property_;
+  rviz_common::properties::EnumProperty* octree_render_property_;
+  rviz_common::properties::EnumProperty* octree_coloring_property_;
 };
 
 }  // namespace moveit_rviz_plugin

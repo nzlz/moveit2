@@ -1,4 +1,6 @@
-<package format="2">
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>moveit_ros_visualization</name>
   <version>1.0.1</version>
   <description>Components of MoveIt! that offer visualization</description>
@@ -17,36 +19,30 @@
   <url type="bugtracker">https://github.com/ros-planning/moveit/issues</url>
   <url type="repository">https://github.com/ros-planning/moveit</url>
 
-  <buildtool_depend>catkin</buildtool_depend>
-  <buildtool_depend>pkg-config</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
   <build_depend>class_loader</build_depend>
   <build_depend>eigen</build_depend>
   <build_depend>libogre-dev</build_depend>
   <build_depend>libqt5-opengl-dev</build_depend>
   <build_depend>qtbase5-dev</build_depend>
+  <build_depend>moveit_core</build_depend>
 
-  <depend>geometric_shapes</depend>
-  <depend>interactive_markers</depend>
-  <depend>moveit_ros_robot_interaction</depend>
-  <depend>moveit_ros_perception</depend>
-  <depend>moveit_ros_planning_interface</depend>
-  <depend>moveit_ros_warehouse</depend>
-  <depend>object_recognition_msgs</depend>
-  <depend version_gte="1.11.2">pluginlib</depend>
-  <depend>rosconsole</depend>
-  <depend>roscpp</depend>
-  <depend>rospy</depend>
-  <depend>rviz</depend>
-  <depend>tf2_eigen</depend>
-
-  <test_depend>rostest</test_depend>
+  <exec_depend>moveit_core</exec_depend>
+  <exec_depend>geometric_shapes</exec_depend>
+  <!--<exec_depend>interactive_markers</exec_depend>-->
+  <!--<exec_depend>moveit_ros_robot_interaction</exec_depend>-->
+  <exec_depend>moveit_ros_perception</exec_depend>
+  <exec_depend>moveit_ros_planning_interface</exec_depend>
+  <!--<exec_depend>moveit_ros_warehouse</exec_depend>-->
+  <exec_depend>object_recognition_msgs</exec_depend>
+  <exec_depend>pluginlib</exec_depend>
+  <exec_depend>rclcpp</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>tf2_eigen</exec_depend>
 
   <export>
-    <rviz plugin="${prefix}/robot_state_rviz_plugin_description.xml"/>
-    <rviz plugin="${prefix}/planning_scene_rviz_plugin_description.xml"/>
-    <rviz plugin="${prefix}/motion_planning_rviz_plugin_description.xml"/>
-    <rviz plugin="${prefix}/trajectory_rviz_plugin_description.xml"/>
+    <build_type>ament_cmake</build_type>
   </export>
 
 </package>

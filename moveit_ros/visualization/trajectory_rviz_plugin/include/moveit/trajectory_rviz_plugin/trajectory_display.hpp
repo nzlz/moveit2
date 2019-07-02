@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2012, Willow Garage, Inc.
+ *  Copyright (c) 2015, University of Colorado, Boulder
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of Willow Garage nor the names of its
+ *   * Neither the name of the Univ of CO, Boulder nor the names of its
  *     contributors may be used to endorse or promote products derived
  *     from this software without specific prior written permission.
  *
@@ -32,52 +32,71 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-/* Author: Ioan Sucan */
+/* Author: Dave Coleman
+   Desc:   Wraps a trajectory_visualization playback class for Rviz into a stand alone display
+*/
 
-#ifndef MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_RENDER_SHAPES_
-#define MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_RENDER_SHAPES_
+#ifndef MOVEIT_TRAJECTORY_RVIZ_PLUGIN__TRAJECTORY_DISPLAY
+#define MOVEIT_TRAJECTORY_RVIZ_PLUGIN__TRAJECTORY_DISPLAY
 
-#include <moveit/rviz_plugin_render_tools/octomap_render.h>
-#include <moveit/macros/class_forward.h>
-#include <geometric_shapes/shapes.h>
-#include <rviz/helpers/color.h>
-#include <Eigen/Geometry>
-#include <string>
-#include <memory>
+#include <rviz_common/display.hpp>
 
-namespace Ogre
+#include <moveit/rviz_plugin_render_tools/trajectory_visualization.hpp>
+#ifndef Q_MOC_RUN
+#include <moveit/rdf_loader/rdf_loader.h>
+#endif
+
+namespace rviz_common
 {
-class SceneNode;
-}
-
-namespace rviz
-{
-class DisplayContext;
-class Shape;
+class StringProperty;
 }
 
 namespace moveit_rviz_plugin
 {
-MOVEIT_CLASS_FORWARD(OcTreeRender)
-MOVEIT_CLASS_FORWARD(RenderShapes)
-
-class RenderShapes
+class TrajectoryDisplay : public rviz_common::Display
 {
+  Q_OBJECT
+  // friend class TrajectoryVisualization; // allow the visualization class to access the display
+
 public:
-  RenderShapes(rviz::DisplayContext* context);
-  ~RenderShapes();
+  TrajectoryDisplay();
 
-  void renderShape(Ogre::SceneNode* node, const shapes::Shape* s, const Eigen::Isometry3d& p,
-                   OctreeVoxelRenderMode octree_voxel_rendering, OctreeVoxelColorMode octree_color_mode,
-                   const rviz::Color& color, float alpha);
-  void clear();
+  ~TrajectoryDisplay() override;
 
-private:
-  rviz::DisplayContext* context_;
+  void loadRobotModel();
 
-  std::vector<std::unique_ptr<rviz::Shape> > scene_shapes_;
-  std::vector<OcTreeRenderPtr> octree_voxel_grids_;
+  void update(float wall_dt, float ros_dt) override;
+  void reset() override;
+
+  // overrides from Display
+  void onInitialize() override;
+  void onEnable() override;
+  void onDisable() override;
+  //void setName(const QString& name) override;
+
+  rclcpp::Node::SharedPtr node_;
+  const std::string NODE_NAME = "trajectory_display";  // name of node
+
+private Q_SLOTS:
+  /**
+   * \brief Slot Event Functions
+   */
+  void changedRobotDescription();
+
+protected:
+  // The trajectory playback component
+  TrajectoryVisualizationPtr trajectory_visual_;
+
+  // Load robot model
+  rdf_loader::RDFLoaderPtr rdf_loader_;
+  robot_model::RobotModelConstPtr robot_model_;
+  robot_state::RobotStatePtr robot_state_;
+  bool load_robot_model_;  // for delayed robot initialization
+
+  // Properties
+  rviz_common::properties::StringProperty* robot_description_property_;
 };
-}
+
+}  // namespace moveit_rviz_plugin
 
 #endif

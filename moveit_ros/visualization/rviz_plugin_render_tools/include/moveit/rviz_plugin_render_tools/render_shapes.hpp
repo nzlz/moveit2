@@ -1,7 +1,7 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2008, Willow Garage, Inc.
+ *  Copyright (c) 2012, Willow Garage, Inc.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,53 @@
 
 /* Author: Ioan Sucan */
 
-#include <class_loader/class_loader.hpp>
-#include <moveit/planning_scene_rviz_plugin/planning_scene_display.h>
+#ifndef MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_RENDER_SHAPES_
+#define MOVEIT_VISUALIZATION_SCENE_DISPLAY_RVIZ_RENDER_SHAPES_
 
-CLASS_LOADER_REGISTER_CLASS(moveit_rviz_plugin::PlanningSceneDisplay, rviz::Display)
+#include "moveit/rviz_plugin_render_tools/octomap_render.hpp"
+#include <moveit/macros/class_forward.h>
+#include <geometric_shapes/shapes.h>
+#include <OgreColourValue.h>
+#include <Eigen/Geometry>
+#include <string>
+#include <memory>
+
+#include "rviz_rendering/objects/shape.hpp"
+#include "rviz_common/display_context.hpp"
+
+namespace Ogre
+{
+class SceneNode;
+}
+
+namespace rviz_common
+{
+class DisplayContext;
+class Shape;
+}
+
+namespace moveit_rviz_plugin
+{
+MOVEIT_CLASS_FORWARD(OcTreeRender)
+MOVEIT_CLASS_FORWARD(RenderShapes)
+
+class RenderShapes
+{
+public:
+  RenderShapes(rviz_common::DisplayContext* context);
+  ~RenderShapes();
+
+  void renderShape(Ogre::SceneNode* node, const shapes::Shape* s, const Eigen::Isometry3d& p,
+                   OctreeVoxelRenderMode octree_voxel_rendering, OctreeVoxelColorMode octree_color_mode,
+                   const Ogre::ColourValue& color);
+  void clear();
+
+private:
+  rviz_common::DisplayContext* context_;
+
+  std::vector<std::unique_ptr<rviz_rendering::Shape> > scene_shapes_;
+  std::vector<OcTreeRenderPtr> octree_voxel_grids_;
+};
+}
+
+#endif

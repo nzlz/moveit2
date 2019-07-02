@@ -1,16 +1,17 @@
 set(MOVEIT_LIB_NAME moveit_rviz_plugin_render_tools)
 
 set(HEADERS
-  include/moveit/rviz_plugin_render_tools/octomap_render.h
-  include/moveit/rviz_plugin_render_tools/planning_link_updater.h
-  include/moveit/rviz_plugin_render_tools/planning_scene_render.h
-  include/moveit/rviz_plugin_render_tools/render_shapes.h
-  include/moveit/rviz_plugin_render_tools/robot_state_visualization.h
-  include/moveit/rviz_plugin_render_tools/trajectory_visualization.h
-  include/moveit/rviz_plugin_render_tools/trajectory_panel.h
+  include/moveit/rviz_plugin_render_tools/octomap_render.hpp
+  include/moveit/rviz_plugin_render_tools/planning_link_updater.hpp
+  include/moveit/rviz_plugin_render_tools/planning_scene_render.hpp
+  include/moveit/rviz_plugin_render_tools/render_shapes.hpp
+  include/moveit/rviz_plugin_render_tools/robot_state_visualization.hpp
+  include/moveit/rviz_plugin_render_tools/trajectory_visualization.hpp
+  include/moveit/rviz_plugin_render_tools/trajectory_panel.hpp
 )
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(include
+)
 
 add_library(${MOVEIT_LIB_NAME} SHARED
   src/render_shapes.cpp
@@ -24,15 +25,26 @@ add_library(${MOVEIT_LIB_NAME} SHARED
 )
 set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 
-target_link_libraries(${MOVEIT_LIB_NAME}
-  ${catkin_LIBRARIES}
-  ${OGRE_LIBRARIES}
-  ${QT_LIBRARIES}
-  ${Boost_LIBRARIES}
+target_include_directories(${MOVEIT_LIB_NAME} PUBLIC
+  ${rclcpp_INCLUDE_DIRS}
+  ${moveit_core_INCLUDE_DIRS}
 )
 
-install(DIRECTORY include/ DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
+ament_target_dependencies(${MOVEIT_LIB_NAME}
+  rviz_default_plugins
+  Boost
+  rclcpp
+  rviz_ogre_vendor
+  moveit_core
+)
+
+target_link_libraries(${MOVEIT_LIB_NAME}
+  ${QT_LIBRARIES}
+  Qt5::Widgets
+)
+
+install(DIRECTORY include/ DESTINATION include)
 
 install(TARGETS ${MOVEIT_LIB_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib)

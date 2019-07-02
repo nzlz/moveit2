@@ -32,9 +32,31 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-/* Author: Dave Coleman */
+/* Author: Ioan Sucan */
 
-#include <class_loader/class_loader.hpp>
-#include <moveit/trajectory_rviz_plugin/trajectory_display.h>
+#ifndef MOVEIT_PLANNING_SCENE_RVIZ_PLUGIN_PLANNING_LINK_UPDATER_
+#define MOVEIT_PLANNING_SCENE_RVIZ_PLUGIN_PLANNING_LINK_UPDATER_
 
-CLASS_LOADER_REGISTER_CLASS(moveit_rviz_plugin::TrajectoryDisplay, rviz::Display)
+#include <rviz_default_plugins/robot/link_updater.hpp>
+#include <moveit/robot_state/robot_state.h>
+
+namespace moveit_rviz_plugin
+{
+/** \brief Update the links of an rviz_default_plugins::robot::Robot using a robot_state::RobotState */
+class PlanningLinkUpdater : public rviz_default_plugins::robot::LinkUpdater
+{
+public:
+  PlanningLinkUpdater(const robot_state::RobotStateConstPtr& state) : kinematic_state_(state)
+  {
+  }
+
+  bool getLinkTransforms(const std::string& link_name, Ogre::Vector3& visual_position,
+                         Ogre::Quaternion& visual_orientation, Ogre::Vector3& collision_position,
+                         Ogre::Quaternion& collision_orientation) const override;
+
+private:
+  robot_state::RobotStateConstPtr kinematic_state_;
+};
+}
+
+#endif

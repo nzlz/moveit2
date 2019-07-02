@@ -39,20 +39,35 @@
 
 #include <boost/thread/mutex.hpp>
 #include <moveit/macros/class_forward.h>
-#include <rviz/display.h>
-#include <rviz/panel_dock_widget.h>
+
+#include <rviz_common/display.hpp>
+#include <rviz_common/panel_dock_widget.hpp>
+
+#include <rviz_default_plugins/robot/robot.hpp>
+#include <rviz_common/properties/property.hpp>
+#include <rviz_common/properties/int_property.hpp>
+#include <rviz_common/properties/string_property.hpp>
+#include <rviz_common/properties/bool_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/ros_topic_property.hpp>
+#include <rviz_common/properties/editable_enum_property.hpp>
+#include <rviz_common/properties/color_property.hpp>
+
+#include <rviz_default_plugins/robot/robot_link.hpp>
+#include <rviz_common/display_context.hpp>
+#include <rviz_common/window_manager_interface.hpp>
 
 #ifndef Q_MOC_RUN
-#include <moveit/rviz_plugin_render_tools/robot_state_visualization.h>
-#include <moveit/rviz_plugin_render_tools/trajectory_panel.h>
-#include <ros/ros.h>
+#include "moveit/rviz_plugin_render_tools/robot_state_visualization.hpp"
+#include "moveit/rviz_plugin_render_tools/trajectory_panel.hpp"
+#include <rclcpp/rclcpp.hpp>
 #include <moveit/robot_model/robot_model.h>
 #include <moveit/robot_state/robot_state.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
-#include <moveit_msgs/DisplayTrajectory.h>
+#include <moveit_msgs/msg/display_trajectory.hpp>
 #endif
 
-namespace rviz
+namespace rviz_common
 {
 class Robot;
 class Shape;
@@ -78,18 +93,18 @@ class TrajectoryVisualization : public QObject
 public:
   /**
    * \brief Playback a trajectory from a planned path
-   * \param widget - either a rviz::Display or rviz::Property
-   * \param display - the rviz::Display from the parent
+   * \param widget - either a rviz_common::Display or rviz_common::properties::Property
+   * \param display - the rviz_common::Display from the parent
    * \return true on success
    */
-  TrajectoryVisualization(rviz::Property* widget, rviz::Display* display);
+  TrajectoryVisualization(rviz_common::properties::Property* widget, rviz_common::Display* display);
 
   ~TrajectoryVisualization() override;
 
   virtual void update(float wall_dt, float ros_dt);
   virtual void reset();
 
-  void onInitialize(Ogre::SceneNode* scene_node, rviz::DisplayContext* context, const ros::NodeHandle& update_nh);
+  void onInitialize(Ogre::SceneNode* scene_node, rviz_common::DisplayContext* context, const rclcpp::Node::SharedPtr ros_node);
   void onRobotModelLoaded(const robot_model::RobotModelConstPtr& robot_model);
   void onEnable();
   void onDisable();
@@ -122,7 +137,7 @@ protected:
   /**
    * \brief ROS callback for an incoming path message
    */
-  void incomingDisplayTrajectory(const moveit_msgs::msg::DisplayTrajectory::ConstPtr& msg);
+  void incomingDisplayTrajectory(const moveit_msgs::msg::DisplayTrajectory::ConstSharedPtr msg);
   float getStateDisplayTime();
   void clearTrajectoryTrail();
 
@@ -130,13 +145,14 @@ protected:
   RobotStateVisualizationPtr display_path_robot_;
 
   // Handle colouring of robot
-  void setRobotColor(rviz::Robot* robot, const QColor& color);
-  void unsetRobotColor(rviz::Robot* robot);
+  void setRobotColor(rviz_default_plugins::robot::Robot* robot, const QColor& color);
+  void unsetRobotColor(rviz_default_plugins::robot::Robot* robot);
 
   robot_trajectory::RobotTrajectoryPtr displaying_trajectory_message_;
   robot_trajectory::RobotTrajectoryPtr trajectory_message_to_display_;
-  std::vector<rviz::Robot*> trajectory_trail_;
-  ros::Subscriber trajectory_topic_sub_;
+  std::vector<rviz_default_plugins::robot::Robot*> trajectory_trail_;
+  rclcpp::Subscription<moveit_msgs::msg::DisplayTrajectory>::SharedPtr trajectory_topic_sub_;
+
   bool animating_path_;
   bool drop_displaying_trajectory_;
   int current_state_;
@@ -147,26 +163,26 @@ protected:
   robot_state::RobotStatePtr robot_state_;
 
   // Pointers from parent display taht we save
-  rviz::Display* display_;  // the parent display that this class populates
-  rviz::Property* widget_;
+  rviz_common::Display* display_;  // the parent display that this class populates
+  rviz_common::properties::Property* widget_;
   Ogre::SceneNode* scene_node_;
-  rviz::DisplayContext* context_;
-  ros::NodeHandle update_nh_;
+  rviz_common::DisplayContext* context_;
+  rclcpp::Node::SharedPtr ros_node_;
   TrajectoryPanel* trajectory_slider_panel_;
-  rviz::PanelDockWidget* trajectory_slider_dock_panel_;
+  rviz_common::PanelDockWidget* trajectory_slider_dock_panel_;
 
   // Properties
-  rviz::BoolProperty* display_path_visual_enabled_property_;
-  rviz::BoolProperty* display_path_collision_enabled_property_;
-  rviz::EditableEnumProperty* state_display_time_property_;
-  rviz::RosTopicProperty* trajectory_topic_property_;
-  rviz::FloatProperty* robot_path_alpha_property_;
-  rviz::BoolProperty* loop_display_property_;
-  rviz::BoolProperty* trail_display_property_;
-  rviz::BoolProperty* interrupt_display_property_;
-  rviz::ColorProperty* robot_color_property_;
-  rviz::BoolProperty* enable_robot_color_property_;
-  rviz::IntProperty* trail_step_size_property_;
+  rviz_common::properties::BoolProperty* display_path_visual_enabled_property_;
+  rviz_common::properties::BoolProperty* display_path_collision_enabled_property_;
+  rviz_common::properties::EditableEnumProperty* state_display_time_property_;
+  rviz_common::properties::RosTopicProperty* trajectory_topic_property_;
+  rviz_common::properties::FloatProperty* robot_path_alpha_property_;
+  rviz_common::properties::BoolProperty* loop_display_property_;
+  rviz_common::properties::BoolProperty* trail_display_property_;
+  rviz_common::properties::BoolProperty* interrupt_display_property_;
+  rviz_common::properties::ColorProperty* robot_color_property_;
+  rviz_common::properties::BoolProperty* enable_robot_color_property_;
+  rviz_common::properties::IntProperty* trail_step_size_property_;
 };
 
 }  // namespace moveit_rviz_plugin
